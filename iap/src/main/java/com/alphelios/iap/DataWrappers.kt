@@ -43,6 +43,6 @@ class DataWrappers {
 
     data class BillingResponse(
         val message: String,
-        val responseCode: Int = 0
+        val responseCode: Int = 99
     )
 }

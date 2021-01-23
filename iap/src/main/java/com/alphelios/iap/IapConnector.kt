@@ -274,7 +274,7 @@ class IapConnector(private val activity: AppCompatActivity, private val base64Ke
      * Consumable products might be brought/consumed by users multiple times (for eg. diamonds, coins).
      * Hence, it is necessary to notify Play console about such products.
      */
-    fun acknowledgePurchase(purchase: DataWrappers.PurchaseInfo) {
+    private fun acknowledgePurchase(purchase: DataWrappers.PurchaseInfo) {
         purchase.run {
             if (consumableIds.contains(sku))
                 iapClient.consumeAsync(

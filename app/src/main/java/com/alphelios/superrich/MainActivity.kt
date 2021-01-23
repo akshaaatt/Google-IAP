@@ -131,6 +131,15 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
         binding.bottomnavview.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
         binding.bottomnavview.itemIconTintList = null
+
+        binding.toolbar.setOnMenuItemClickListener {
+            when(it.itemId){
+                R.id.github -> {
+
+                }
+            }
+            false
+        }
     }
 
     private fun signInToGoogle() {
@@ -209,5 +218,4 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         }
         false
     }
-
 }
