@@ -1,0 +1,98 @@
+[![Webp-net-resizeimage-26.jpg](https://i.postimg.cc/prsfWNCD/Webp-net-resizeimage-26.jpg)](https://postimg.cc/LgZYDbrX)
+[![1611325150860.jpg](https://i.postimg.cc/wxNY1qYf/1611325150860.jpg)](https://postimg.cc/WtsHKP3g)
+
+IAP is an Android library to handle In-App purchases with minimal code.
+
+## Features
+
+* Written in Kotlin
+* No boilerplate code
+* Easy initialisation
+* Supports InApp & Subscription products
+* Simple configuration for consumable products
+
+## Gradle Dependency
+
+* Add the JitPack repository to your project's build.gradle file
+
+```
+allprojects {
+    repositories {
+        ...
+        maven { url 'https://jitpack.io' }
+    }
+}
+```
+
+* Add the dependency in your app's build.gradle file
+
+```
+dependencies {
+    implementation 'com.github.akshaaatt:iap:1.0.0'
+}
+```
+
+## Usage
+
+#### Establishing connection with Play console
+
+```kotlin
+iapConnector = IapConnector(this, "...")
+            .setInAppProductIds(listOf("id1", "id2"))   /*pass the list of INAPP IDs*/
+            .setSubscriptionIds(listOf("id1", "id2"))   /*pass the list of SUBS IDs*/
+            .setConsumableProductIds(listOf("id1", "id2"))  /*pass the list of consumable product IDs*/
+            .autoAcknowledge()  /*to enable auto acknowledgement*/
+            .connect()
+```
+
+#### Receiving events
+
+```kotlin
+iapConnector.setOnInAppEventsListener(object : InAppEventsListener {
+
+            override fun onSubscriptionsFetched(skuDetailsList: List<DataWrappers.SkuInfo>) {
+                /*provides list of product details of subs type*/
+            }
+
+            override fun onInAppProductsFetched(skuDetailsList: List<DataWrappers.SkuInfo>) {
+                /*provides list of product details of inapp type*/
+            }
+
+            override fun onPurchaseAcknowledged(purchase: DataWrappers.PurchaseInfo) {
+                /*callback after purchase being acknowledged*/
+            }
+
+            override fun onProductsPurchased(purchases: List<DataWrappers.PurchaseInfo>) {
+                /*provides recent purchases*/
+            }
+
+            override fun onError(inAppConnector: EasyIapConnector, result: DataWrappers.BillingResponse?) {
+                /*provides error message if anything goes wrong*/
+            }
+        })
+```
+
+#### Making a purchase
+
+```kotlin
+iapConnector.makePurchase("<sku>")
+```
+
+## Sample App
+
+* Replace the key with your App's License Key
+
+```kotlin
+iapConnector = IapConnector(
+                this, "key" // License Key
+        )
+```
+* Replace the games_ids.xml with your App's resources from the Play Console
+
+```kotlin
+achievementsClient?.unlock(getString(R.string.achievement_ultimate))
+```
+
+## Contribution
+
+You are most welcome to contribute to this project!

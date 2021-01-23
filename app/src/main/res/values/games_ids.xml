@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--app_id-->
+    <string name="app_id" translatable="false">1016011023550</string>
+    <!--package_name-->
+    <string name="package_name" translatable="false">com.alphelios.superrich</string>
+    <!--achievement Basic-->
+    <string name="achievement_basic" translatable="false">CgkIvsnn98gdEAIQAg</string>
+    <!--achievement Moderate-->
+    <string name="achievement_moderate" translatable="false">CgkIvsnn98gdEAIQAw</string>
+    <!--achievement Quite-->
+    <string name="achievement_quite" translatable="false">CgkIvsnn98gdEAIQBA</string>
+    <!--achievement Ultimate-->
+    <string name="achievement_ultimate" translatable="false">CgkIvsnn98gdEAIQBQ</string>
+    <!--achievement Monthly Subscriber-->
+    <string name="achievement_monthly_subscriber" translatable="false">CgkIvsnn98gdEAIQBg</string>
+    <!--achievement Yearly Subscriber-->
+    <string name="achievement_yearly_subscriber" translatable="false">CgkIvsnn98gdEAIQBw</string>
+    <!--leaderboard Contributions-->
+    <string name="leaderboard_contributions" translatable="false">CgkIvsnn98gdEAIQAQ</string>
+</resources>

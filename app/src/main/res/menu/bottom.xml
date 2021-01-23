@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/home"
+        android:icon="@drawable/ic_lightning"
+        app:showAsAction="always"
+        android:title="@string/home" />
+
+    <item
+        android:id="@+id/achievements"
+        android:icon="@drawable/ic_achievement"
+        app:showAsAction="always"
+        android:title="@string/achievements" />
+
+    <item
+        android:id="@+id/leaderboard"
+        android:icon="@drawable/ic_trophy"
+        app:showAsAction="always"
+        android:title="@string/leaderboard" />
+</menu>
