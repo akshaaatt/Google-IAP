@@ -50,8 +50,9 @@ class IapConnector(private val activity: AppCompatActivity, private val base64Ke
     /**
      * Iap will auto acknowledge the purchase
      */
-    fun autoAcknowledge() {
+    fun autoAcknowledge(): IapConnector {
         shouldAutoAcknowledge = true
+        return this
     }
 
     /**

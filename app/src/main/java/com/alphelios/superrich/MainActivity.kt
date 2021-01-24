@@ -38,10 +38,11 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         iapConnector = IapConnector(
                 this, "key" // License Key
         )
-            .setInAppProductIds(listOf("base", "moderate", "plenty", "quite"))
-            .setConsumableProductIds(listOf("base", "moderate", "plenty", "quite"))
-            .setSubscriptionIds(listOf("subscribe", "yearly"))
-            .connect()
+                .setInAppProductIds(listOf("base", "moderate", "plenty", "quite"))
+                .setConsumableProductIds(listOf("base", "moderate", "plenty", "quite"))
+                .setSubscriptionIds(listOf("subscribe", "yearly"))
+                .autoAcknowledge()
+                .connect()
 
         iapConnector.setOnInAppEventsListener(object : InAppEventsListener {
 
@@ -144,9 +145,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private fun signInToGoogle() {
         val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_GAMES_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id))
-            .requestEmail()
-            .build()
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build()
         val signInClient = GoogleSignIn.getClient(this, signInOptions)
         signInClient.silentSignIn().addOnCompleteListener(this) { task ->
             if (!task.isSuccessful) {
