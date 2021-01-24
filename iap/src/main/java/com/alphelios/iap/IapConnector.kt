@@ -48,7 +48,7 @@ class IapConnector(private val activity: AppCompatActivity, private val base64Ke
     }
 
     /**
-     * EasyIap will auto acknowledge the purchase
+     * Iap will auto acknowledge the purchase
      */
     fun autoAcknowledge() {
         shouldAutoAcknowledge = true
@@ -85,7 +85,7 @@ class IapConnector(private val activity: AppCompatActivity, private val base64Ke
     }
 
     /**
-     * To initialise EasyIapConnector.
+     * To initialise IapConnector.
      */
     private fun init(context: Context) {
         iapClient = BillingClient.newBuilder(context)
