@@ -170,7 +170,7 @@ class IapConnector(private val activity: AppCompatActivity, private val base64Ke
                     } else {
                         Log.d(tag, "Query SKU : Data found")
 
-                        fetchedSkuDetailsList.addAll(skuDetailsList!!)
+                        fetchedSkuDetailsList.addAll(skuDetailsList)
 
                         val fetchedSkuInfo = skuDetailsList.map {
                             getSkuInfo(it)
@@ -227,11 +227,16 @@ class IapConnector(private val activity: AppCompatActivity, private val base64Ke
      * Returns all the **non-consumable** purchases of the user.
      */
     fun getAllPurchases() {
-        val allPurchases = mutableListOf<Purchase>()
-        allPurchases.addAll(iapClient.queryPurchases(INAPP).purchasesList!!)
-        if (isSubSupportedOnDevice())
-            allPurchases.addAll(iapClient.queryPurchases(SUBS).purchasesList!!)
-        processPurchases(allPurchases)
+        if(iapClient.isReady) {
+            val allPurchases = mutableListOf<Purchase>()
+            allPurchases.addAll(iapClient.queryPurchases(INAPP).purchasesList!!)
+            if (isSubSupportedOnDevice())
+                allPurchases.addAll(iapClient.queryPurchases(SUBS).purchasesList!!)
+            processPurchases(allPurchases)
+        }
+        else{
+            inAppEventsListener?.onError(this, DataWrappers.BillingResponse("Client not initialized yet."))
+        }
     }
 
     /**
