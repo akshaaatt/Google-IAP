@@ -28,7 +28,7 @@ allprojects {
 
 ```
 dependencies {
-    implementation 'com.github.akshaaatt:Google-IAP:1.0.3'
+    implementation 'com.github.akshaaatt:Google-IAP:1.0.4'
 }
 ```
 
