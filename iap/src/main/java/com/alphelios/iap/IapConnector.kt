@@ -1,8 +1,8 @@
 package com.alphelios.iap
 
+import android.app.Activity
 import android.content.Context
 import android.util.Log
-import androidx.appcompat.app.AppCompatActivity
 import com.android.billingclient.api.*
 import com.android.billingclient.api.BillingClient.BillingResponseCode.*
 import com.android.billingclient.api.BillingClient.FeatureType.SUBSCRIPTIONS
@@ -14,7 +14,7 @@ import com.android.billingclient.api.BillingClient.SkuType.SUBS
  * Handles vital processes while dealing with IAP.
  * Works around a listener [InAppEventsListener] for delivering events back to the caller.
  */
-class IapConnector(private val activity: AppCompatActivity, private val base64Key: String) {
+class IapConnector(context: Context, private val base64Key: String) {
     private var shouldAutoAcknowledge: Boolean = false
     private var fetchedSkuDetailsList = mutableListOf<SkuDetails>()
     private val tag = "InAppLog"
@@ -27,7 +27,7 @@ class IapConnector(private val activity: AppCompatActivity, private val base64Ke
     private lateinit var iapClient: BillingClient
 
     init {
-        init(activity)
+        init(context)
     }
 
     /**
@@ -68,13 +68,14 @@ class IapConnector(private val activity: AppCompatActivity, private val base64Ke
      * Its result is received in [PurchasesUpdatedListener] which further is handled
      * by [handleConsumableProducts] / [handleNonConsumableProducts].
      */
-    fun makePurchase(sku: String) {
+    fun makePurchase(activity: Activity, sku: String) {
         if (fetchedSkuDetailsList.isEmpty())
             inAppEventsListener?.onError(this, DataWrappers.BillingResponse("Products not fetched"))
         else
             iapClient.launchBillingFlow(
                 activity,
-                BillingFlowParams.newBuilder().setSkuDetails(fetchedSkuDetailsList.find { it.sku == sku }!!).build()
+                BillingFlowParams.newBuilder()
+                    .setSkuDetails(fetchedSkuDetailsList.find { it.sku == sku }!!).build()
             )
     }
 
@@ -227,15 +228,17 @@ class IapConnector(private val activity: AppCompatActivity, private val base64Ke
      * Returns all the **non-consumable** purchases of the user.
      */
     fun getAllPurchases() {
-        if(iapClient.isReady) {
+        if (iapClient.isReady) {
             val allPurchases = mutableListOf<Purchase>()
             allPurchases.addAll(iapClient.queryPurchases(INAPP).purchasesList!!)
             if (isSubSupportedOnDevice())
                 allPurchases.addAll(iapClient.queryPurchases(SUBS).purchasesList!!)
             processPurchases(allPurchases)
-        }
-        else{
-            inAppEventsListener?.onError(this, DataWrappers.BillingResponse("Client not initialized yet."))
+        } else {
+            inAppEventsListener?.onError(
+                this,
+                DataWrappers.BillingResponse("Client not initialized yet.")
+            )
         }
     }
 
