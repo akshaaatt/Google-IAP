@@ -21,13 +21,11 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         setContentView(binding.root)
 
         iapConnector = IapConnector(
-                this, "key" // License Key
+            this, "key" // License Key
         )
-                .setInAppProductIds(listOf("base", "moderate", "plenty", "quite"))
-                .setConsumableProductIds(listOf("base", "moderate", "plenty", "quite"))
-                .setSubscriptionIds(listOf())
-                .autoAcknowledge()
-                .connect()
+            .setInAppProductIds(listOf("base", "moderate", "plenty", "quite"))
+            .autoAcknowledge()
+            .connect()
 
         iapConnector.setOnInAppEventsListener(object : InAppEventsListener {
 
@@ -71,8 +69,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             }
 
             override fun onError(
-                    inAppConnector: IapConnector,
-                    result: DataWrappers.BillingResponse?
+                inAppConnector: IapConnector,
+                result: DataWrappers.BillingResponse?
             ) {
                 Log.d(tag, "Error : ${result?.message}")
             }
@@ -80,34 +78,34 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
         binding.btPurchaseCons.setOnClickListener {
             if (fetchedSkuDetailsList.find { it.sku == "base" } != null) {
-                iapConnector.makePurchase("base")
+                iapConnector.makePurchase(this,"base")
             }
         }
         binding.btnMonthly.setOnClickListener {
             if (fetchedSkuDetailsList.find { it.sku == "subscribe" } != null) {
-                iapConnector.makePurchase("subscribe")
+                iapConnector.makePurchase(this, "subscribe")
             }
         }
 
         binding.btnYearly.setOnClickListener {
             if (fetchedSkuDetailsList.find { it.sku == "yearly" } != null) {
-                iapConnector.makePurchase("yearly")
+                iapConnector.makePurchase(this,"yearly")
             }
         }
         binding.btnQuite.setOnClickListener {
             if (fetchedSkuDetailsList.find { it.sku == "quite" } != null) {
-                iapConnector.makePurchase("quite")
+                iapConnector.makePurchase(this,"quite")
             }
         }
         binding.btnModerate.setOnClickListener {
             if (fetchedSkuDetailsList.find { it.sku == "moderate" } != null) {
-                iapConnector.makePurchase("moderate")
+                iapConnector.makePurchase(this,"moderate")
             }
         }
 
         binding.btnUltimate.setOnClickListener {
             if (fetchedSkuDetailsList.find { it.sku == "plenty" } != null) {
-                iapConnector.makePurchase("plenty")
+                iapConnector.makePurchase(this,"plenty")
             }
         }
     }

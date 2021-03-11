@@ -75,7 +75,7 @@ iapConnector.setOnInAppEventsListener(object : InAppEventsListener {
 #### Making a purchase
 
 ```kotlin
-iapConnector.makePurchase("<sku>")
+iapConnector.makePurchase(this, "<sku>")
 ```
 
 ## Sample App
