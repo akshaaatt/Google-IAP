@@ -28,6 +28,7 @@ class IapConnector(context: Context, private val base64Key: String) {
     private lateinit var iapClient: BillingClient
 
     private var connected = false
+    private var checkedForPurchasesAtStart = false
 
     init {
         init(context)
@@ -174,6 +175,10 @@ class IapConnector(context: Context, private val base64Key: String) {
                             subIds?.let {
                                 querySku(SUBS, it)
                             }
+                            if (!checkedForPurchasesAtStart) {
+                                getAllPurchases()
+                                checkedForPurchasesAtStart = true
+                            }
                         }
                         BILLING_UNAVAILABLE -> Log.d(tag, "Billing service : Unavailable")
                         else -> Log.d(tag, "Billing service : Setup error")
@@ -269,9 +274,9 @@ class IapConnector(context: Context, private val base64Key: String) {
     }
 
     /**
-     * Returns all the **non-consumable** purchases of the user.
+     * Returns all the **non-consumable** purchases of the user and trigger the listener.
      */
-    fun getAllPurchases() {
+    private fun getAllPurchases() {
         if (iapClient.isReady) {
             val allPurchases = mutableListOf<Purchase>()
             allPurchases.addAll(iapClient.queryPurchases(INAPP).purchasesList!!)
