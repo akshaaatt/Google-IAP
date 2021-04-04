@@ -148,8 +148,8 @@ class IapConnector(context: Context, private val base64Key: String) {
 
         // Before we start, check input params
         inAppIds?.let { if (it.isEmpty()) throw IllegalArgumentException("The passed parameter: inAppIds is an empty list, please do not pass a parameter if it is empty") }
-        subIds?.let { if (it.isEmpty())  throw IllegalArgumentException("The passed parameter: subIds is an empty list, please do not pass a parameter if it is empty") }
-        consumableIds?.let { if (it.isEmpty())  throw IllegalArgumentException("The passed parameter: consumableIds is an empty list, please do not pass a parameter if it is empty") }
+        subIds?.let { if (it.isEmpty()) throw IllegalArgumentException("The passed parameter: subIds is an empty list, please do not pass a parameter if it is empty") }
+        consumableIds?.let { if (it.isEmpty()) throw IllegalArgumentException("The passed parameter: consumableIds is an empty list, please do not pass a parameter if it is empty") }
 
         Log.d(tag, "Billing service : Connecting...")
         if (!iapClient.isReady) {
@@ -215,11 +215,14 @@ class IapConnector(context: Context, private val base64Key: String) {
 
                         if (skuType == SUBS)
                             inAppEventsListener?.onSubscriptionsFetched(fetchedSkuInfo)
-                        else
+                        else if (skuType == INAPP) {
                             inAppEventsListener?.onInAppProductsFetched(fetchedSkuInfo.map {
-                                it.isConsumable = consumableIds.contains(it.sku)
+                                it.isConsumable = isSkuIdConsumable(it.sku)
                                 it
                             })
+                        } else {
+                            throw IllegalStateException("Not implemented SkuType")
+                        }
                     }
                 }
                 else -> {
@@ -236,6 +239,11 @@ class IapConnector(context: Context, private val base64Key: String) {
                 }
             }
         }
+    }
+
+    private fun isSkuIdConsumable(skuId: String): Boolean {
+        if (consumableIds.isNullOrEmpty()) return false
+        return consumableIds!!.contains(skuId)
     }
 
     private fun getSkuInfo(skuDetails: SkuDetails): DataWrappers.SkuInfo {
@@ -321,7 +329,7 @@ class IapConnector(context: Context, private val base64Key: String) {
      */
     private fun acknowledgePurchase(purchase: DataWrappers.PurchaseInfo) {
         purchase.run {
-            if (consumableIds.contains(sku))
+            if (isSkuIdConsumable(this.sku)) {
                 iapClient.consumeAsync(
                     ConsumeParams.newBuilder()
                         .setPurchaseToken(purchaseToken).build()
@@ -344,7 +352,8 @@ class IapConnector(context: Context, private val base64Key: String) {
                             )
                         }
                     }
-                } else
+                }
+            } else
                 iapClient.acknowledgePurchase(
                     AcknowledgePurchaseParams.newBuilder().setPurchaseToken(
                         purchaseToken
