@@ -38,9 +38,9 @@ dependencies {
 
 ```kotlin
 iapConnector = IapConnector(this, "...")
-            .setInAppProductIds(listOf("id1", "id2", "id3"))   /*pass the list of INAPP IDs*/
-            .setSubscriptionIds(listOf("subId1", "subId2"))   /*pass the list of SUBS IDs*/
-            .setConsumableProductIds(listOf("id1", "id2"))  /*pass the list of consumable product IDs*/
+            .setInAppProductIds(listOf("id1", "id2", "id3"))   /*pass the list of InAppProduct IDs (Consumables & Non-Consumables)*/
+            .setSubscriptionIds(listOf("subId1", "subId2"))   /*pass the list of Subscription IDs*/
+            .setConsumableProductIds(listOf("id1", "id2"))  /*pass the list of consumable product IDs (Subset of first InAppProductIds list)*/
             .autoAcknowledge()  /*to enable auto acknowledgement*/
             .connect()
 ```
@@ -63,7 +63,7 @@ iapConnector.setOnInAppEventsListener(object : InAppEventsListener {
             }
 
             override fun onProductsPurchased(purchases: List<DataWrappers.PurchaseInfo>) {
-                /*provides recent purchases*/
+                /*provides recent purchases and will be triggered on first connection establishment on app launch to get already purchased products*/
             }
 
             override fun onError(inAppConnector: IapConnector, result: DataWrappers.BillingResponse?) {
