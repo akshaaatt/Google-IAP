@@ -161,6 +161,8 @@ class IapConnector(context: Context, private val base64Key: String) {
                         this@IapConnector,
                         DataWrappers.BillingResponse("Billing service : Disconnected")
                     )
+                    Log.d(tag, "Billing service : Trying to establish to reconnect...")
+                    iapClient.startConnection(this)
                 }
 
                 override fun onBillingSetupFinished(billingResult: BillingResult) {
