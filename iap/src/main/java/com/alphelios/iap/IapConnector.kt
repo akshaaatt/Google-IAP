@@ -8,6 +8,7 @@ import com.android.billingclient.api.BillingClient.BillingResponseCode.*
 import com.android.billingclient.api.BillingClient.FeatureType.SUBSCRIPTIONS
 import com.android.billingclient.api.BillingClient.SkuType.INAPP
 import com.android.billingclient.api.BillingClient.SkuType.SUBS
+import java.lang.IllegalArgumentException
 
 /**
  * Wrapper class for Google In-App purchases.
@@ -22,7 +23,7 @@ class IapConnector(context: Context, private val base64Key: String) {
 
     private var inAppIds: List<String>? = null
     private var subIds: List<String>? = null
-    private var consumableIds: List<String> = listOf()
+    private var consumableIds: List<String>? = null
 
     private lateinit var iapClient: BillingClient
 
@@ -144,6 +145,12 @@ class IapConnector(context: Context, private val base64Key: String) {
      * Connects billing client with Play console to start working with IAP.
      */
     fun connect(): IapConnector {
+
+        // Before we start, check input params
+        inAppIds?.let { if (it.isEmpty()) throw IllegalArgumentException("The passed parameter: inAppIds is an empty list, please do not pass a parameter if it is empty") }
+        subIds?.let { if (it.isEmpty())  throw IllegalArgumentException("The passed parameter: subIds is an empty list, please do not pass a parameter if it is empty") }
+        consumableIds?.let { if (it.isEmpty())  throw IllegalArgumentException("The passed parameter: consumableIds is an empty list, please do not pass a parameter if it is empty") }
+
         Log.d(tag, "Billing service : Connecting...")
         if (!iapClient.isReady) {
             iapClient.startConnection(object : BillingClientStateListener {
