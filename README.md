@@ -66,7 +66,7 @@ iapConnector.setOnInAppEventsListener(object : InAppEventsListener {
                 /*provides recent purchases*/
             }
 
-            override fun onError(inAppConnector: EasyIapConnector, result: DataWrappers.BillingResponse?) {
+            override fun onError(inAppConnector: IapConnector, result: DataWrappers.BillingResponse?) {
                 /*provides error message if anything goes wrong*/
             }
         })
