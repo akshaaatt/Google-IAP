@@ -26,8 +26,34 @@ class IapConnector(context: Context, private val base64Key: String) {
 
     private lateinit var iapClient: BillingClient
 
+    private var connected = false
+
     init {
         init(context)
+    }
+
+
+    fun isReady(debugLog: Boolean = false): Boolean {
+        if (!connected) {
+            Log.d(tag, "Billing client : is not ready because no connection is established yet")
+        }
+
+        if (!iapClient.isReady) {
+            Log.d(tag, "Billing client : is not ready because iapClient is not ready yet")
+        }
+
+        if (fetchedSkuDetailsList.isEmpty()) {
+            Log.d(
+                tag,
+                "Billing client : is not ready because fetchedSkuDetailsList is empty or not fetched yet"
+            )
+        }
+
+        if (!connected) {
+            Log.d(tag, "Billing client : is not ready because no connection is established yet")
+        }
+
+        return connected && iapClient.isReady && fetchedSkuDetailsList.isNotEmpty()
     }
 
     /**
@@ -122,6 +148,7 @@ class IapConnector(context: Context, private val base64Key: String) {
         if (!iapClient.isReady) {
             iapClient.startConnection(object : BillingClientStateListener {
                 override fun onBillingServiceDisconnected() {
+                    connected = false
                     inAppEventsListener?.onError(
                         this@IapConnector,
                         DataWrappers.BillingResponse("Billing service : Disconnected")
@@ -129,8 +156,10 @@ class IapConnector(context: Context, private val base64Key: String) {
                 }
 
                 override fun onBillingSetupFinished(billingResult: BillingResult) {
+                    connected = false
                     when (billingResult.responseCode) {
                         OK -> {
+                            connected = true
                             Log.d(tag, "Billing service : Connected")
                             inAppIds?.let {
                                 querySku(INAPP, it)
