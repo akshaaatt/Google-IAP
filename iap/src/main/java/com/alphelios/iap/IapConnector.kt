@@ -147,10 +147,13 @@ class IapConnector(context: Context, private val base64Key: String) {
      */
     fun connect(): IapConnector {
 
-        // Before we start, check input params
-        inAppIds?.let { if (it.isEmpty()) throw IllegalArgumentException("The passed parameter: inAppIds is an empty list, please do not pass a parameter if it is empty") }
-        subIds?.let { if (it.isEmpty()) throw IllegalArgumentException("The passed parameter: subIds is an empty list, please do not pass a parameter if it is empty") }
-        consumableIds?.let { if (it.isEmpty()) throw IllegalArgumentException("The passed parameter: consumableIds is an empty list, please do not pass a parameter if it is empty") }
+        // Before we start, check input params we set empty list to null so we only have to deal with lists who are null (not provided) or not empty.
+        if (inAppIds.isNullOrEmpty())
+            inAppIds = null
+        if (subIds.isNullOrEmpty())
+            subIds = null
+        if (consumableIds.isNullOrEmpty())
+            consumableIds = null
 
         Log.d(tag, "Billing service : Connecting...")
         if (!iapClient.isReady) {
