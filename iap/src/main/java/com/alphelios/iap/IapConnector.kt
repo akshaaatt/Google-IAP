@@ -8,6 +8,7 @@ import com.android.billingclient.api.BillingClient.BillingResponseCode.*
 import com.android.billingclient.api.BillingClient.FeatureType.SUBSCRIPTIONS
 import com.android.billingclient.api.BillingClient.SkuType.INAPP
 import com.android.billingclient.api.BillingClient.SkuType.SUBS
+import java.lang.IllegalArgumentException
 
 /**
  * Wrapper class for Google In-App purchases.
@@ -22,12 +23,39 @@ class IapConnector(context: Context, private val base64Key: String) {
 
     private var inAppIds: List<String>? = null
     private var subIds: List<String>? = null
-    private var consumableIds: List<String> = listOf()
+    private var consumableIds: List<String>? = null
 
     private lateinit var iapClient: BillingClient
 
+    private var connected = false
+    private var checkedForPurchasesAtStart = false
+
     init {
         init(context)
+    }
+
+
+    fun isReady(debugLog: Boolean = false): Boolean {
+        if (!connected) {
+            Log.d(tag, "Billing client : is not ready because no connection is established yet")
+        }
+
+        if (!iapClient.isReady) {
+            Log.d(tag, "Billing client : is not ready because iapClient is not ready yet")
+        }
+
+        if (fetchedSkuDetailsList.isEmpty()) {
+            Log.d(
+                tag,
+                "Billing client : is not ready because fetchedSkuDetailsList is empty or not fetched yet"
+            )
+        }
+
+        if (!connected) {
+            Log.d(tag, "Billing client : is not ready because no connection is established yet")
+        }
+
+        return connected && iapClient.isReady && fetchedSkuDetailsList.isNotEmpty()
     }
 
     /**
@@ -118,25 +146,43 @@ class IapConnector(context: Context, private val base64Key: String) {
      * Connects billing client with Play console to start working with IAP.
      */
     fun connect(): IapConnector {
+
+        // Before we start, check input params we set empty list to null so we only have to deal with lists who are null (not provided) or not empty.
+        if (inAppIds.isNullOrEmpty())
+            inAppIds = null
+        if (subIds.isNullOrEmpty())
+            subIds = null
+        if (consumableIds.isNullOrEmpty())
+            consumableIds = null
+
         Log.d(tag, "Billing service : Connecting...")
         if (!iapClient.isReady) {
             iapClient.startConnection(object : BillingClientStateListener {
                 override fun onBillingServiceDisconnected() {
+                    connected = false
                     inAppEventsListener?.onError(
                         this@IapConnector,
                         DataWrappers.BillingResponse("Billing service : Disconnected")
                     )
+                    Log.d(tag, "Billing service : Trying to establish to reconnect...")
+                    iapClient.startConnection(this)
                 }
 
                 override fun onBillingSetupFinished(billingResult: BillingResult) {
+                    connected = false
                     when (billingResult.responseCode) {
                         OK -> {
+                            connected = true
                             Log.d(tag, "Billing service : Connected")
                             inAppIds?.let {
                                 querySku(INAPP, it)
                             }
                             subIds?.let {
                                 querySku(SUBS, it)
+                            }
+                            if (!checkedForPurchasesAtStart) {
+                                getAllPurchases()
+                                checkedForPurchasesAtStart = true
                             }
                         }
                         BILLING_UNAVAILABLE -> Log.d(tag, "Billing service : Unavailable")
@@ -159,7 +205,7 @@ class IapConnector(context: Context, private val base64Key: String) {
             when (billingResult.responseCode) {
                 OK -> {
                     if (skuDetailsList!!.isEmpty()) {
-                        Log.d(tag, "Query SKU : Data not found (List empty)")
+                        Log.d(tag, "Query SKU : Data not found (List empty) seems like no SkuIDs are configured on Google Playstore!")
                         inAppEventsListener?.onError(
                             this,
                             billingResult.run {
@@ -179,11 +225,14 @@ class IapConnector(context: Context, private val base64Key: String) {
 
                         if (skuType == SUBS)
                             inAppEventsListener?.onSubscriptionsFetched(fetchedSkuInfo)
-                        else
+                        else if (skuType == INAPP) {
                             inAppEventsListener?.onInAppProductsFetched(fetchedSkuInfo.map {
-                                it.isConsumable = consumableIds.contains(it.sku)
+                                it.isConsumable = isSkuIdConsumable(it.sku)
                                 it
                             })
+                        } else {
+                            throw IllegalStateException("Not implemented SkuType")
+                        }
                     }
                 }
                 else -> {
@@ -200,6 +249,11 @@ class IapConnector(context: Context, private val base64Key: String) {
                 }
             }
         }
+    }
+
+    private fun isSkuIdConsumable(skuId: String): Boolean {
+        if (consumableIds.isNullOrEmpty()) return false
+        return consumableIds!!.contains(skuId)
     }
 
     private fun getSkuInfo(skuDetails: SkuDetails): DataWrappers.SkuInfo {
@@ -225,9 +279,9 @@ class IapConnector(context: Context, private val base64Key: String) {
     }
 
     /**
-     * Returns all the **non-consumable** purchases of the user.
+     * Returns all the **non-consumable** purchases of the user and trigger the listener.
      */
-    fun getAllPurchases() {
+    private fun getAllPurchases() {
         if (iapClient.isReady) {
             val allPurchases = mutableListOf<Purchase>()
             allPurchases.addAll(iapClient.queryPurchases(INAPP).purchasesList!!)
@@ -285,7 +339,7 @@ class IapConnector(context: Context, private val base64Key: String) {
      */
     private fun acknowledgePurchase(purchase: DataWrappers.PurchaseInfo) {
         purchase.run {
-            if (consumableIds.contains(sku))
+            if (isSkuIdConsumable(this.sku)) {
                 iapClient.consumeAsync(
                     ConsumeParams.newBuilder()
                         .setPurchaseToken(purchaseToken).build()
@@ -308,7 +362,8 @@ class IapConnector(context: Context, private val base64Key: String) {
                             )
                         }
                     }
-                } else
+                }
+            } else
                 iapClient.acknowledgePurchase(
                     AcknowledgePurchaseParams.newBuilder().setPurchaseToken(
                         purchaseToken

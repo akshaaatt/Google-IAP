@@ -63,7 +63,7 @@ iapConnector.setOnInAppEventsListener(object : InAppEventsListener {
             }
 
             override fun onProductsPurchased(purchases: List<DataWrappers.PurchaseInfo>) {
-                /*provides recent purchases*/
+                /*provides recent purchases and will be triggered on first connection establishment on app launch to get already purchased products*/
             }
 
             override fun onError(inAppConnector: IapConnector, result: DataWrappers.BillingResponse?) {
