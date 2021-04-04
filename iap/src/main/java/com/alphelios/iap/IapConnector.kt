@@ -200,7 +200,7 @@ class IapConnector(context: Context, private val base64Key: String) {
             when (billingResult.responseCode) {
                 OK -> {
                     if (skuDetailsList!!.isEmpty()) {
-                        Log.d(tag, "Query SKU : Data not found (List empty)")
+                        Log.d(tag, "Query SKU : Data not found (List empty) seems like no SkuIDs are configured on Google Playstore!")
                         inAppEventsListener?.onError(
                             this,
                             billingResult.run {
