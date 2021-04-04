@@ -38,8 +38,8 @@ dependencies {
 
 ```kotlin
 iapConnector = IapConnector(this, "...")
-            .setInAppProductIds(listOf("id1", "id2"))   /*pass the list of INAPP IDs*/
-            .setSubscriptionIds(listOf("id1", "id2"))   /*pass the list of SUBS IDs*/
+            .setInAppProductIds(listOf("id1", "id2", "id3"))   /*pass the list of INAPP IDs*/
+            .setSubscriptionIds(listOf("subId1", "subId2"))   /*pass the list of SUBS IDs*/
             .setConsumableProductIds(listOf("id1", "id2"))  /*pass the list of consumable product IDs*/
             .autoAcknowledge()  /*to enable auto acknowledgement*/
             .connect()
