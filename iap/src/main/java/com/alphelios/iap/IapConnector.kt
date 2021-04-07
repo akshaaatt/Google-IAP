@@ -21,6 +21,7 @@ class IapConnector(context: Context, private val base64Key: String) {
     private var fetchedSkuInfosList = mutableListOf<SkuInfo>()
     private val tag = "InAppLog"
     private lateinit var billingClient: BillingClient
+    private var fetchedSkuInfosList = mutableListOf<SkuInfo>()
     private var billingEventListener: BillingEventListener? = null
 
     private var nonConsumableIds: List<String>? = null
