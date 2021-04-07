@@ -1,5 +1,6 @@
 package com.alphelios.iap
 
+import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.SkuDetails
 
@@ -27,5 +28,11 @@ class DataWrappers {
     data class BillingResponse(
         val message: String,
         val responseCode: Int = 99
-    )
+    ) {
+        constructor(billingResult: BillingResult) : this(billingResult.debugMessage, billingResult.responseCode)
+
+        override fun toString(): String {
+            return "BillingResponse : responseCode:$responseCode message:$message"
+        }
+    }
 }

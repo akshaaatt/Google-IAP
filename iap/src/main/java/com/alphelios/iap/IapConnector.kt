@@ -47,10 +47,7 @@ class IapConnector(context: Context, private val base64Key: String) {
         }
 
         if (fetchedSkuInfosList.isEmpty()) {
-            Log.d(
-                tag,
-                "Billing client : is not ready because fetchedSkuDetailsList is empty or not fetched yet"
-            )
+            Log.d(tag, "Billing client : is not ready because fetchedSkuDetailsList is empty or not fetched yet")
         }
 
         if (!connected) {
@@ -132,12 +129,7 @@ class IapConnector(context: Context, private val base64Key: String) {
                     OK -> purchases?.let { processPurchases(purchases) }
                     ITEM_ALREADY_OWNED -> billingEventListener?.onError(
                         this,
-                        billingResult.run {
-                            BillingResponse(
-                                debugMessage,
-                                responseCode
-                            )
-                        }
+                        BillingResponse(billingResult)
                     )
                     SERVICE_DISCONNECTED -> connect()
                     else -> Log.i(tag, "Purchase update : ${billingResult.debugMessage}")
@@ -246,12 +238,8 @@ class IapConnector(context: Context, private val base64Key: String) {
                         )
                         billingEventListener?.onError(
                             this,
-                            billingResult.run {
-                                BillingResponse(
-                                    debugMessage,
-                                    responseCode
-                                )
-                            })
+                            BillingResponse(billingResult)
+                        )
                     } else {
                         Log.d(tag, "Query SKU : Data found")
 
@@ -277,13 +265,7 @@ class IapConnector(context: Context, private val base64Key: String) {
                 else -> {
                     Log.d(tag, "Query SKU : Failed")
                     billingEventListener?.onError(
-                        this,
-                        billingResult.run {
-                            BillingResponse(
-                                debugMessage,
-                                responseCode
-                            )
-                        }
+                        this, BillingResponse(billingResult)
                     )
                 }
             }
@@ -377,12 +359,7 @@ class IapConnector(context: Context, private val base64Key: String) {
 
                                 billingEventListener?.onError(
                                     this@IapConnector,
-                                    billingResult.run {
-                                        BillingResponse(
-                                            debugMessage,
-                                            responseCode
-                                        )
-                                    }
+                                    BillingResponse(billingResult)
                                 )
                             }
                         }
@@ -404,12 +381,7 @@ class IapConnector(context: Context, private val base64Key: String) {
 
                                 billingEventListener?.onError(
                                     this@IapConnector,
-                                    billingResult.run {
-                                        BillingResponse(
-                                            debugMessage,
-                                            responseCode
-                                        )
-                                    }
+                                    BillingResponse(billingResult)
                                 )
                             }
                         }
