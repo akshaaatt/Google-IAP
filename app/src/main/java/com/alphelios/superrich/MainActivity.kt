@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
             override fun onProductsPurchased(purchases: List<DataWrappers.PurchaseInfo>) {
                 purchases.forEach {
-                    when (it.sku) {
+                    when (it.skuId) {
                         "base" -> {
 
                         }
@@ -77,35 +77,35 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         })
 
         binding.btPurchaseCons.setOnClickListener {
-            if (fetchedSkuDetailsList.find { it.sku == "base" } != null) {
-                iapConnector.makePurchase(this,"base")
+            if (fetchedSkuDetailsList.find { it.skuId == "base" } != null) {
+                iapConnector.makePurchase(this, "base")
             }
         }
         binding.btnMonthly.setOnClickListener {
-            if (fetchedSkuDetailsList.find { it.sku == "subscribe" } != null) {
+            if (fetchedSkuDetailsList.find { it.skuId == "subscribe" } != null) {
                 iapConnector.makePurchase(this, "subscribe")
             }
         }
 
         binding.btnYearly.setOnClickListener {
-            if (fetchedSkuDetailsList.find { it.sku == "yearly" } != null) {
-                iapConnector.makePurchase(this,"yearly")
+            if (fetchedSkuDetailsList.find { it.skuId == "yearly" } != null) {
+                iapConnector.makePurchase(this, "yearly")
             }
         }
         binding.btnQuite.setOnClickListener {
-            if (fetchedSkuDetailsList.find { it.sku == "quite" } != null) {
-                iapConnector.makePurchase(this,"quite")
+            if (fetchedSkuDetailsList.find { it.skuId == "quite" } != null) {
+                iapConnector.makePurchase(this, "quite")
             }
         }
         binding.btnModerate.setOnClickListener {
-            if (fetchedSkuDetailsList.find { it.sku == "moderate" } != null) {
-                iapConnector.makePurchase(this,"moderate")
+            if (fetchedSkuDetailsList.find { it.skuId == "moderate" } != null) {
+                iapConnector.makePurchase(this, "moderate")
             }
         }
 
         binding.btnUltimate.setOnClickListener {
-            if (fetchedSkuDetailsList.find { it.sku == "plenty" } != null) {
-                iapConnector.makePurchase(this,"plenty")
+            if (fetchedSkuDetailsList.find { it.skuId == "plenty" } != null) {
+                iapConnector.makePurchase(this, "plenty")
             }
         }
     }

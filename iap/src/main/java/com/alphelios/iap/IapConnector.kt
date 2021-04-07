@@ -281,25 +281,7 @@ class IapConnector(context: Context, private val base64Key: String) {
             else -> throw IllegalStateException("Not implemented SkuType")
         }
 
-        return DataWrappers.SkuInfo(
-            skuDetails.sku,
-            skuDetails.description,
-            skuDetails.freeTrialPeriod,
-            skuDetails.iconUrl,
-            skuDetails.introductoryPrice,
-            skuDetails.introductoryPriceAmountMicros,
-            skuDetails.introductoryPriceCycles,
-            skuDetails.introductoryPricePeriod,
-            skuDetails.originalJson,
-            skuDetails.originalPrice,
-            skuDetails.originalPriceAmountMicros,
-            skuDetails.price,
-            skuDetails.priceAmountMicros,
-            skuDetails.priceCurrencyCode,
-            skuDetails.subscriptionPeriod,
-            skuDetails.title,
-            skuProductType
-        )
+        return DataWrappers.SkuInfo(skuProductType, skuDetails)
     }
 
     /**
@@ -330,18 +312,7 @@ class IapConnector(context: Context, private val base64Key: String) {
             }.map { purchase ->
                 DataWrappers.PurchaseInfo(
                     generateSkuInfo(fetchedSkuDetailsList.find { it.sku == purchase.sku }!!),
-                    purchase.purchaseState,
-                    purchase.developerPayload,
-                    purchase.isAcknowledged,
-                    purchase.isAutoRenewing,
-                    purchase.orderId,
-                    purchase.originalJson,
-                    purchase.packageName,
-                    purchase.purchaseTime,
-                    purchase.purchaseToken,
-                    purchase.signature,
-                    purchase.sku,
-                    purchase.accountIdentifiers
+                    purchase
                 )
             }
 
@@ -361,14 +332,14 @@ class IapConnector(context: Context, private val base64Key: String) {
      * Consumable products might be brought/consumed by users multiple times (for eg. diamonds, coins).
      * Hence, it is necessary to notify Play console about such products.
      */
-    private fun acknowledgePurchase(purchase: DataWrappers.PurchaseInfo) {
-        purchase.run {
+    private fun acknowledgePurchase(purchaseInfo: DataWrappers.PurchaseInfo) {
+        purchaseInfo.run {
 
-            when (purchase.skuInfo.skuProductType) {
+            when (skuInfo.skuProductType) {
                 CONSUMABLE -> {
                     iapClient.consumeAsync(
                         ConsumeParams.newBuilder()
-                            .setPurchaseToken(purchaseToken).build()
+                            .setPurchaseToken(purchase.purchaseToken).build()
                     ) { billingResult, purchaseToken ->
                         when (billingResult.responseCode) {
                             OK -> inAppEventsListener?.onPurchaseAcknowledged(this)
@@ -393,7 +364,7 @@ class IapConnector(context: Context, private val base64Key: String) {
                 NON_CONSUMABLE, SUBSCRIPTION -> {
                     iapClient.acknowledgePurchase(
                         AcknowledgePurchaseParams.newBuilder().setPurchaseToken(
-                            purchaseToken
+                            purchase.purchaseToken
                         ).build()
                     ) { billingResult ->
                         when (billingResult.responseCode) {
