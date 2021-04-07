@@ -156,6 +156,15 @@ class IapConnector(context: Context, private val base64Key: String) {
         if (consumableIds.isNullOrEmpty())
             consumableIds = null
 
+        if (inAppIds == null && subIds == null) {
+            if (consumableIds != null) {
+                // Only Consumables are provided here, so lets adjust the inAppIds list here
+                inAppIds = consumableIds!!.toList()
+            } else
+                throw IllegalArgumentException("At least one list of Subscriptions or InAppIds is needed")
+        }
+
+
         Log.d(tag, "Billing service : Connecting...")
         if (!iapClient.isReady) {
             iapClient.startConnection(object : BillingClientStateListener {
