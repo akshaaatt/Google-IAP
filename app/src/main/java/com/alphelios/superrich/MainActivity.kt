@@ -23,7 +23,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         iapConnector = IapConnector(
             this, "key" // License Key
         )
-            .setInAppProductIds(listOf("base", "moderate", "plenty", "quite"))
+            .setNonConsumableIds(listOf("base", "moderate", "plenty", "quite"))
             .autoAcknowledge()
             .connect()
 

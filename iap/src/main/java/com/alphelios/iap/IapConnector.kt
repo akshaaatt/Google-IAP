@@ -23,7 +23,7 @@ class IapConnector(context: Context, private val base64Key: String) {
     private val tag = "InAppLog"
     private var inAppEventsListener: InAppEventsListener? = null
 
-    private var inAppIds: List<String>? = null
+    private var nonConsumableIds: List<String>? = null
     private var subIds: List<String>? = null
     private var consumableIds: List<String>? = null
 
@@ -61,10 +61,10 @@ class IapConnector(context: Context, private val base64Key: String) {
     }
 
     /**
-     * To set INAPP product IDs.
+     * To set non-consumable product IDs.
      */
-    fun setInAppProductIds(inAppIds: List<String>): IapConnector {
-        this.inAppIds = inAppIds
+    fun setNonConsumableIds(nonConsumableIds: List<String>): IapConnector {
+        this.nonConsumableIds = nonConsumableIds
         return this
     }
 
@@ -72,8 +72,16 @@ class IapConnector(context: Context, private val base64Key: String) {
      * To set consumable product IDs.
      * Rest of the IDs will be considered non-consumable.
      */
-    fun setConsumableProductIds(consumableIds: List<String>): IapConnector {
+    fun setConsumableIds(consumableIds: List<String>): IapConnector {
         this.consumableIds = consumableIds
+        return this
+    }
+
+    /**
+     * To set subscription product IDs.
+     */
+    fun setSubscriptionIds(subIds: List<String>): IapConnector {
+        this.subIds = subIds
         return this
     }
 
@@ -82,14 +90,6 @@ class IapConnector(context: Context, private val base64Key: String) {
      */
     fun autoAcknowledge(): IapConnector {
         shouldAutoAcknowledge = true
-        return this
-    }
-
-    /**
-     * To set SUBS product IDs.
-     */
-    fun setSubscriptionIds(subIds: List<String>): IapConnector {
-        this.subIds = subIds
         return this
     }
 
@@ -153,19 +153,15 @@ class IapConnector(context: Context, private val base64Key: String) {
     fun connect(): IapConnector {
 
         // Before we start, check input params we set empty list to null so we only have to deal with lists who are null (not provided) or not empty.
-        if (inAppIds.isNullOrEmpty())
-            inAppIds = null
-        if (subIds.isNullOrEmpty())
-            subIds = null
+        if (nonConsumableIds.isNullOrEmpty())
+            nonConsumableIds = null
         if (consumableIds.isNullOrEmpty())
             consumableIds = null
+        if (subIds.isNullOrEmpty())
+            subIds = null
 
-        if (inAppIds == null && subIds == null) {
-            if (consumableIds != null) {
-                // Only Consumables are provided here, so lets adjust the inAppIds list here
-                inAppIds = consumableIds!!.toList()
-            } else
-                throw IllegalArgumentException("At least one list of Subscriptions or InAppIds is needed")
+        if (nonConsumableIds == null && consumableIds == null && subIds == null) {
+            throw IllegalArgumentException("At least one list of subscriptions, non-consumables or consumables is needed")
         }
 
 
@@ -188,9 +184,15 @@ class IapConnector(context: Context, private val base64Key: String) {
                         OK -> {
                             connected = true
                             Log.d(tag, "Billing service : Connected")
-                            inAppIds?.let {
-                                querySku(INAPP, it)
-                            }
+
+                            // Check for Consumable and Non-Consumables (InAPPs)
+                            val inAppIds = mutableListOf<String>()
+                            consumableIds?.let { inAppIds.addAll(it) }
+                            nonConsumableIds?.let { inAppIds.addAll(it) }
+
+                            if (inAppIds.isNotEmpty())
+                                querySku(INAPP, inAppIds)
+
                             subIds?.let {
                                 querySku(SUBS, it)
                             }
