@@ -150,17 +150,38 @@ class IapConnector(context: Context, private val base64Key: String) {
      */
     fun connect(): IapConnector {
 
-        // Before we start, check input params we set empty list to null so we only have to deal with lists who are null (not provided) or not empty.
-        if (nonConsumableIds.isNullOrEmpty())
-            nonConsumableIds = null
-        if (consumableIds.isNullOrEmpty())
-            consumableIds = null
-        if (subIds.isNullOrEmpty())
-            subIds = null
+        fun checkParameters() {
+            val allIds = mutableListOf<String>()
 
-        if (nonConsumableIds == null && consumableIds == null && subIds == null) {
-            throw IllegalArgumentException("At least one list of subscriptions, non-consumables or consumables is needed")
+            // Before we start, check input params we set empty list to null so we only have to deal with lists who are null (not provided) or not empty.
+            if (nonConsumableIds.isNullOrEmpty())
+                nonConsumableIds = null
+            else
+                allIds.addAll(nonConsumableIds!!)
+
+            if (consumableIds.isNullOrEmpty())
+                consumableIds = null
+            else
+                allIds.addAll(consumableIds!!)
+
+            if (subIds.isNullOrEmpty())
+                subIds = null
+            else
+                allIds.addAll(subIds!!)
+
+            // Check if any list is provided.
+            if (nonConsumableIds == null && consumableIds == null && subIds == null) {
+                throw IllegalArgumentException("At least one list of subscriptions, non-consumables or consumables is needed")
+            }
+
+            val allIdSize = allIds.size
+            val allIdSizeDistinct = allIds.distinct().size
+            if (allIdSize != allIdSizeDistinct) {
+                throw IllegalArgumentException("An Id must appear only once in a list. An Id must also not be in different lists")
+            }
         }
+
+        checkParameters()
 
 
         Log.d(tag, "Billing service : Connecting...")
