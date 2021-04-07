@@ -302,7 +302,7 @@ class IapConnector(context: Context, private val base64Key: String) {
     }
 
     /**
-     * Returns all the **non-consumable** purchases of the user and trigger the listener.
+     * Returns all purchases of the user and trigger the listener.
      */
     private fun getAllPurchases() {
         if (billingClient.isReady) {
