@@ -1,6 +1,5 @@
 package com.alphelios.iap
 
-import com.android.billingclient.api.AccountIdentifiers
 import com.android.billingclient.api.Purchase
 import com.android.billingclient.api.SkuDetails
 
@@ -22,6 +21,7 @@ class DataWrappers {
         val purchase: Purchase
     ) {
         val skuId = skuInfo.skuId
+        val skuProductType = skuInfo.skuProductType
     }
 
     data class BillingResponse(
