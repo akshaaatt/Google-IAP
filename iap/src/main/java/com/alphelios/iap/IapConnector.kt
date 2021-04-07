@@ -18,7 +18,7 @@ import java.lang.IllegalArgumentException
  */
 class IapConnector(context: Context, private val base64Key: String) {
     private var shouldAutoAcknowledge: Boolean = false
-    private var fetchedSkuDetailsList = mutableListOf<SkuDetails>()
+    private var fetchedSkuInfosList = mutableListOf<DataWrappers.SkuInfo>()
     private val tag = "InAppLog"
     private var inAppEventsListener: InAppEventsListener? = null
 
@@ -45,7 +45,7 @@ class IapConnector(context: Context, private val base64Key: String) {
             Log.d(tag, "Billing client : is not ready because iapClient is not ready yet")
         }
 
-        if (fetchedSkuDetailsList.isEmpty()) {
+        if (fetchedSkuInfosList.isEmpty()) {
             Log.d(
                 tag,
                 "Billing client : is not ready because fetchedSkuDetailsList is empty or not fetched yet"
@@ -56,7 +56,7 @@ class IapConnector(context: Context, private val base64Key: String) {
             Log.d(tag, "Billing client : is not ready because no connection is established yet")
         }
 
-        return connected && iapClient.isReady && fetchedSkuDetailsList.isNotEmpty()
+        return connected && iapClient.isReady && fetchedSkuInfosList.isNotEmpty()
     }
 
     /**
@@ -97,15 +97,18 @@ class IapConnector(context: Context, private val base64Key: String) {
      * Its result is received in [PurchasesUpdatedListener] which further is handled
      * by [handleConsumableProducts] / [handleNonConsumableProducts].
      */
-    fun makePurchase(activity: Activity, sku: String) {
-        if (fetchedSkuDetailsList.isEmpty())
+    fun makePurchase(activity: Activity, skuId: String) {
+        if (fetchedSkuInfosList.isEmpty())
             inAppEventsListener?.onError(this, DataWrappers.BillingResponse("Products not fetched"))
-        else
+        else {
+            val skuDetails = fetchedSkuInfosList.find { it.skuId == skuId }!!.skuDetails
             iapClient.launchBillingFlow(
                 activity,
                 BillingFlowParams.newBuilder()
-                    .setSkuDetails(fetchedSkuDetailsList.find { it.sku == sku }!!).build()
+                    .setSkuDetails(skuDetails)
+                    .build()
             )
+        }
     }
 
     /**
@@ -227,11 +230,11 @@ class IapConnector(context: Context, private val base64Key: String) {
                     } else {
                         Log.d(tag, "Query SKU : Data found")
 
-                        fetchedSkuDetailsList.addAll(skuDetailsList)
-
                         val fetchedSkuInfos = skuDetailsList.map {
                             generateSkuInfo(it)
                         }
+
+                        fetchedSkuInfosList.addAll(fetchedSkuInfos)
 
                         when (skuType) {
                             SUBS -> {
@@ -310,8 +313,9 @@ class IapConnector(context: Context, private val base64Key: String) {
             val validPurchases = allPurchases.filter {
                 isPurchaseSignatureValid(it)
             }.map { purchase ->
+                val skuDetails = fetchedSkuInfosList.find { it.skuId == purchase.sku }!!.skuDetails
                 DataWrappers.PurchaseInfo(
-                    generateSkuInfo(fetchedSkuDetailsList.find { it.sku == purchase.sku }!!),
+                    generateSkuInfo(skuDetails),
                     purchase
                 )
             }
