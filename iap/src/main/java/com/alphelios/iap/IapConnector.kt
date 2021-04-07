@@ -400,9 +400,9 @@ class IapConnector(context: Context, private val base64Key: String) {
     /**
      * Before using subscriptions, device-support must be checked.
      */
-    private fun isSubSupportedOnDevice(): Boolean {
+    fun isSubscriptionSupported(): Boolean {
         var isSupported = false
-        when (iapClient.isFeatureSupported(SUBSCRIPTIONS).responseCode) {
+        when (billingClient.isFeatureSupported(SUBSCRIPTIONS).responseCode) {
             OK -> {
                 isSupported = true
                 Log.d(tag, "Subs support check : Success")
