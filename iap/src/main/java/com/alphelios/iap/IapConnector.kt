@@ -15,19 +15,18 @@ import java.lang.IllegalArgumentException
 /**
  * Wrapper class for Google In-App purchases.
  * Handles vital processes while dealing with IAP.
- * Works around a listener [InAppEventsListener] for delivering events back to the caller.
  */
 class IapConnector(context: Context, private val base64Key: String) {
     private var shouldAutoAcknowledge: Boolean = false
     private var fetchedSkuInfosList = mutableListOf<SkuInfo>()
     private val tag = "InAppLog"
-    private var inAppEventsListener: InAppEventsListener? = null
+    private lateinit var billingClient: BillingClient
+    private var billingEventListener: BillingEventListener? = null
 
     private var nonConsumableIds: List<String>? = null
     private var subIds: List<String>? = null
     private var consumableIds: List<String>? = null
 
-    private lateinit var iapClient: BillingClient
 
     private var connected = false
     private var checkedForPurchasesAtStart = false
@@ -42,7 +41,7 @@ class IapConnector(context: Context, private val base64Key: String) {
             Log.d(tag, "Billing client : is not ready because no connection is established yet")
         }
 
-        if (!iapClient.isReady) {
+        if (!billingClient.isReady) {
             Log.d(tag, "Billing client : is not ready because iapClient is not ready yet")
         }
 
@@ -57,7 +56,7 @@ class IapConnector(context: Context, private val base64Key: String) {
             Log.d(tag, "Billing client : is not ready because no connection is established yet")
         }
 
-        return connected && iapClient.isReady && fetchedSkuInfosList.isNotEmpty()
+        return connected && billingClient.isReady && fetchedSkuInfosList.isNotEmpty()
     }
 
     /**
@@ -95,15 +94,13 @@ class IapConnector(context: Context, private val base64Key: String) {
 
     /**
      * Called to purchase an item.
-     * Its result is received in [PurchasesUpdatedListener] which further is handled
-     * by [handleConsumableProducts] / [handleNonConsumableProducts].
      */
     fun makePurchase(activity: Activity, skuId: String) {
         if (fetchedSkuInfosList.isEmpty())
-            inAppEventsListener?.onError(this, BillingResponse("Products not fetched"))
+            billingEventListener?.onError(this, BillingResponse("Products not fetched"))
         else {
             val skuDetails = fetchedSkuInfosList.find { it.skuId == skuId }!!.skuDetails
-            iapClient.launchBillingFlow(
+            billingClient.launchBillingFlow(
                 activity,
                 BillingFlowParams.newBuilder()
                     .setSkuDetails(skuDetails)
@@ -115,15 +112,15 @@ class IapConnector(context: Context, private val base64Key: String) {
     /**
      * To attach an event listener to establish a bridge with the caller.
      */
-    fun setOnInAppEventsListener(inAppEventsListener: InAppEventsListener) {
-        this.inAppEventsListener = inAppEventsListener
+    fun setBillingEventListener(billingEventListener: BillingEventListener) {
+        this.billingEventListener = billingEventListener
     }
 
     /**
      * To initialise IapConnector.
      */
     private fun init(context: Context) {
-        iapClient = BillingClient.newBuilder(context)
+        billingClient = BillingClient.newBuilder(context)
             .enablePendingPurchases()
             .setListener { billingResult, purchases ->
                 /**
@@ -132,7 +129,7 @@ class IapConnector(context: Context, private val base64Key: String) {
 
                 when (billingResult.responseCode) {
                     OK -> purchases?.let { processPurchases(purchases) }
-                    ITEM_ALREADY_OWNED -> inAppEventsListener?.onError(
+                    ITEM_ALREADY_OWNED -> billingEventListener?.onError(
                         this,
                         billingResult.run {
                             BillingResponse(
@@ -166,16 +163,16 @@ class IapConnector(context: Context, private val base64Key: String) {
 
 
         Log.d(tag, "Billing service : Connecting...")
-        if (!iapClient.isReady) {
-            iapClient.startConnection(object : BillingClientStateListener {
+        if (!billingClient.isReady) {
+            billingClient.startConnection(object : BillingClientStateListener {
                 override fun onBillingServiceDisconnected() {
                     connected = false
-                    inAppEventsListener?.onError(
+                    billingEventListener?.onError(
                         this@IapConnector,
                         BillingResponse("Billing service : Disconnected")
                     )
                     Log.d(tag, "Billing service : Trying to establish to reconnect...")
-                    iapClient.startConnection(this)
+                    billingClient.startConnection(this)
                 }
 
                 override fun onBillingSetupFinished(billingResult: BillingResult) {
@@ -191,10 +188,10 @@ class IapConnector(context: Context, private val base64Key: String) {
                             nonConsumableIds?.let { inAppIds.addAll(it) }
 
                             if (inAppIds.isNotEmpty())
-                                querySku(INAPP, inAppIds)
+                                querySkuDetails(INAPP, inAppIds)
 
                             subIds?.let {
-                                querySku(SUBS, it)
+                                querySkuDetails(SUBS, it)
                             }
                             if (!checkedForPurchasesAtStart) {
                                 getAllPurchases()
@@ -213,8 +210,8 @@ class IapConnector(context: Context, private val base64Key: String) {
     /**
      * Fires a query in Play console to get [SkuDetails] for provided type and IDs.
      */
-    private fun querySku(skuType: String, ids: List<String>) {
-        iapClient.querySkuDetailsAsync(
+    private fun querySkuDetails(skuType: String, ids: List<String>) {
+        billingClient.querySkuDetailsAsync(
             SkuDetailsParams.newBuilder()
                 .setSkusList(ids).setType(skuType).build()
         ) { billingResult, skuDetailsList ->
@@ -225,7 +222,7 @@ class IapConnector(context: Context, private val base64Key: String) {
                             tag,
                             "Query SKU : Data not found (List empty) seems like no SkuIDs are configured on Google Playstore!"
                         )
-                        inAppEventsListener?.onError(
+                        billingEventListener?.onError(
                             this,
                             billingResult.run {
                                 BillingResponse(
@@ -244,10 +241,10 @@ class IapConnector(context: Context, private val base64Key: String) {
 
                         when (skuType) {
                             SUBS -> {
-                                inAppEventsListener?.onSubscriptionsFetched(fetchedSkuInfos)
+                                billingEventListener?.onProductsFetched(fetchedSkuInfos)
                             }
                             INAPP -> {
-                                inAppEventsListener?.onInAppProductsFetched(fetchedSkuInfos)
+                                billingEventListener?.onProductsFetched(fetchedSkuInfos)
                             }
                             else -> {
                                 throw IllegalStateException("Not implemented SkuType")
@@ -257,7 +254,7 @@ class IapConnector(context: Context, private val base64Key: String) {
                 }
                 else -> {
                     Log.d(tag, "Query SKU : Failed")
-                    inAppEventsListener?.onError(
+                    billingEventListener?.onError(
                         this,
                         billingResult.run {
                             BillingResponse(
@@ -297,14 +294,14 @@ class IapConnector(context: Context, private val base64Key: String) {
      * Returns all the **non-consumable** purchases of the user and trigger the listener.
      */
     private fun getAllPurchases() {
-        if (iapClient.isReady) {
+        if (billingClient.isReady) {
             val allPurchases = mutableListOf<Purchase>()
-            allPurchases.addAll(iapClient.queryPurchases(INAPP).purchasesList!!)
-            if (isSubSupportedOnDevice())
-                allPurchases.addAll(iapClient.queryPurchases(SUBS).purchasesList!!)
+            allPurchases.addAll(billingClient.queryPurchases(INAPP).purchasesList!!)
+            if (isSubscriptionSupported())
+                allPurchases.addAll(billingClient.queryPurchases(SUBS).purchasesList!!)
             processPurchases(allPurchases)
         } else {
-            inAppEventsListener?.onError(
+            billingEventListener?.onError(
                 this,
                 BillingResponse("Client not initialized yet.")
             )
@@ -326,7 +323,7 @@ class IapConnector(context: Context, private val base64Key: String) {
                 )
             }
 
-            inAppEventsListener?.onProductsPurchased(validPurchases)
+            billingEventListener?.onProductsPurchased(validPurchases)
 
             if (shouldAutoAcknowledge)
                 validPurchases.forEach {
@@ -352,13 +349,11 @@ class IapConnector(context: Context, private val base64Key: String) {
                             .setPurchaseToken(purchase.purchaseToken).build()
                     ) { billingResult, purchaseToken ->
                         when (billingResult.responseCode) {
-                            OK -> inAppEventsListener?.onPurchaseAcknowledged(this)
+                            OK -> billingEventListener?.onPurchaseConsumed(this)
                             else -> {
-                                Log.d(
-                                    tag,
-                                    "Handling consumables : Error -> ${billingResult.debugMessage}"
-                                )
-                                inAppEventsListener?.onError(
+                                Log.d(tag, "Handling consumables : Error during consumption attempt -> ${billingResult.debugMessage}")
+
+                                billingEventListener?.onError(
                                     this@IapConnector,
                                     billingResult.run {
                                         BillingResponse(
@@ -378,13 +373,14 @@ class IapConnector(context: Context, private val base64Key: String) {
                         ).build()
                     ) { billingResult ->
                         when (billingResult.responseCode) {
-                            OK -> inAppEventsListener?.onPurchaseAcknowledged(this)
+                            OK -> billingEventListener?.onPurchaseAcknowledged(this)
                             else -> {
                                 Log.d(
                                     tag,
                                     "Handling non consumables : Error -> ${billingResult.debugMessage}"
                                 )
-                                inAppEventsListener?.onError(
+
+                                billingEventListener?.onError(
                                     this@IapConnector,
                                     billingResult.run {
                                         BillingResponse(

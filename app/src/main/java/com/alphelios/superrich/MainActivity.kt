@@ -3,9 +3,9 @@ package com.alphelios.superrich
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import com.alphelios.iap.BillingEventListener
 import com.alphelios.iap.DataWrappers
 import com.alphelios.iap.IapConnector
-import com.alphelios.iap.InAppEventsListener
 import com.alphelios.superrich.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
@@ -27,20 +27,14 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             .autoAcknowledge()
             .connect()
 
-        iapConnector.setOnInAppEventsListener(object : InAppEventsListener {
-
-            override fun onSubscriptionsFetched(skuDetailsList: List<DataWrappers.SkuInfo>) {
+        iapConnector.setBillingEventListener(object : BillingEventListener {
+            override fun onProductsFetched(skuDetailsList: List<DataWrappers.SkuInfo>) {
                 fetchedSkuDetailsList.addAll(skuDetailsList)
                 Log.d(tag, "Retrieved SKU details list : $skuDetailsList")
             }
 
-            override fun onInAppProductsFetched(skuDetailsList: List<DataWrappers.SkuInfo>) {
-                fetchedSkuDetailsList.addAll(skuDetailsList)
-                Log.d(tag, "Retrieved SKU details list : $skuDetailsList")
-            }
-
-            override fun onPurchaseAcknowledged(purchase: DataWrappers.PurchaseInfo) {
-                Log.d(tag, "onPurchaseAcknowledged")
+            override fun onPurchasedProductsFetched(purchases: List<DataWrappers.PurchaseInfo>) {
+                Log.d(tag, "Retrieved all purchased products : $purchases")
             }
 
             override fun onProductsPurchased(purchases: List<DataWrappers.PurchaseInfo>) {
@@ -66,6 +60,14 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                         }
                     }
                 }
+            }
+
+            override fun onPurchaseAcknowledged(purchase: DataWrappers.PurchaseInfo) {
+                Log.d(tag, "onPurchaseAcknowledged : " + purchase.skuId)
+            }
+
+            override fun onPurchaseConsumed(purchase: DataWrappers.PurchaseInfo) {
+                Log.d(tag, "onPurchaseConsumed : " + purchase.skuId)
             }
 
             override fun onError(
