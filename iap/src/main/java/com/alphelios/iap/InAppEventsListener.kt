@@ -1,5 +1,7 @@
 package com.alphelios.iap
 
+import com.alphelios.iap.DataWrappers.*
+
 /**
  * Establishes communication bridge between caller and [IapConnector].
  * [onProductsPurchased] provides recent purchases
@@ -8,9 +10,9 @@ package com.alphelios.iap
  * [onError] is used to notify caller about possible errors.
  */
 interface InAppEventsListener {
-    fun onSubscriptionsFetched(skuDetailsList: List<DataWrappers.SkuInfo>)
-    fun onInAppProductsFetched(skuDetailsList: List<DataWrappers.SkuInfo>)
-    fun onPurchaseAcknowledged(purchase: DataWrappers.PurchaseInfo)
-    fun onProductsPurchased(purchases: List<DataWrappers.PurchaseInfo>)
-    fun onError(inAppConnector: IapConnector, result: DataWrappers.BillingResponse? = null)
+    fun onSubscriptionsFetched(skuDetailsList: List<SkuInfo>)
+    fun onInAppProductsFetched(skuDetailsList: List<SkuInfo>)
+    fun onPurchaseAcknowledged(purchase: PurchaseInfo)
+    fun onProductsPurchased(purchases: List<PurchaseInfo>)
+    fun onError(inAppConnector: IapConnector, result: BillingResponse? = null)
 }

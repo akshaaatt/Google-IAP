@@ -3,6 +3,7 @@ package com.alphelios.iap
 import android.app.Activity
 import android.content.Context
 import android.util.Log
+import com.alphelios.iap.DataWrappers.*
 import com.alphelios.iap.DataWrappers.SkuProductType.*
 import com.android.billingclient.api.*
 import com.android.billingclient.api.BillingClient.BillingResponseCode.*
@@ -18,7 +19,7 @@ import java.lang.IllegalArgumentException
  */
 class IapConnector(context: Context, private val base64Key: String) {
     private var shouldAutoAcknowledge: Boolean = false
-    private var fetchedSkuInfosList = mutableListOf<DataWrappers.SkuInfo>()
+    private var fetchedSkuInfosList = mutableListOf<SkuInfo>()
     private val tag = "InAppLog"
     private var inAppEventsListener: InAppEventsListener? = null
 
@@ -99,7 +100,7 @@ class IapConnector(context: Context, private val base64Key: String) {
      */
     fun makePurchase(activity: Activity, skuId: String) {
         if (fetchedSkuInfosList.isEmpty())
-            inAppEventsListener?.onError(this, DataWrappers.BillingResponse("Products not fetched"))
+            inAppEventsListener?.onError(this, BillingResponse("Products not fetched"))
         else {
             val skuDetails = fetchedSkuInfosList.find { it.skuId == skuId }!!.skuDetails
             iapClient.launchBillingFlow(
@@ -134,7 +135,7 @@ class IapConnector(context: Context, private val base64Key: String) {
                     ITEM_ALREADY_OWNED -> inAppEventsListener?.onError(
                         this,
                         billingResult.run {
-                            DataWrappers.BillingResponse(
+                            BillingResponse(
                                 debugMessage,
                                 responseCode
                             )
@@ -175,7 +176,7 @@ class IapConnector(context: Context, private val base64Key: String) {
                     connected = false
                     inAppEventsListener?.onError(
                         this@IapConnector,
-                        DataWrappers.BillingResponse("Billing service : Disconnected")
+                        BillingResponse("Billing service : Disconnected")
                     )
                     Log.d(tag, "Billing service : Trying to establish to reconnect...")
                     iapClient.startConnection(this)
@@ -218,11 +219,14 @@ class IapConnector(context: Context, private val base64Key: String) {
             when (billingResult.responseCode) {
                 OK -> {
                     if (skuDetailsList!!.isEmpty()) {
-                        Log.d(tag, "Query SKU : Data not found (List empty) seems like no SkuIDs are configured on Google Playstore!")
+                        Log.d(
+                            tag,
+                            "Query SKU : Data not found (List empty) seems like no SkuIDs are configured on Google Playstore!"
+                        )
                         inAppEventsListener?.onError(
                             this,
                             billingResult.run {
-                                DataWrappers.BillingResponse(
+                                BillingResponse(
                                     debugMessage,
                                     responseCode
                                 )
@@ -254,7 +258,7 @@ class IapConnector(context: Context, private val base64Key: String) {
                     inAppEventsListener?.onError(
                         this,
                         billingResult.run {
-                            DataWrappers.BillingResponse(
+                            BillingResponse(
                                 debugMessage,
                                 responseCode
                             )
@@ -265,14 +269,14 @@ class IapConnector(context: Context, private val base64Key: String) {
         }
     }
 
-    private fun generateSkuInfo(skuDetails: SkuDetails): DataWrappers.SkuInfo {
+    private fun generateSkuInfo(skuDetails: SkuDetails): SkuInfo {
 
         fun isSkuIdConsumable(skuId: String): Boolean {
             if (consumableIds.isNullOrEmpty()) return false
             return consumableIds!!.contains(skuId)
         }
 
-        val skuProductType: DataWrappers.SkuProductType = when (skuDetails.type) {
+        val skuProductType: SkuProductType = when (skuDetails.type) {
             SUBS -> SUBSCRIPTION
             INAPP -> {
                 val consumable = isSkuIdConsumable(skuDetails.sku)
@@ -284,7 +288,7 @@ class IapConnector(context: Context, private val base64Key: String) {
             else -> throw IllegalStateException("Not implemented SkuType")
         }
 
-        return DataWrappers.SkuInfo(skuProductType, skuDetails)
+        return SkuInfo(skuProductType, skuDetails)
     }
 
     /**
@@ -300,7 +304,7 @@ class IapConnector(context: Context, private val base64Key: String) {
         } else {
             inAppEventsListener?.onError(
                 this,
-                DataWrappers.BillingResponse("Client not initialized yet.")
+                BillingResponse("Client not initialized yet.")
             )
         }
     }
@@ -314,7 +318,7 @@ class IapConnector(context: Context, private val base64Key: String) {
                 isPurchaseSignatureValid(it)
             }.map { purchase ->
                 val skuDetails = fetchedSkuInfosList.find { it.skuId == purchase.sku }!!.skuDetails
-                DataWrappers.PurchaseInfo(
+                PurchaseInfo(
                     generateSkuInfo(skuDetails),
                     purchase
                 )
@@ -336,7 +340,7 @@ class IapConnector(context: Context, private val base64Key: String) {
      * Consumable products might be brought/consumed by users multiple times (for eg. diamonds, coins).
      * Hence, it is necessary to notify Play console about such products.
      */
-    private fun acknowledgePurchase(purchaseInfo: DataWrappers.PurchaseInfo) {
+    private fun acknowledgePurchase(purchaseInfo: PurchaseInfo) {
         purchaseInfo.run {
 
             when (skuInfo.skuProductType) {
@@ -355,7 +359,7 @@ class IapConnector(context: Context, private val base64Key: String) {
                                 inAppEventsListener?.onError(
                                     this@IapConnector,
                                     billingResult.run {
-                                        DataWrappers.BillingResponse(
+                                        BillingResponse(
                                             debugMessage,
                                             responseCode
                                         )
@@ -381,7 +385,7 @@ class IapConnector(context: Context, private val base64Key: String) {
                                 inAppEventsListener?.onError(
                                     this@IapConnector,
                                     billingResult.run {
-                                        DataWrappers.BillingResponse(
+                                        BillingResponse(
                                             debugMessage,
                                             responseCode
                                         )
