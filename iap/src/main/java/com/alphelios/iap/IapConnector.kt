@@ -135,7 +135,7 @@ class IapConnector(context: Context, private val base64Key: String) {
                  */
 
                 when (billingResult.responseCode) {
-                    OK -> purchases?.let { processPurchases(purchases) }
+                    OK -> purchases?.let { processPurchases(purchases, false) }
                     ITEM_ALREADY_OWNED -> billingEventListener?.onError(
                         this,
                         BillingResponse(billingResult)
@@ -217,7 +217,7 @@ class IapConnector(context: Context, private val base64Key: String) {
                                 querySkuDetails(SUBS, it)
                             }
                             if (!checkedForPurchasesAtStart) {
-                                getAllPurchases()
+                                fetchPurchasedProducts()
                                 checkedForPurchasesAtStart = true
                             }
                         }
@@ -302,15 +302,21 @@ class IapConnector(context: Context, private val base64Key: String) {
     }
 
     /**
-     * Returns all purchases of the user and trigger the listener.
+     * Load all purchases of the user and trigger the listener.
      */
-    private fun getAllPurchases() {
+    fun fetchPurchasedProducts() {
         if (billingClient.isReady) {
             val allPurchases = mutableListOf<Purchase>()
-            allPurchases.addAll(billingClient.queryPurchases(INAPP).purchasesList!!)
-            if (isSubscriptionSupported())
-                allPurchases.addAll(billingClient.queryPurchases(SUBS).purchasesList!!)
-            processPurchases(allPurchases)
+
+            val inAppPurchases = billingClient.queryPurchases(INAPP).purchasesList!!
+            allPurchases.addAll(inAppPurchases)
+
+            if (isSubscriptionSupported() == SupportState.SUPPORTED) {
+                val subPurchases = billingClient.queryPurchases(SUBS).purchasesList!!
+                allPurchases.addAll(subPurchases)
+            }
+
+            processPurchases(allPurchases, true)
         } else {
             billingEventListener?.onError(
                 this,
@@ -322,7 +328,7 @@ class IapConnector(context: Context, private val base64Key: String) {
     /**
      * Checks purchase signature for more security.
      */
-    private fun processPurchases(allPurchases: List<Purchase>) {
+    private fun processPurchases(allPurchases: List<Purchase>, purchasedProductsFetched: Boolean) {
         if (allPurchases.isNotEmpty()) {
             val validPurchases = allPurchases.filter {
                 isPurchaseSignatureValid(it)
@@ -334,23 +340,28 @@ class IapConnector(context: Context, private val base64Key: String) {
                 )
             }
 
-            billingEventListener?.onProductsPurchased(validPurchases)
+            if (purchasedProductsFetched)
+                billingEventListener?.onPurchasedProductsFetched(validPurchases)
+            else
+                billingEventListener?.onProductsPurchased(validPurchases)
 
             validPurchases.forEach {
-                when (it.skuProductType) {
-                    CONSUMABLE -> {
-                        if (shouldAutoConsume)
-                            consume(it)
-                    }
-                    NON_CONSUMABLE, SUBSCRIPTION -> {
-                        if (shouldAutoAcknowledge)
-                            acknowledgePurchase(it)
-                    }
+
+                // Auto Consume
+                if (shouldAutoConsume) {
+                    consume(it)
                 }
 
+                // Auto Acknowledge
+                if (shouldAutoAcknowledge) {
+                    val wasConsumedBefore = it.skuProductType == CONSUMABLE && shouldAutoConsume
+                    if (!wasConsumedBefore)
+                        acknowledgePurchase(it)
+                }
             }
         }
     }
+
 
     /**
      * Consume consumable purchases
@@ -386,13 +397,11 @@ class IapConnector(context: Context, private val base64Key: String) {
      * This will avoid refunding for these products to users by Google.
      *
      * Consumable products might be brought/consumed by users multiple times (for eg. diamonds, coins).
-     * In this case the product has to be consumed manually ot automatically.
+     * They have to be consumed or acknowledged within 3 days otherwise google will refund the products.
      */
     fun acknowledgePurchase(purchaseInfo: PurchaseInfo) {
-
         when (purchaseInfo.skuProductType) {
-            CONSUMABLE -> throw IllegalArgumentException("Consumables can not be acknowledged")
-            NON_CONSUMABLE, SUBSCRIPTION -> {
+            CONSUMABLE, NON_CONSUMABLE, SUBSCRIPTION -> {
                 purchaseInfo.run {
                     billingClient.acknowledgePurchase(
                         AcknowledgePurchaseParams.newBuilder().setPurchaseToken(
@@ -402,10 +411,7 @@ class IapConnector(context: Context, private val base64Key: String) {
                         when (billingResult.responseCode) {
                             OK -> billingEventListener?.onPurchaseAcknowledged(this)
                             else -> {
-                                Log.d(
-                                    tag,
-                                    "Handling non consumables : Error -> ${billingResult.debugMessage}"
-                                )
+                                Log.d(tag, "Handling acknowledgePurchase : Error -> ${billingResult.debugMessage}")
 
                                 billingEventListener?.onError(
                                     this@IapConnector,
