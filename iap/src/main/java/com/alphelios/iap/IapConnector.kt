@@ -102,7 +102,7 @@ class IapConnector(context: Context, private val base64Key: String) {
     /**
      * Called to purchase an item.
      */
-    fun makePurchase(activity: Activity, skuId: String) {
+    fun purchase(activity: Activity, skuId: String) {
         if (fetchedSkuInfosList.isEmpty())
             billingEventListener?.onError(this, BillingResponse("Products not fetched"))
         else {
