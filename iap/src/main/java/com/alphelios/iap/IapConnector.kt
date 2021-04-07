@@ -35,7 +35,7 @@ class IapConnector(context: Context, private val base64Key: String) {
     }
 
 
-    fun isReady(debugLog: Boolean = false): Boolean {
+    fun isReady(): Boolean {
         if (!connected) {
             Log.d(tag, "Billing client : is not ready because no connection is established yet")
         }
