@@ -3,6 +3,7 @@ package com.alphelios.iap
 import android.app.Activity
 import android.content.Context
 import android.util.Log
+import com.alphelios.iap.DataWrappers.SkuProductType.*
 import com.android.billingclient.api.*
 import com.android.billingclient.api.BillingClient.BillingResponseCode.*
 import com.android.billingclient.api.BillingClient.FeatureType.SUBSCRIPTIONS
@@ -219,19 +220,20 @@ class IapConnector(context: Context, private val base64Key: String) {
 
                         fetchedSkuDetailsList.addAll(skuDetailsList)
 
-                        val fetchedSkuInfo = skuDetailsList.map {
-                            getSkuInfo(it)
+                        val fetchedSkuInfos = skuDetailsList.map {
+                            generateSkuInfo(it)
                         }
 
-                        if (skuType == SUBS)
-                            inAppEventsListener?.onSubscriptionsFetched(fetchedSkuInfo)
-                        else if (skuType == INAPP) {
-                            inAppEventsListener?.onInAppProductsFetched(fetchedSkuInfo.map {
-                                it.isConsumable = isSkuIdConsumable(it.sku)
-                                it
-                            })
-                        } else {
-                            throw IllegalStateException("Not implemented SkuType")
+                        when (skuType) {
+                            SUBS -> {
+                                inAppEventsListener?.onSubscriptionsFetched(fetchedSkuInfos)
+                            }
+                            INAPP -> {
+                                inAppEventsListener?.onInAppProductsFetched(fetchedSkuInfos)
+                            }
+                            else -> {
+                                throw IllegalStateException("Not implemented SkuType")
+                            }
                         }
                     }
                 }
@@ -251,12 +253,25 @@ class IapConnector(context: Context, private val base64Key: String) {
         }
     }
 
-    private fun isSkuIdConsumable(skuId: String): Boolean {
-        if (consumableIds.isNullOrEmpty()) return false
-        return consumableIds!!.contains(skuId)
-    }
+    private fun generateSkuInfo(skuDetails: SkuDetails): DataWrappers.SkuInfo {
 
-    private fun getSkuInfo(skuDetails: SkuDetails): DataWrappers.SkuInfo {
+        fun isSkuIdConsumable(skuId: String): Boolean {
+            if (consumableIds.isNullOrEmpty()) return false
+            return consumableIds!!.contains(skuId)
+        }
+
+        val skuProductType: DataWrappers.SkuProductType = when (skuDetails.type) {
+            SUBS -> SUBSCRIPTION
+            INAPP -> {
+                val consumable = isSkuIdConsumable(skuDetails.sku)
+                if (consumable)
+                    CONSUMABLE
+                else
+                    NON_CONSUMABLE
+            }
+            else -> throw IllegalStateException("Not implemented SkuType")
+        }
+
         return DataWrappers.SkuInfo(
             skuDetails.sku,
             skuDetails.description,
@@ -274,7 +289,7 @@ class IapConnector(context: Context, private val base64Key: String) {
             skuDetails.priceCurrencyCode,
             skuDetails.subscriptionPeriod,
             skuDetails.title,
-            skuDetails.type
+            skuProductType
         )
     }
 
@@ -305,7 +320,7 @@ class IapConnector(context: Context, private val base64Key: String) {
                 isPurchaseSignatureValid(it)
             }.map { purchase ->
                 DataWrappers.PurchaseInfo(
-                    getSkuInfo(fetchedSkuDetailsList.find { it.sku == purchase.sku }!!),
+                    generateSkuInfo(fetchedSkuDetailsList.find { it.sku == purchase.sku }!!),
                     purchase.purchaseState,
                     purchase.developerPayload,
                     purchase.isAcknowledged,
@@ -339,55 +354,60 @@ class IapConnector(context: Context, private val base64Key: String) {
      */
     private fun acknowledgePurchase(purchase: DataWrappers.PurchaseInfo) {
         purchase.run {
-            if (isSkuIdConsumable(this.sku)) {
-                iapClient.consumeAsync(
-                    ConsumeParams.newBuilder()
-                        .setPurchaseToken(purchaseToken).build()
-                ) { billingResult, purchaseToken ->
-                    when (billingResult.responseCode) {
-                        OK -> inAppEventsListener?.onPurchaseAcknowledged(this)
-                        else -> {
-                            Log.d(
-                                tag,
-                                "Handling consumables : Error -> ${billingResult.debugMessage}"
-                            )
-                            inAppEventsListener?.onError(
-                                this@IapConnector,
-                                billingResult.run {
-                                    DataWrappers.BillingResponse(
-                                        debugMessage,
-                                        responseCode
-                                    )
-                                }
-                            )
+
+            when (purchase.skuInfo.skuProductType) {
+                CONSUMABLE -> {
+                    iapClient.consumeAsync(
+                        ConsumeParams.newBuilder()
+                            .setPurchaseToken(purchaseToken).build()
+                    ) { billingResult, purchaseToken ->
+                        when (billingResult.responseCode) {
+                            OK -> inAppEventsListener?.onPurchaseAcknowledged(this)
+                            else -> {
+                                Log.d(
+                                    tag,
+                                    "Handling consumables : Error -> ${billingResult.debugMessage}"
+                                )
+                                inAppEventsListener?.onError(
+                                    this@IapConnector,
+                                    billingResult.run {
+                                        DataWrappers.BillingResponse(
+                                            debugMessage,
+                                            responseCode
+                                        )
+                                    }
+                                )
+                            }
                         }
                     }
                 }
-            } else
-                iapClient.acknowledgePurchase(
-                    AcknowledgePurchaseParams.newBuilder().setPurchaseToken(
-                        purchaseToken
-                    ).build()
-                ) { billingResult ->
-                    when (billingResult.responseCode) {
-                        OK -> inAppEventsListener?.onPurchaseAcknowledged(this)
-                        else -> {
-                            Log.d(
-                                tag,
-                                "Handling non consumables : Error -> ${billingResult.debugMessage}"
-                            )
-                            inAppEventsListener?.onError(
-                                this@IapConnector,
-                                billingResult.run {
-                                    DataWrappers.BillingResponse(
-                                        debugMessage,
-                                        responseCode
-                                    )
-                                }
-                            )
+                NON_CONSUMABLE, SUBSCRIPTION -> {
+                    iapClient.acknowledgePurchase(
+                        AcknowledgePurchaseParams.newBuilder().setPurchaseToken(
+                            purchaseToken
+                        ).build()
+                    ) { billingResult ->
+                        when (billingResult.responseCode) {
+                            OK -> inAppEventsListener?.onPurchaseAcknowledged(this)
+                            else -> {
+                                Log.d(
+                                    tag,
+                                    "Handling non consumables : Error -> ${billingResult.debugMessage}"
+                                )
+                                inAppEventsListener?.onError(
+                                    this@IapConnector,
+                                    billingResult.run {
+                                        DataWrappers.BillingResponse(
+                                            debugMessage,
+                                            responseCode
+                                        )
+                                    }
+                                )
+                            }
                         }
                     }
                 }
+            }
         }
     }
 

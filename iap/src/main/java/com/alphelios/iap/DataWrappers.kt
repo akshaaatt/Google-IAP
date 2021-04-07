@@ -4,6 +4,10 @@ import com.android.billingclient.api.AccountIdentifiers
 
 class DataWrappers {
 
+    enum class SkuProductType {
+        CONSUMABLE, NON_CONSUMABLE, SUBSCRIPTION
+    }
+
     data class SkuInfo(
         val sku: String,
         val description: String,
@@ -21,8 +25,7 @@ class DataWrappers {
         val priceCurrencyCode: String,
         val subscriptionPeriod: String,
         val title: String,
-        val type: String,
-        var isConsumable: Boolean = false
+        val skuProductType: SkuProductType,
     )
 
     data class PurchaseInfo(
