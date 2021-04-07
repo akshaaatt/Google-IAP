@@ -4,14 +4,14 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.alphelios.iap.BillingEventListener
-import com.alphelios.iap.DataWrappers
+import com.alphelios.iap.DataWrappers.*
 import com.alphelios.iap.IapConnector
 import com.alphelios.superrich.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private val tag: String = "IAP"
-    private var fetchedSkuDetailsList = mutableListOf<DataWrappers.SkuInfo>()
+    private var fetchedSkuDetailsList = mutableListOf<SkuInfo>()
     private lateinit var iapConnector: IapConnector
     private lateinit var binding: ActivityMainBinding
 
@@ -20,94 +20,89 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        iapConnector = IapConnector(
-            this, "key" // License Key
-        )
-            .setNonConsumableIds(listOf("base", "moderate", "plenty", "quite"))
+        iapConnector = IapConnector(this, "License Key")
+            .setNonConsumableIds(listOf("no_ads", "super_sword"))
+            .setConsumableIds(listOf("100_coins", "200_coins"))
             .autoAcknowledge()
+            .autoConsume()
             .connect()
 
         iapConnector.setBillingEventListener(object : BillingEventListener {
-            override fun onProductsFetched(skuDetailsList: List<DataWrappers.SkuInfo>) {
+            override fun onProductsFetched(skuDetailsList: List<SkuInfo>) {
                 fetchedSkuDetailsList.addAll(skuDetailsList)
                 Log.d(tag, "Retrieved SKU details list : $skuDetailsList")
             }
 
-            override fun onPurchasedProductsFetched(purchases: List<DataWrappers.PurchaseInfo>) {
+            override fun onPurchasedProductsFetched(purchases: List<PurchaseInfo>) {
                 Log.d(tag, "Retrieved all purchased products : $purchases")
             }
 
-            override fun onProductsPurchased(purchases: List<DataWrappers.PurchaseInfo>) {
+            override fun onProductsPurchased(purchases: List<PurchaseInfo>) {
                 purchases.forEach {
                     when (it.skuId) {
-                        "base" -> {
+                        "no_ads" -> {
 
                         }
-                        "moderate" -> {
+                        "super_sword" -> {
 
                         }
-                        "quite" -> {
+                        "100_coins" -> {
 
                         }
-                        "plenty" -> {
+                        "200_coins" -> {
 
                         }
-                        "subscribe" -> {
 
-                        }
-                        "yearly" -> {
-
-                        }
                     }
                 }
             }
 
-            override fun onPurchaseAcknowledged(purchase: DataWrappers.PurchaseInfo) {
+            override fun onPurchaseAcknowledged(purchase: PurchaseInfo) {
                 Log.d(tag, "onPurchaseAcknowledged : " + purchase.skuId)
             }
 
-            override fun onPurchaseConsumed(purchase: DataWrappers.PurchaseInfo) {
+            override fun onPurchaseConsumed(purchase: PurchaseInfo) {
                 Log.d(tag, "onPurchaseConsumed : " + purchase.skuId)
             }
 
             override fun onError(
                 inAppConnector: IapConnector,
-                result: DataWrappers.BillingResponse?
+                result: BillingResponse
             ) {
-                Log.d(tag, "Error : ${result?.message}")
+                Log.d(tag, "Error : $result")
             }
         })
 
         binding.btPurchaseCons.setOnClickListener {
             if (fetchedSkuDetailsList.find { it.skuId == "base" } != null) {
-                iapConnector.makePurchase(this, "base")
+                iapConnector.purchase(this, "base")
             }
         }
         binding.btnMonthly.setOnClickListener {
             if (fetchedSkuDetailsList.find { it.skuId == "subscribe" } != null) {
-                iapConnector.makePurchase(this, "subscribe")
+                iapConnector.purchase(this, "subscribe")
             }
         }
 
         binding.btnYearly.setOnClickListener {
             if (fetchedSkuDetailsList.find { it.skuId == "yearly" } != null) {
-                iapConnector.makePurchase(this, "yearly")
+                iapConnector.purchase(this, "yearly")
             }
         }
         binding.btnQuite.setOnClickListener {
             if (fetchedSkuDetailsList.find { it.skuId == "quite" } != null) {
-                iapConnector.makePurchase(this, "quite")
+                iapConnector.purchase(this, "quite")
             }
         }
         binding.btnModerate.setOnClickListener {
             if (fetchedSkuDetailsList.find { it.skuId == "moderate" } != null) {
-                iapConnector.makePurchase(this, "moderate")
+                iapConnector.purchase(this, "moderate")
             }
         }
 
         binding.btnUltimate.setOnClickListener {
             if (fetchedSkuDetailsList.find { it.skuId == "plenty" } != null) {
-                iapConnector.makePurchase(this, "plenty")
+                iapConnector.purchase(this, "plenty")
             }
         }
     }
