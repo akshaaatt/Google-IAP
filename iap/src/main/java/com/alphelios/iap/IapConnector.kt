@@ -103,8 +103,12 @@ class IapConnector(context: Context, private val base64Key: String) {
      * Called to purchase an item.
      */
     fun purchase(activity: Activity, skuId: String) {
-        if (fetchedSkuInfosList.isEmpty())
-            billingEventListener?.onError(this, BillingResponse("Products not fetched"))
+        if (isReady())
+            billingEventListener?.onError(
+                this, BillingResponse(
+                    ErrorType.CLIENT_NOT_READY_ERROR, "Client is not ready yet"
+                )
+            )
         else {
             val skuDetails = fetchedSkuInfosList.find { it.skuId == skuId }!!.skuDetails
             billingClient.launchBillingFlow(
@@ -138,7 +142,7 @@ class IapConnector(context: Context, private val base64Key: String) {
                     OK -> purchases?.let { processPurchases(purchases, false) }
                     ITEM_ALREADY_OWNED -> billingEventListener?.onError(
                         this,
-                        BillingResponse(billingResult)
+                        BillingResponse(ErrorType.ITEM_ALREADY_OWNED_ERROR, billingResult)
                     )
                     SERVICE_DISCONNECTED -> connect()
                     else -> Log.i(tag, "Purchase update : ${billingResult.debugMessage}")
@@ -192,7 +196,7 @@ class IapConnector(context: Context, private val base64Key: String) {
                     connected = false
                     billingEventListener?.onError(
                         this@IapConnector,
-                        BillingResponse("Billing service : Disconnected")
+                        BillingResponse(ErrorType.CLIENT_DISCONNECTED, "Billing service : Disconnected")
                     )
                     Log.d(tag, "Billing service : Trying to establish to reconnect...")
                     billingClient.startConnection(this)
@@ -245,7 +249,7 @@ class IapConnector(context: Context, private val base64Key: String) {
 
                         billingEventListener?.onError(
                             this,
-                            BillingResponse(billingResult)
+                            BillingResponse(ErrorType.BILLING_ERROR, billingResult)
                         )
                     } else {
                         Log.d(tag, "Query SKU : Data found")
@@ -272,7 +276,7 @@ class IapConnector(context: Context, private val base64Key: String) {
                 else -> {
                     Log.d(tag, "Query SKU : Failed")
                     billingEventListener?.onError(
-                        this, BillingResponse(billingResult)
+                        this, BillingResponse(ErrorType.BILLING_ERROR, billingResult)
                     )
                 }
             }
@@ -320,7 +324,7 @@ class IapConnector(context: Context, private val base64Key: String) {
         } else {
             billingEventListener?.onError(
                 this,
-                BillingResponse("Client not initialized yet.")
+                BillingResponse(ErrorType.FETCH_PURCHASED_PRODUCTS_ERROR, "Client not ready yet.")
             )
         }
     }
@@ -382,7 +386,7 @@ class IapConnector(context: Context, private val base64Key: String) {
 
                                 billingEventListener?.onError(
                                     this@IapConnector,
-                                    BillingResponse(billingResult)
+                                    BillingResponse(ErrorType.CONSUME_ERROR, billingResult)
                                 )
                             }
                         }
@@ -415,7 +419,7 @@ class IapConnector(context: Context, private val base64Key: String) {
 
                                 billingEventListener?.onError(
                                     this@IapConnector,
-                                    BillingResponse(billingResult)
+                                    BillingResponse(ErrorType.ACKNOWLEDGE_ERROR, billingResult)
                                 )
                             }
                         }
@@ -428,25 +432,28 @@ class IapConnector(context: Context, private val base64Key: String) {
     /**
      * Before using subscriptions, device-support must be checked.
      */
-    fun isSubscriptionSupported(): Boolean {
-        var isSupported = false
-        when (billingClient.isFeatureSupported(SUBSCRIPTIONS).responseCode) {
+    fun isSubscriptionSupported(): SupportState {
+        val response = billingClient.isFeatureSupported(SUBSCRIPTIONS)
+        return when (response.responseCode) {
             OK -> {
-                isSupported = true
                 Log.d(tag, "Subs support check : Success")
+                SupportState.SUPPORTED
             }
-            SERVICE_DISCONNECTED -> connect()
-            else -> Log.d(tag, "Subs support check : Error")
+            SERVICE_DISCONNECTED -> {
+                connect()
+                SupportState.DISCONNECTED
+            }
+            else -> {
+                Log.d(tag, "Subs support check : Error -> ${response.responseCode} ${response.debugMessage}")
+                SupportState.NOT_SUPPORTED
+            }
         }
-        return isSupported
     }
 
     /**
      * Checks purchase signature validity
      */
     private fun isPurchaseSignatureValid(purchase: Purchase): Boolean {
-        return Security.verifyPurchase(
-            base64Key, purchase.originalJson, purchase.signature
-        )
+        return Security.verifyPurchase(base64Key, purchase.originalJson, purchase.signature)
     }
 }
