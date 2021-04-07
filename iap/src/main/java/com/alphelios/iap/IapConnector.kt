@@ -17,17 +17,18 @@ import java.lang.IllegalArgumentException
  * Handles vital processes while dealing with IAP.
  */
 class IapConnector(context: Context, private val base64Key: String) {
-    private var shouldAutoAcknowledge: Boolean = false
-    private var fetchedSkuInfosList = mutableListOf<SkuInfo>()
+
     private val tag = "InAppLog"
     private lateinit var billingClient: BillingClient
+
     private var fetchedSkuInfosList = mutableListOf<SkuInfo>()
     private var billingEventListener: BillingEventListener? = null
 
     private var nonConsumableIds: List<String>? = null
     private var subIds: List<String>? = null
     private var consumableIds: List<String>? = null
-
+    private var shouldAutoAcknowledge: Boolean = false
+    private var shouldAutoConsume: Boolean = false
 
     private var connected = false
     private var checkedForPurchasesAtStart = false
@@ -87,6 +88,14 @@ class IapConnector(context: Context, private val base64Key: String) {
      */
     fun autoAcknowledge(): IapConnector {
         shouldAutoAcknowledge = true
+        return this
+    }
+
+    /**
+     * Iap will auto consume consumable purchases
+     */
+    fun autoConsume(): IapConnector {
+        shouldAutoConsume = true
         return this
     }
 
@@ -232,10 +241,8 @@ class IapConnector(context: Context, private val base64Key: String) {
             when (billingResult.responseCode) {
                 OK -> {
                     if (skuDetailsList!!.isEmpty()) {
-                        Log.d(
-                            tag,
-                            "Query SKU : Data not found (List empty) seems like no SkuIDs are configured on Google Playstore!"
-                        )
+                        Log.d(tag, "Query SKU : Data not found (List empty) seems like no SkuIDs are configured on Google Playstore!")
+
                         billingEventListener?.onError(
                             this,
                             BillingResponse(billingResult)
@@ -329,26 +336,31 @@ class IapConnector(context: Context, private val base64Key: String) {
 
             billingEventListener?.onProductsPurchased(validPurchases)
 
-            if (shouldAutoAcknowledge)
-                validPurchases.forEach {
-                    acknowledgePurchase(it)
+            validPurchases.forEach {
+                when (it.skuProductType) {
+                    CONSUMABLE -> {
+                        if (shouldAutoConsume)
+                            consume(it)
+                    }
+                    NON_CONSUMABLE, SUBSCRIPTION -> {
+                        if (shouldAutoAcknowledge)
+                            acknowledgePurchase(it)
+                    }
                 }
+
+            }
         }
     }
 
     /**
-     * Purchase of non-consumable products must be acknowledged to Play console.
-     * This will avoid refunding for these products to users by Google.
-     *
-     * Consumable products might be brought/consumed by users multiple times (for eg. diamonds, coins).
-     * Hence, it is necessary to notify Play console about such products.
-     */
-    private fun acknowledgePurchase(purchaseInfo: PurchaseInfo) {
-        purchaseInfo.run {
-
-            when (skuInfo.skuProductType) {
-                CONSUMABLE -> {
-                    iapClient.consumeAsync(
+     * Consume consumable purchases
+     * */
+    fun consume(purchaseInfo: PurchaseInfo) {
+        when (purchaseInfo.skuProductType) {
+            NON_CONSUMABLE, SUBSCRIPTION -> throw IllegalArgumentException("Only consumable products can be consumed")
+            CONSUMABLE -> {
+                purchaseInfo.run {
+                    billingClient.consumeAsync(
                         ConsumeParams.newBuilder()
                             .setPurchaseToken(purchase.purchaseToken).build()
                     ) { billingResult, purchaseToken ->
@@ -365,8 +377,24 @@ class IapConnector(context: Context, private val base64Key: String) {
                         }
                     }
                 }
-                NON_CONSUMABLE, SUBSCRIPTION -> {
-                    iapClient.acknowledgePurchase(
+            }
+        }
+    }
+
+    /**
+     * Purchase of subscriptions & non-consumable products must be acknowledged to Play console.
+     * This will avoid refunding for these products to users by Google.
+     *
+     * Consumable products might be brought/consumed by users multiple times (for eg. diamonds, coins).
+     * In this case the product has to be consumed manually ot automatically.
+     */
+    fun acknowledgePurchase(purchaseInfo: PurchaseInfo) {
+
+        when (purchaseInfo.skuProductType) {
+            CONSUMABLE -> throw IllegalArgumentException("Consumables can not be acknowledged")
+            NON_CONSUMABLE, SUBSCRIPTION -> {
+                purchaseInfo.run {
+                    billingClient.acknowledgePurchase(
                         AcknowledgePurchaseParams.newBuilder().setPurchaseToken(
                             purchase.purchaseToken
                         ).build()
