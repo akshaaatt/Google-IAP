@@ -145,7 +145,7 @@ class IapConnector(context: Context, private val base64Key: String) {
                         this,
                         BillingResponse(ErrorType.ITEM_ALREADY_OWNED_ERROR, billingResult)
                     )
-                    SERVICE_DISCONNECTED -> connect()
+                    SERVICE_DISCONNECTED, SERVICE_TIMEOUT -> connect()
                     else -> Log.i(tag, "Init : ${billingResult.debugMessage}")
                 }
             }.build()
