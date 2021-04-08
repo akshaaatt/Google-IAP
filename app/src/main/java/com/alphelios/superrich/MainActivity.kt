@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.alphelios.iap.BillingEventListener
 import com.alphelios.iap.DataWrappers.*
+import com.alphelios.iap.DataWrappers.ErrorType.*
 import com.alphelios.iap.IapConnector
 import com.alphelios.superrich.databinding.ActivityMainBinding
 
@@ -65,11 +66,18 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 Log.d(tag, "onPurchaseConsumed : " + purchase.skuId)
             }
 
-            override fun onError(
-                inAppConnector: IapConnector,
-                result: BillingResponse
-            ) {
+            override fun onError(inAppConnector: IapConnector, result: BillingResponse) {
                 Log.d(tag, "Error : $result")
+
+                when (result.errorType) {
+                    CLIENT_NOT_READY_ERROR -> TODO()
+                    CLIENT_DISCONNECTED -> TODO()
+                    ITEM_ALREADY_OWNED_ERROR -> TODO()
+                    CONSUME_ERROR -> TODO()
+                    ACKNOWLEDGE_ERROR -> TODO()
+                    PURCHASED_PRODUCT_FETCH_ERROR -> TODO()
+                    BILLING_ERROR -> TODO()
+                }
             }
         })
 
