@@ -134,6 +134,7 @@ class IapConnector(context: Context, private val base64Key: String) {
         billingClient = BillingClient.newBuilder(context)
             .enablePendingPurchases()
             .setListener { billingResult, purchases ->
+
                 /**
                  * Only recent purchases are received here
                  */
@@ -145,7 +146,7 @@ class IapConnector(context: Context, private val base64Key: String) {
                         BillingResponse(ErrorType.ITEM_ALREADY_OWNED_ERROR, billingResult)
                     )
                     SERVICE_DISCONNECTED -> connect()
-                    else -> Log.i(tag, "Purchase update : ${billingResult.debugMessage}")
+                    else -> Log.i(tag, "Init : ${billingResult.debugMessage}")
                 }
             }.build()
     }
