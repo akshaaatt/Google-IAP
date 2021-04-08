@@ -1,4 +1,4 @@
-package com.alphelios.superrich
+package com.alphelios.richierich
 
 import android.os.Bundle
 import android.util.Log
@@ -9,7 +9,7 @@ import com.alphelios.iap.model.BillingResponse
 import com.alphelios.iap.model.PurchaseInfo
 import com.alphelios.iap.model.SkuInfo
 import com.alphelios.iap.type.ErrorType.*
-import com.alphelios.superrich.databinding.ActivityMainBinding
+import com.alphelios.richierich.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
 

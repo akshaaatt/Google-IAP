@@ -6,11 +6,11 @@ plugins {
 android {
     compileSdkVersion 30
     defaultConfig {
-        applicationId "com.alphelios.superrich"
+        applicationId "com.alphelios.richierich"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 7
-        versionName "1.0.6"
+        versionCode 1
+        versionName "1.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -35,7 +35,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.core:core-ktx:1.3.2'
     implementation 'androidx.gridlayout:gridlayout:1.0.0'
-    implementation 'com.google.android.material:material:1.4.0-alpha01'
+    implementation 'com.google.android.material:material:1.4.0-alpha02'
 
     implementation 'com.intuit.sdp:sdp-android:1.0.6'
 
