@@ -22,6 +22,7 @@ class IapConnector(context: Context, private val base64Key: String) {
     private lateinit var billingClient: BillingClient
 
     private var fetchedSkuInfosList = mutableListOf<SkuInfo>()
+    private var purchasedProductsList = mutableListOf<PurchaseInfo>()
     private var billingEventListener: BillingEventListener? = null
 
     private var nonConsumableIds: List<String>? = null
@@ -32,6 +33,7 @@ class IapConnector(context: Context, private val base64Key: String) {
 
     private var connected = false
     private var checkedForPurchasesAtStart = false
+    private var fetchedPurchasedProducts = false
 
     init {
         init(context)
@@ -339,10 +341,13 @@ class IapConnector(context: Context, private val base64Key: String) {
                 )
             }
 
-            if (purchasedProductsFetched)
+            if (purchasedProductsFetched) {
+                fetchedPurchasedProducts = true
                 billingEventListener?.onPurchasedProductsFetched(validPurchases)
-            else
+            } else
                 billingEventListener?.onProductsPurchased(validPurchases)
+
+            purchasedProductsList.addAll(validPurchases)
 
             validPurchases.forEach {
 
@@ -375,7 +380,10 @@ class IapConnector(context: Context, private val base64Key: String) {
                             .setPurchaseToken(purchase.purchaseToken).build()
                     ) { billingResult, purchaseToken ->
                         when (billingResult.responseCode) {
-                            OK -> billingEventListener?.onPurchaseConsumed(this)
+                            OK -> {
+                                purchasedProductsList.remove(purchaseInfo)
+                                billingEventListener?.onPurchaseConsumed(this)
+                            }
                             else -> {
                                 Log.d(tag, "Handling consumables : Error during consumption attempt -> ${billingResult.debugMessage}")
 
@@ -424,6 +432,25 @@ class IapConnector(context: Context, private val base64Key: String) {
         }
     }
 
+    fun isPurchased(skuInfo: SkuInfo) = isPurchased(skuInfo.skuId)
+
+    enum class IsPurchasedResult { CLIENT_NOT_READY, PURCHASED_PRODUCTS_NOT_FETCHED_YET, YES, NO }
+    fun isPurchased(skuId: String): IsPurchasedResult {
+        return when {
+            !isReady() -> IsPurchasedResult.CLIENT_NOT_READY
+            !fetchedPurchasedProducts -> IsPurchasedResult.PURCHASED_PRODUCTS_NOT_FETCHED_YET
+            else -> { // The checks were successful
+                for (p in purchasedProductsList) {
+                    if (p.skuId == skuId) {
+                        return IsPurchasedResult.YES
+                    }
+                }
+
+                return IsPurchasedResult.NO
+            }
+        }
+    }
+
     /**
      * Before using subscriptions, device-support must be checked.
      */
@@ -451,4 +478,5 @@ class IapConnector(context: Context, private val base64Key: String) {
     private fun isPurchaseSignatureValid(purchase: Purchase): Boolean {
         return Security.verifyPurchase(base64Key, purchase.originalJson, purchase.signature)
     }
+
 }
