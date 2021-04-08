@@ -24,10 +24,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         setContentView(binding.root)
 
         iapConnector = IapConnector(this, "License Key")
-            .setNonConsumableIds(listOf("no_ads", "super_sword"))
-            .setConsumableIds(listOf("100_coins", "200_coins"))
+            .setNonConsumableIds("no_ads", "super_sword")
+            .setConsumableIds("base","yearly","quite","moderate", "plenty")
+                .setSubscriptionIds("subscribe")
             .autoAcknowledge()
-            .autoConsume()
             .connect()
 
         iapConnector.setBillingEventListener(object : BillingEventListener {
@@ -79,41 +79,30 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     ACKNOWLEDGE_ERROR -> TODO()
                     FETCH_PURCHASED_PRODUCTS_ERROR -> TODO()
                     BILLING_ERROR -> TODO()
+                    else -> {}
                 }
             }
         })
 
         binding.btPurchaseCons.setOnClickListener {
-            if (fetchedSkuDetailsList.find { it.skuId == "base" } != null) {
-                iapConnector.purchase(this, "base")
-            }
+            iapConnector.purchase(this, "base")
         }
         binding.btnMonthly.setOnClickListener {
-            if (fetchedSkuDetailsList.find { it.skuId == "subscribe" } != null) {
-                iapConnector.purchase(this, "subscribe")
-            }
+            iapConnector.purchase(this, "subscribe")
         }
 
         binding.btnYearly.setOnClickListener {
-            if (fetchedSkuDetailsList.find { it.skuId == "yearly" } != null) {
-                iapConnector.purchase(this, "yearly")
-            }
+            iapConnector.purchase(this, "yearly")
         }
         binding.btnQuite.setOnClickListener {
-            if (fetchedSkuDetailsList.find { it.skuId == "quite" } != null) {
-                iapConnector.purchase(this, "quite")
-            }
+            iapConnector.purchase(this, "quite")
         }
         binding.btnModerate.setOnClickListener {
-            if (fetchedSkuDetailsList.find { it.skuId == "moderate" } != null) {
-                iapConnector.purchase(this, "moderate")
-            }
+            iapConnector.purchase(this, "moderate")
         }
 
         binding.btnUltimate.setOnClickListener {
-            if (fetchedSkuDetailsList.find { it.skuId == "plenty" } != null) {
-                iapConnector.purchase(this, "plenty")
-            }
+            iapConnector.purchase(this, "plenty")
         }
     }
 }

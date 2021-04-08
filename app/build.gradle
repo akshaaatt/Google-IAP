@@ -9,8 +9,8 @@ android {
         applicationId "com.alphelios.superrich"
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 6
-        versionName "1.0.5"
+        versionCode 7
+        versionName "1.0.6"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -37,8 +37,6 @@ dependencies {
     implementation 'androidx.gridlayout:gridlayout:1.0.0'
     implementation 'com.google.android.material:material:1.4.0-alpha01'
 
-    implementation 'com.google.android.gms:play-services-auth:19.0.0'
-    implementation 'com.google.android.gms:play-services-games:21.0.0'
     implementation 'com.intuit.sdp:sdp-android:1.0.6'
 
     implementation project(':iap')

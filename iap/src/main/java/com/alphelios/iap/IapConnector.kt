@@ -14,7 +14,6 @@ import com.android.billingclient.api.BillingClient.BillingResponseCode.*
 import com.android.billingclient.api.BillingClient.FeatureType.SUBSCRIPTIONS
 import com.android.billingclient.api.BillingClient.SkuType.INAPP
 import com.android.billingclient.api.BillingClient.SkuType.SUBS
-import java.lang.IllegalArgumentException
 
 /**
  * Wrapper class for Google In-App purchases.
@@ -33,7 +32,6 @@ class IapConnector(context: Context, private val base64Key: String) {
     private var subIds: List<String>? = null
     private var consumableIds: List<String>? = null
     private var shouldAutoAcknowledge: Boolean = false
-    private var shouldAutoConsume: Boolean = false
 
     private var connected = false
     private var checkedForPurchasesAtStart = false
@@ -88,14 +86,6 @@ class IapConnector(context: Context, private val base64Key: String) {
      */
     fun autoAcknowledge(): IapConnector {
         shouldAutoAcknowledge = true
-        return this
-    }
-
-    /**
-     * Iap will auto consume consumable purchases
-     */
-    fun autoConsume(): IapConnector {
-        shouldAutoConsume = true
         return this
     }
 
@@ -360,15 +350,11 @@ class IapConnector(context: Context, private val base64Key: String) {
             purchasedProductsList.addAll(validPurchases)
 
             validPurchases.forEach {
-
-                // Auto Consume
-                if (shouldAutoConsume) {
-                    consume(it)
-                }
+                consume(it)
 
                 // Auto Acknowledge
                 if (shouldAutoAcknowledge) {
-                    val wasConsumedBefore = it.skuProductType == CONSUMABLE && shouldAutoConsume
+                    val wasConsumedBefore = it.skuProductType == CONSUMABLE
                     if (!wasConsumedBefore)
                         acknowledgePurchase(it)
                 }
