@@ -39,21 +39,15 @@ class IapConnector(context: Context, private val base64Key: String) {
 
 
     fun isReady(): Boolean {
-        if (!connected) {
+        if (!connected)
             Log.d(tag, "Billing client : is not ready because no connection is established yet")
-        }
 
-        if (!billingClient.isReady) {
+        if (!billingClient.isReady)
             Log.d(tag, "Billing client : is not ready because iapClient is not ready yet")
-        }
 
-        if (fetchedSkuInfosList.isEmpty()) {
+        if (fetchedSkuInfosList.isEmpty())
             Log.d(tag, "Billing client : is not ready because fetchedSkuDetailsList is empty or not fetched yet")
-        }
 
-        if (!connected) {
-            Log.d(tag, "Billing client : is not ready because no connection is established yet")
-        }
 
         return connected && billingClient.isReady && fetchedSkuInfosList.isNotEmpty()
     }
