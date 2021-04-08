@@ -72,9 +72,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 Log.d(tag, "Error : $result")
 
                 when (result.errorType) {
-                    CLIENT_NOT_READY_ERROR -> TODO()
+                    CLIENT_NOT_READY -> TODO()
                     CLIENT_DISCONNECTED -> TODO()
-                    ITEM_ALREADY_OWNED_ERROR -> TODO()
+                    ITEM_ALREADY_OWNED -> TODO()
                     CONSUME_ERROR -> TODO()
                     ACKNOWLEDGE_ERROR -> TODO()
                     FETCH_PURCHASED_PRODUCTS_ERROR -> TODO()

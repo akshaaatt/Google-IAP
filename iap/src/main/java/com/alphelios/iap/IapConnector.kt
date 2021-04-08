@@ -103,13 +103,8 @@ class IapConnector(context: Context, private val base64Key: String) {
      * Called to purchase an item.
      */
     fun purchase(activity: Activity, skuId: String) {
-        if (isReady())
-            billingEventListener?.onError(
-                this, BillingResponse(
-                    ErrorType.CLIENT_NOT_READY_ERROR, "Client is not ready yet"
-                )
-            )
-        else {
+        if (checkBeforeUserInteraction()) {
+
             val skuDetails = fetchedSkuInfosList.find { it.skuId == skuId }!!.skuDetails
             billingClient.launchBillingFlow(
                 activity,
@@ -118,6 +113,21 @@ class IapConnector(context: Context, private val base64Key: String) {
                     .build()
             )
         }
+    }
+
+    private fun checkBeforeUserInteraction(skuId: String? = null): Boolean {
+        when {
+            !isReady() -> billingEventListener?.onError(this, BillingResponse(ErrorType.CLIENT_NOT_READY, "Client is not ready yet"))
+            skuId != null && !fetchedSkuInfosList.contains(skuId) -> {
+                billingEventListener?.onError(
+                    this,
+                    BillingResponse(ErrorType.ITEM_NOT_EXIST, "The skuId: $skuId seems to be not existing on Google Playstore")
+                )
+            }
+            else -> return true
+        }
+
+        return false
     }
 
     /**
@@ -143,7 +153,7 @@ class IapConnector(context: Context, private val base64Key: String) {
                     OK -> purchases?.let { processPurchases(purchases, false) }
                     ITEM_ALREADY_OWNED -> billingEventListener?.onError(
                         this,
-                        BillingResponse(ErrorType.ITEM_ALREADY_OWNED_ERROR, billingResult)
+                        BillingResponse(ErrorType.ITEM_ALREADY_OWNED, billingResult)
                     )
                     SERVICE_DISCONNECTED, SERVICE_TIMEOUT -> connect()
                     else -> Log.i(tag, "Init : ${billingResult.debugMessage}")
@@ -156,38 +166,34 @@ class IapConnector(context: Context, private val base64Key: String) {
      */
     fun connect(): IapConnector {
 
-        fun checkParameters() {
-            val allIds = mutableListOf<String>()
+        val allIds = mutableListOf<String>()
 
-            // Before we start, check input params we set empty list to null so we only have to deal with lists who are null (not provided) or not empty.
-            if (nonConsumableIds.isNullOrEmpty())
-                nonConsumableIds = null
-            else
-                allIds.addAll(nonConsumableIds!!)
+        // Before we start, check input params we set empty list to null so we only have to deal with lists who are null (not provided) or not empty.
+        if (nonConsumableIds.isNullOrEmpty())
+            nonConsumableIds = null
+        else
+            allIds.addAll(nonConsumableIds!!)
 
-            if (consumableIds.isNullOrEmpty())
-                consumableIds = null
-            else
-                allIds.addAll(consumableIds!!)
+        if (consumableIds.isNullOrEmpty())
+            consumableIds = null
+        else
+            allIds.addAll(consumableIds!!)
 
-            if (subIds.isNullOrEmpty())
-                subIds = null
-            else
-                allIds.addAll(subIds!!)
+        if (subIds.isNullOrEmpty())
+            subIds = null
+        else
+            allIds.addAll(subIds!!)
 
-            // Check if any list is provided.
-            if (nonConsumableIds == null && consumableIds == null && subIds == null) {
-                throw IllegalArgumentException("At least one list of subscriptions, non-consumables or consumables is needed")
-            }
-
-            val allIdSize = allIds.size
-            val allIdSizeDistinct = allIds.distinct().size
-            if (allIdSize != allIdSizeDistinct) {
-                throw IllegalArgumentException("An Id must appear only once in a list. An Id must also not be in different lists")
-            }
+        // Check if any list is provided.
+        if (nonConsumableIds == null && consumableIds == null && subIds == null) {
+            throw IllegalArgumentException("At least one list of subscriptions, non-consumables or consumables is needed")
         }
 
-        checkParameters()
+        val allIdSize = allIds.size
+        val allIdSizeDistinct = allIds.distinct().size
+        if (allIdSize != allIdSizeDistinct) {
+            throw IllegalArgumentException("An Id must appear only once in a list. An Id must also not be in different lists")
+        }
 
 
         Log.d(tag, "Billing service : Connecting...")
@@ -375,26 +381,30 @@ class IapConnector(context: Context, private val base64Key: String) {
      * Consume consumable purchases
      * */
     fun consume(purchaseInfo: PurchaseInfo) {
-        when (purchaseInfo.skuProductType) {
-            NON_CONSUMABLE, SUBSCRIPTION -> throw IllegalArgumentException("Only consumable products can be consumed")
-            CONSUMABLE -> {
-                purchaseInfo.run {
-                    billingClient.consumeAsync(
-                        ConsumeParams.newBuilder()
-                            .setPurchaseToken(purchase.purchaseToken).build()
-                    ) { billingResult, purchaseToken ->
-                        when (billingResult.responseCode) {
-                            OK -> {
-                                purchasedProductsList.remove(purchaseInfo)
-                                billingEventListener?.onPurchaseConsumed(this)
-                            }
-                            else -> {
-                                Log.d(tag, "Handling consumables : Error during consumption attempt -> ${billingResult.debugMessage}")
 
-                                billingEventListener?.onError(
-                                    this@IapConnector,
-                                    BillingResponse(ErrorType.CONSUME_ERROR, billingResult)
-                                )
+        if (checkBeforeUserInteraction(purchaseInfo.skuId)) {
+
+            when (purchaseInfo.skuProductType) {
+                NON_CONSUMABLE, SUBSCRIPTION -> throw IllegalArgumentException("Only consumable products can be consumed")
+                CONSUMABLE -> {
+                    purchaseInfo.run {
+                        billingClient.consumeAsync(
+                            ConsumeParams.newBuilder()
+                                .setPurchaseToken(purchase.purchaseToken).build()
+                        ) { billingResult, purchaseToken ->
+                            when (billingResult.responseCode) {
+                                OK -> {
+                                    purchasedProductsList.remove(purchaseInfo)
+                                    billingEventListener?.onPurchaseConsumed(this)
+                                }
+                                else -> {
+                                    Log.d(tag, "Handling consumables : Error during consumption attempt -> ${billingResult.debugMessage}")
+
+                                    billingEventListener?.onError(
+                                        this@IapConnector,
+                                        BillingResponse(ErrorType.CONSUME_ERROR, billingResult)
+                                    )
+                                }
                             }
                         }
                     }
@@ -408,26 +418,30 @@ class IapConnector(context: Context, private val base64Key: String) {
      * This will avoid refunding for these products to users by Google.
      *
      * Consumable products might be brought/consumed by users multiple times (for eg. diamonds, coins).
-     * They have to be consumed or acknowledged within 3 days otherwise google will refund the products.
+     * They have to be consumed or acknowledged within 3 days otherwise Google will refund the products.
      */
     fun acknowledgePurchase(purchaseInfo: PurchaseInfo) {
-        when (purchaseInfo.skuProductType) {
-            CONSUMABLE, NON_CONSUMABLE, SUBSCRIPTION -> {
-                purchaseInfo.run {
-                    billingClient.acknowledgePurchase(
-                        AcknowledgePurchaseParams.newBuilder().setPurchaseToken(
-                            purchase.purchaseToken
-                        ).build()
-                    ) { billingResult ->
-                        when (billingResult.responseCode) {
-                            OK -> billingEventListener?.onPurchaseAcknowledged(this)
-                            else -> {
-                                Log.d(tag, "Handling acknowledgePurchase : Error -> ${billingResult.debugMessage}")
 
-                                billingEventListener?.onError(
-                                    this@IapConnector,
-                                    BillingResponse(ErrorType.ACKNOWLEDGE_ERROR, billingResult)
-                                )
+        if (checkBeforeUserInteraction(purchaseInfo.skuId)) {
+
+            when (purchaseInfo.skuProductType) {
+                CONSUMABLE, NON_CONSUMABLE, SUBSCRIPTION -> {
+                    purchaseInfo.run {
+                        billingClient.acknowledgePurchase(
+                            AcknowledgePurchaseParams.newBuilder().setPurchaseToken(
+                                purchase.purchaseToken
+                            ).build()
+                        ) { billingResult ->
+                            when (billingResult.responseCode) {
+                                OK -> billingEventListener?.onPurchaseAcknowledged(this)
+                                else -> {
+                                    Log.d(tag, "Handling acknowledgePurchase : Error -> ${billingResult.debugMessage}")
+
+                                    billingEventListener?.onError(
+                                        this@IapConnector,
+                                        BillingResponse(ErrorType.ACKNOWLEDGE_ERROR, billingResult)
+                                    )
+                                }
                             }
                         }
                     }
