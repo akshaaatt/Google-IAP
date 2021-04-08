@@ -61,8 +61,8 @@ class IapConnector(context: Context, private val base64Key: String) {
     /**
      * To set non-consumable product IDs.
      */
-    fun setNonConsumableIds(nonConsumableIds: List<String>): IapConnector {
-        this.nonConsumableIds = nonConsumableIds
+    fun setNonConsumableIds(vararg nonConsumableIds: String): IapConnector {
+        this.nonConsumableIds = nonConsumableIds.toList()
         return this
     }
 
@@ -70,16 +70,16 @@ class IapConnector(context: Context, private val base64Key: String) {
      * To set consumable product IDs.
      * Rest of the IDs will be considered non-consumable.
      */
-    fun setConsumableIds(consumableIds: List<String>): IapConnector {
-        this.consumableIds = consumableIds
+    fun setConsumableIds(vararg consumableIds: String): IapConnector {
+        this.consumableIds = consumableIds.toList()
         return this
     }
 
     /**
      * To set subscription product IDs.
      */
-    fun setSubscriptionIds(subIds: List<String>): IapConnector {
-        this.subIds = subIds
+    fun setSubscriptionIds(vararg subIds: String): IapConnector {
+        this.subIds = subIds.toList()
         return this
     }
 
