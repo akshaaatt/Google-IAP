@@ -3,8 +3,12 @@ package com.alphelios.iap
 import android.app.Activity
 import android.content.Context
 import android.util.Log
-import com.alphelios.iap.DataWrappers.*
-import com.alphelios.iap.DataWrappers.SkuProductType.*
+import com.alphelios.iap.model.BillingResponse
+import com.alphelios.iap.model.PurchaseInfo
+import com.alphelios.iap.model.SkuInfo
+import com.alphelios.iap.type.ErrorType
+import com.alphelios.iap.type.SkuProductType
+import com.alphelios.iap.type.SkuProductType.*
 import com.android.billingclient.api.*
 import com.android.billingclient.api.BillingClient.BillingResponseCode.*
 import com.android.billingclient.api.BillingClient.FeatureType.SUBSCRIPTIONS
@@ -435,6 +439,7 @@ class IapConnector(context: Context, private val base64Key: String) {
     fun isPurchased(skuInfo: SkuInfo) = isPurchased(skuInfo.skuId)
 
     enum class IsPurchasedResult { CLIENT_NOT_READY, PURCHASED_PRODUCTS_NOT_FETCHED_YET, YES, NO }
+
     fun isPurchased(skuId: String): IsPurchasedResult {
         return when {
             !isReady() -> IsPurchasedResult.CLIENT_NOT_READY
@@ -449,6 +454,10 @@ class IapConnector(context: Context, private val base64Key: String) {
                 return IsPurchasedResult.NO
             }
         }
+    }
+
+    enum class SupportState {
+        SUPPORTED, NOT_SUPPORTED, DISCONNECTED
     }
 
     /**

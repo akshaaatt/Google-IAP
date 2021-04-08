@@ -1,6 +1,8 @@
 package com.alphelios.iap
 
-import com.alphelios.iap.DataWrappers.*
+import com.alphelios.iap.model.BillingResponse
+import com.alphelios.iap.model.PurchaseInfo
+import com.alphelios.iap.model.SkuInfo
 
 /**
  * Establishes communication bridge between caller and [IapConnector].
