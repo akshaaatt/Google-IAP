@@ -74,13 +74,7 @@ iapConnector.setOnInAppEventsListener(object : InAppEventsListener {
 		                }
 		                "id3" -> {
 
-		                }
-		                "sub1" -> {
-
-		                }
-		                "sub2" -> {
-
-		                }
+		                }		          
 		                "id4" -> {
 
 		                }
