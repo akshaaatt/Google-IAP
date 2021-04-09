@@ -1,7 +1,7 @@
 [![16113251508601.jpg](https://i.postimg.cc/2yjZh36s/16113251508601.jpg)](https://postimg.cc/hzwvqDVs)
 [![ezgif-com-gif-maker-3.gif](https://i.postimg.cc/cH8xyLHG/ezgif-com-gif-maker-3.gif)](https://postimg.cc/Q9hGcs1f)
 
-IAP is an Android library to handle In-App purchases with minimal code.
+Google-IAP is an Android library to handle In-App purchases and Subscriptions with minimal code.
 
 ## Features
 
@@ -92,8 +92,8 @@ iapConnector.setOnInAppEventsListener(object : InAppEventsListener {
             }
 
              override fun onPurchaseConsumed(purchase: PurchaseInfo) {
-        Log.d(tag, "onPurchaseConsumed : ${purchase.skuId}")
-    }
+	     	Log.d(tag, "onPurchaseConsumed : ${purchase.skuId}")
+	     }
 
             override fun onError(inAppConnector: IapConnector, result: BillingResponse) {
                 Log.d(tag, "Error : $result")
