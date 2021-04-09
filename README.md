@@ -28,7 +28,7 @@ allprojects {
 
 ```
 dependencies {
-    implementation 'com.github.akshaaatt:Google-IAP:1.0.7'
+    implementation 'com.github.akshaaatt:Google-IAP:1.0.8'
 }
 ```
 
@@ -68,7 +68,7 @@ iapConnector.setOnInAppEventsListener(object : InAppEventsListener {
                   purchases.forEach {
         	  Log.d(tag, "A new product was purchaed : ${it.SkuId}")
 			  when (it.skuId) {
-		               "id1" -> {
+		                "id1" -> {
 
 		                }
 		                "id2" -> {
@@ -86,10 +86,6 @@ iapConnector.setOnInAppEventsListener(object : InAppEventsListener {
 		            }
 		        }
             }
-
-             override fun onPurchaseConsumed(purchase: PurchaseInfo) {
-	     	Log.d(tag, "onPurchaseConsumed : ${purchase.skuId}")
-	     }
 
             override fun onError(inAppConnector: IapConnector, result: BillingResponse) {
                 Log.d(tag, "Error : $result")

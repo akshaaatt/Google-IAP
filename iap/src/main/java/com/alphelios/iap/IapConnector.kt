@@ -344,8 +344,10 @@ class IapConnector(context: Context, private val base64Key: String) {
             if (purchasedProductsFetched) {
                 fetchedPurchasedProducts = true
                 billingEventListener?.onPurchasedProductsFetched(validPurchases)
-            } else
+            }
+            else{
                 billingEventListener?.onProductsPurchased(validPurchases)
+            }
 
             purchasedProductsList.addAll(validPurchases)
 
@@ -367,7 +369,6 @@ class IapConnector(context: Context, private val base64Key: String) {
      * Consume consumable purchases
      * */
     fun consume(purchaseInfo: PurchaseInfo) {
-
         if (checkBeforeUserInteraction(purchaseInfo.skuId)) {
 
             when (purchaseInfo.skuProductType) {
@@ -375,13 +376,12 @@ class IapConnector(context: Context, private val base64Key: String) {
                 CONSUMABLE -> {
                     purchaseInfo.run {
                         billingClient.consumeAsync(
-                            ConsumeParams.newBuilder()
-                                .setPurchaseToken(purchase.purchaseToken).build()
+                            ConsumeParams.newBuilder().setPurchaseToken(purchase.purchaseToken).build()
                         ) { billingResult, purchaseToken ->
                             when (billingResult.responseCode) {
                                 OK -> {
-                                    purchasedProductsList.remove(purchaseInfo)
-                                    billingEventListener?.onPurchaseConsumed(this)
+                                    purchasedProductsList.remove(this)
+                                    billingEventListener?.onProductsPurchased(listOf(this))
                                 }
                                 else -> {
                                     Log.d(tag, "Handling consumables : Error during consumption attempt -> ${billingResult.debugMessage}")

@@ -10,7 +10,6 @@ import com.alphelios.iap.model.SkuInfo
  * [onPurchasedProductsFetched] listen to data about all purchases retrieved from Play console.
  * [onProductsPurchased] provides recent purchases
  * [onPurchaseAcknowledged] provides a callback after a purchase is acknowledged
- * [onPurchaseConsumed] provides a callback after a purchase is consumed
  * [onError] is used to notify caller about possible errors.
  */
 interface BillingEventListener {
@@ -18,6 +17,5 @@ interface BillingEventListener {
     fun onPurchasedProductsFetched(purchases: List<PurchaseInfo>)
     fun onProductsPurchased(purchases: List<PurchaseInfo>)
     fun onPurchaseAcknowledged(purchase: PurchaseInfo)
-    fun onPurchaseConsumed(purchase: PurchaseInfo)
     fun onError(inAppConnector: IapConnector, result: BillingResponse)
 }

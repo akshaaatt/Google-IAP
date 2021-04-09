@@ -64,10 +64,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                 Log.d(tag, "onPurchaseAcknowledged : " + purchase.skuId)
             }
 
-            override fun onPurchaseConsumed(purchase: PurchaseInfo) {
-                Log.d(tag, "onPurchaseConsumed : " + purchase.skuId)
-            }
-
             override fun onError(inAppConnector: IapConnector, result: BillingResponse) {
                 Log.d(tag, "Error : $result")
 
