@@ -38,9 +38,9 @@ dependencies {
 
 ```kotlin
 iapConnector = IapConnector(this, "...")
-            .setInAppProductIds(listOf("id1", "id2", "id3"))   /*pass the list of InAppProduct IDs (Consumables & Non-Consumables)*/
+            .setNonConsumableIds(listOf("id1", "id2", "id3"))   /*pass the list of InAppProduct IDs (Consumables & Non-Consumables)*/
             .setSubscriptionIds(listOf("subId1", "subId2"))   /*pass the list of Subscription IDs*/
-            .setConsumableProductIds(listOf("id1", "id2"))  /*pass the list of consumable product IDs (Subset of first InAppProductIds list)*/
+            .setConsumableProductIds(listOf("id4", "id5"))  /*pass the list of consumable product IDs (Subset of first InAppProductIds list)*/
             .autoAcknowledge()  /*to enable auto acknowledgement*/
             .connect()
 ```
@@ -50,24 +50,63 @@ iapConnector = IapConnector(this, "...")
 ```kotlin
 iapConnector.setOnInAppEventsListener(object : InAppEventsListener {
 
-            override fun onSubscriptionsFetched(skuDetailsList: List<DataWrappers.SkuInfo>) {
+            override fun onSubscriptionsFetched(skuDetailsList: List<SkuInfo>) {
                 /*provides list of product details of subs type*/
             }
 
-            override fun onInAppProductsFetched(skuDetailsList: List<DataWrappers.SkuInfo>) {
+            override fun onInAppProductsFetched(skuDetailsList: List<SkuInfo>) {
                 /*provides list of product details of inapp type*/
             }
 
-            override fun onPurchaseAcknowledged(purchase: DataWrappers.PurchaseInfo) {
+            override fun onPurchaseAcknowledged(purchase: PurchaseInfo) {
                 /*callback after purchase being acknowledged*/
             }
 
-            override fun onProductsPurchased(purchases: List<DataWrappers.PurchaseInfo>) {
-                /*provides recent purchases and will be triggered on first connection establishment on app launch to get already purchased products*/
+            override fun onProductsPurchased(purchases: List<PurchaseInfo>) {
+                  purchases.forEach {
+        	  Log.d(tag, "A new product was purchaed : ${it.SkuId}")
+			  when (it.skuId) {
+		               "id1" -> {
+
+		                }
+		                "id2" -> {
+
+		                }
+		                "id3" -> {
+
+		                }
+		                "sub1" -> {
+
+		                }
+		                "sub2" -> {
+
+		                }
+		                "id4" -> {
+
+		                }
+		                "id5" -> {
+
+		                }
+		            }
+		        }
             }
 
-            override fun onError(inAppConnector: IapConnector, result: DataWrappers.BillingResponse?) {
-                /*provides error message if anything goes wrong*/
+             override fun onPurchaseConsumed(purchase: PurchaseInfo) {
+        Log.d(tag, "onPurchaseConsumed : ${purchase.skuId}")
+    }
+
+            override fun onError(inAppConnector: IapConnector, result: BillingResponse) {
+                Log.d(tag, "Error : $result")
+
+                when (result.errorType) {
+                    CLIENT_NOT_READY -> TODO()
+                    CLIENT_DISCONNECTED -> TODO()
+                    ITEM_ALREADY_OWNED -> TODO()
+                    CONSUME_ERROR -> TODO()
+                    ACKNOWLEDGE_ERROR -> TODO()
+                    FETCH_PURCHASED_PRODUCTS_ERROR -> TODO()
+                    BILLING_ERROR -> TODO()
+                }
             }
         })
 ```
@@ -75,7 +114,7 @@ iapConnector.setOnInAppEventsListener(object : InAppEventsListener {
 #### Making a purchase
 
 ```kotlin
-iapConnector.makePurchase(this, "<sku>")
+iapConnector.purchase(this, "<skuId>")
 ```
 
 ## Sample App
