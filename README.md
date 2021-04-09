@@ -34,6 +34,8 @@ dependencies {
 
 ## Usage
 
+#### Add your In-App Products and Subscriptions to the Google Play Developer Console
+
 #### Establishing connection with Play console
 
 ```kotlin
