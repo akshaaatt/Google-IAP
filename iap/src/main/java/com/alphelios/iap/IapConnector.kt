@@ -404,14 +404,17 @@ class IapConnector(context: Context, private val base64Key: String) {
      * This will avoid refunding for these products to users by Google.
      *
      * Consumable products might be brought/consumed by users multiple times (for eg. diamonds, coins).
-     * They have to be consumed or acknowledged within 3 days otherwise Google will refund the products.
+     * They have to be consumed within 3 days otherwise Google will refund the products.
      */
     fun acknowledgePurchase(purchaseInfo: PurchaseInfo) {
 
         if (checkBeforeUserInteraction(purchaseInfo.skuId)) {
 
             when (purchaseInfo.skuProductType) {
-                CONSUMABLE, NON_CONSUMABLE, SUBSCRIPTION -> {
+                CONSUMABLE -> {
+                    throw IllegalArgumentException("Consumables arent allowed to be acknowledged, use consume!")
+                }
+                NON_CONSUMABLE, SUBSCRIPTION -> {
                     purchaseInfo.run {
                         billingClient.acknowledgePurchase(
                             AcknowledgePurchaseParams.newBuilder().setPurchaseToken(
