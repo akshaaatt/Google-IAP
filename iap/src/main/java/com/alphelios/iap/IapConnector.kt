@@ -367,7 +367,8 @@ class IapConnector(context: Context, private val base64Key: String) {
 
 
     /**
-     * Consume consumable purchases
+     * Consume consumable purchases. This is the equivalent to acknowledge for consumables products, including that we can purchase this
+     * products again.
      * */
     fun consume(purchaseInfo: PurchaseInfo) {
         if (checkBeforeUserInteraction(purchaseInfo.skuId)) {
@@ -382,7 +383,7 @@ class IapConnector(context: Context, private val base64Key: String) {
                             when (billingResult.responseCode) {
                                 OK -> {
                                     purchasedProductsList.remove(this)
-                                    billingEventListener?.onProductsPurchased(listOf(this))
+                                    billingEventListener?.onConsumed(this)
                                 }
                                 else -> {
                                     Log.d(tag, "Handling consumables : Error during consumption attempt -> ${billingResult.debugMessage}")
