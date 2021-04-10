@@ -22,6 +22,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.bottomnavview.itemIconTintList = null
+
         iapConnector = IapConnector(this, "License Key")
             .setNonConsumableInAppIds("no_ads", "super_sword")
             .setConsumableInAppIds("base","yearly","quite","moderate", "plenty")
