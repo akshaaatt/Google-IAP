@@ -40,9 +40,9 @@ dependencies {
 
 ```kotlin
 iapConnector = IapConnector(this, "...")
-            .setNonConsumableIds("id1", "id2", "id3")   /*pass the list of Non-Consumable Product IDs*/
+            .setNonConsumableInAppIds("id1", "id2", "id3")   /*pass the list of Non-Consumable Product IDs*/
+            .setConsumableInAppIds("id4", "id5")  /*pass the list of Consumable Product IDs*/
             .setSubscriptionIds("subId1", "subId2")   /*pass the list of Subscription IDs*/
-            .setConsumableIds("id4", "id5")  /*pass the list of Consumable Product IDs*/
             .autoAcknowledge()  /*to enable auto acknowledgement*/
             .connect()
 ```
@@ -63,6 +63,11 @@ iapConnector.setOnInAppEventsListener(object : InAppEventsListener {
             override fun onPurchaseAcknowledged(purchase: PurchaseInfo) {
                 /*callback after purchase being acknowledged*/
             }
+
+            override fun onConsumed(purchase: PurchaseInfo) {
+                /*callback after purchase being acknowledged*/
+            }
+
 
             override fun onProductsPurchased(purchases: List<PurchaseInfo>) {
                   purchases.forEach {

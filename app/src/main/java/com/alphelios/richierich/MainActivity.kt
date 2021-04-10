@@ -8,7 +8,7 @@ import com.alphelios.iap.IapConnector
 import com.alphelios.iap.model.BillingResponse
 import com.alphelios.iap.model.PurchaseInfo
 import com.alphelios.iap.model.SkuInfo
-import com.alphelios.richierich.databinding.ActivityMainBinding
+import com.alphelios.superrich.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
@@ -23,11 +23,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         setContentView(binding.root)
 
         iapConnector = IapConnector(this, "License Key")
-                .setNonConsumableIds("no_ads", "super_sword")
-                .setConsumableIds("base","yearly","quite","moderate", "plenty")
-                .setSubscriptionIds("subscribe")
-                .autoAcknowledge()
-                .connect()
+            .setNonConsumableInAppIds("no_ads", "super_sword")
+            .setConsumableInAppIds("100_coins", "200_coins")
+            .autoAcknowledge()
+            .connect()
 
         iapConnector.setBillingEventListener(object : BillingEventListener {
             override fun onProductsFetched(skuDetailsList: List<SkuInfo>) {
@@ -61,6 +60,10 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
             override fun onPurchaseAcknowledged(purchase: PurchaseInfo) {
                 Log.d(tag, "onPurchaseAcknowledged : " + purchase.skuId)
+            }
+
+            override fun onConsumed(purchase: PurchaseInfo) {
+                Log.d(tag, "onConsumed : " + purchase.skuId)
             }
 
             override fun onError(inAppConnector: IapConnector, result: BillingResponse) {

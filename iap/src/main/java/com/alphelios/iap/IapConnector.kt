@@ -28,9 +28,11 @@ class IapConnector(context: Context, private val base64Key: String) {
     private var purchasedProductsList = mutableListOf<PurchaseInfo>()
     private var billingEventListener: BillingEventListener? = null
 
-    private var nonConsumableIds: List<String>? = null
+    private var nonConsumableInAppIds: List<String>? = null
     private var subIds: List<String>? = null
-    private var consumableIds: List<String>? = null
+    private var consumableInAppIds: List<String>? = null
+    private lateinit var allIds: List<String>
+
     private var shouldAutoAcknowledge: Boolean = false
 
     private var connected = false
@@ -49,27 +51,32 @@ class IapConnector(context: Context, private val base64Key: String) {
         if (!billingClient.isReady)
             Log.d(tag, "Billing client : is not ready because iapClient is not ready yet")
 
-        if (fetchedSkuInfosList.isEmpty())
-            Log.d(tag, "Billing client : is not ready because fetchedSkuDetailsList is empty or not fetched yet")
+        // Check if all Ids are fetched
+        if (fetchedSkuInfosList.contains(allIds))
+            Log.d(tag, "Billing client : is not ready because fetchedSkuDetailsList is empty or not (completely) fetched yet")
+
+        // Check if purchased products are fetched yet
+        if (fetchedPurchasedProducts)
+            Log.d(tag, "Billing client : is not ready because fetchedSkuDetailsList is empty or not (completely) fetched yet")
 
 
         return connected && billingClient.isReady && fetchedSkuInfosList.isNotEmpty()
     }
 
     /**
-     * To set non-consumable product IDs.
+     * To set non-consumable inApp product IDs.
      */
-    fun setNonConsumableIds(vararg nonConsumableIds: String): IapConnector {
-        this.nonConsumableIds = nonConsumableIds.toList()
+    fun setNonConsumableInAppIds(vararg nonConsumableIds: String): IapConnector {
+        this.nonConsumableInAppIds = nonConsumableIds.toList()
         return this
     }
 
     /**
-     * To set consumable product IDs.
+     * To set consumable InApp product IDs.
      * Rest of the IDs will be considered non-consumable.
      */
-    fun setConsumableIds(vararg consumableIds: String): IapConnector {
-        this.consumableIds = consumableIds.toList()
+    fun setConsumableInAppIds(vararg consumableIds: String): IapConnector {
+        this.consumableInAppIds = consumableIds.toList()
         return this
     }
 
@@ -143,10 +150,14 @@ class IapConnector(context: Context, private val base64Key: String) {
                     OK -> purchases?.let { processPurchases(purchases, false) }
                     ITEM_ALREADY_OWNED -> billingEventListener?.onError(
                         this,
-                        BillingResponse(ErrorType.ITEM_ALREADY_OWNED, billingResult)
+                        BillingResponse(
+                            ErrorType.ITEM_ALREADY_OWNED,
+                            billingResult.debugMessage + " purchaseList: $purchases",
+                            billingResult.responseCode
+                        )
                     )
                     SERVICE_DISCONNECTED, SERVICE_TIMEOUT -> connect()
-                    else -> Log.i(tag, "Init : ${billingResult.debugMessage}")
+                    else -> Log.i(tag, "Init error : " + BillingResponse(ErrorType.BILLING_ERROR, billingResult))
                 }
             }.build()
     }
@@ -156,34 +167,39 @@ class IapConnector(context: Context, private val base64Key: String) {
      */
     fun connect(): IapConnector {
 
-        val allIds = mutableListOf<String>()
+        if (isReady()) throw IllegalArgumentException("Client is already connected")
+
+        val tempAllIds = mutableListOf<String>()
 
         // Before we start, check input params we set empty list to null so we only have to deal with lists who are null (not provided) or not empty.
-        if (nonConsumableIds.isNullOrEmpty())
-            nonConsumableIds = null
+        if (nonConsumableInAppIds.isNullOrEmpty())
+            nonConsumableInAppIds = null
         else
-            allIds.addAll(nonConsumableIds!!)
+            tempAllIds.addAll(nonConsumableInAppIds!!)
 
-        if (consumableIds.isNullOrEmpty())
-            consumableIds = null
+        if (consumableInAppIds.isNullOrEmpty())
+            consumableInAppIds = null
         else
-            allIds.addAll(consumableIds!!)
+            tempAllIds.addAll(consumableInAppIds!!)
 
         if (subIds.isNullOrEmpty())
             subIds = null
         else
-            allIds.addAll(subIds!!)
+            tempAllIds.addAll(subIds!!)
 
         // Check if any list is provided.
-        if (nonConsumableIds == null && consumableIds == null && subIds == null) {
+        if (nonConsumableInAppIds == null && consumableInAppIds == null && subIds == null) {
             throw IllegalArgumentException("At least one list of subscriptions, non-consumables or consumables is needed")
         }
 
-        val allIdSize = allIds.size
-        val allIdSizeDistinct = allIds.distinct().size
+        // Check if Id appears multiple times
+        val allIdSize = tempAllIds.size
+        val allIdSizeDistinct = tempAllIds.distinct().size
         if (allIdSize != allIdSizeDistinct) {
             throw IllegalArgumentException("An Id must appear only once in a list. An Id must also not be in different lists")
         }
+
+        allIds = tempAllIds
 
 
         Log.d(tag, "Billing service : Connecting...")
@@ -208,8 +224,8 @@ class IapConnector(context: Context, private val base64Key: String) {
 
                             // Check for Consumable and Non-Consumables (InAPPs)
                             val inAppIds = mutableListOf<String>()
-                            consumableIds?.let { inAppIds.addAll(it) }
-                            nonConsumableIds?.let { inAppIds.addAll(it) }
+                            consumableInAppIds?.let { inAppIds.addAll(it) }
+                            nonConsumableInAppIds?.let { inAppIds.addAll(it) }
 
                             if (inAppIds.isNotEmpty())
                                 querySkuDetails(INAPP, inAppIds)
@@ -217,6 +233,7 @@ class IapConnector(context: Context, private val base64Key: String) {
                             subIds?.let {
                                 querySkuDetails(SUBS, it)
                             }
+
                             if (!checkedForPurchasesAtStart) {
                                 fetchPurchasedProducts()
                                 checkedForPurchasesAtStart = true
@@ -235,10 +252,9 @@ class IapConnector(context: Context, private val base64Key: String) {
      * Fires a query in Play console to get [SkuDetails] for provided type and IDs.
      */
     private fun querySkuDetails(skuType: String, ids: List<String>) {
-        billingClient.querySkuDetailsAsync(
-            SkuDetailsParams.newBuilder()
-                .setSkusList(ids).setType(skuType).build()
-        ) { billingResult, skuDetailsList ->
+        val build = SkuDetailsParams.newBuilder().setSkusList(ids).setType(skuType).build()
+
+        billingClient.querySkuDetailsAsync(build) { billingResult, skuDetailsList ->
             when (billingResult.responseCode) {
                 OK -> {
                     if (skuDetailsList!!.isEmpty()) {
@@ -268,6 +284,12 @@ class IapConnector(context: Context, private val base64Key: String) {
                                 throw IllegalStateException("Not implemented SkuType")
                             }
                         }
+
+                        // Check if all skus are fetched if yes progress
+                        if (fetchedSkuInfos.contains(allIds)) {
+                            fetchPurchasedProducts()
+                        }
+
                     }
                 }
                 else -> {
@@ -282,15 +304,16 @@ class IapConnector(context: Context, private val base64Key: String) {
 
     private fun generateSkuInfo(skuDetails: SkuDetails): SkuInfo {
 
-        fun isSkuIdConsumable(skuId: String): Boolean {
-            if (consumableIds.isNullOrEmpty()) return false
-            return consumableIds!!.contains(skuId)
+        fun isInAppSkuIdConsumable(skuId: String): Boolean {
+            if (consumableInAppIds == null) return false
+
+            return consumableInAppIds!!.contains(skuId)
         }
 
         val skuProductType: SkuProductType = when (skuDetails.type) {
             SUBS -> SUBSCRIPTION
             INAPP -> {
-                val consumable = isSkuIdConsumable(skuDetails.sku)
+                val consumable = isInAppSkuIdConsumable(skuDetails.sku)
                 if (consumable)
                     CONSUMABLE
                 else
@@ -305,7 +328,7 @@ class IapConnector(context: Context, private val base64Key: String) {
     /**
      * Load all purchases of the user and trigger the listener.
      */
-    fun fetchPurchasedProducts() {
+    private fun fetchPurchasedProducts() {
         if (billingClient.isReady) {
             val allPurchases = mutableListOf<Purchase>()
 
@@ -319,6 +342,7 @@ class IapConnector(context: Context, private val base64Key: String) {
 
             processPurchases(allPurchases, true)
         } else {
+            //throw IllegalStateException("Client was not ready while trying to fetch purchased products")
             billingEventListener?.onError(
                 this,
                 BillingResponse(ErrorType.FETCH_PURCHASED_PRODUCTS_ERROR, "Client not ready yet.")
@@ -344,8 +368,7 @@ class IapConnector(context: Context, private val base64Key: String) {
             if (purchasedProductsFetched) {
                 fetchedPurchasedProducts = true
                 billingEventListener?.onPurchasedProductsFetched(validPurchases)
-            }
-            else{
+            } else {
                 billingEventListener?.onProductsPurchased(validPurchases)
             }
 
@@ -366,7 +389,8 @@ class IapConnector(context: Context, private val base64Key: String) {
 
 
     /**
-     * Consume consumable purchases
+     * Consume consumable purchases. This is the equivalent to acknowledge for consumables products, including that we can purchase this
+     * products again.
      * */
     fun consume(purchaseInfo: PurchaseInfo) {
         if (checkBeforeUserInteraction(purchaseInfo.skuId)) {
@@ -381,7 +405,7 @@ class IapConnector(context: Context, private val base64Key: String) {
                             when (billingResult.responseCode) {
                                 OK -> {
                                     purchasedProductsList.remove(this)
-                                    billingEventListener?.onProductsPurchased(listOf(this))
+                                    billingEventListener?.onConsumed(this)
                                 }
                                 else -> {
                                     Log.d(tag, "Handling consumables : Error during consumption attempt -> ${billingResult.debugMessage}")
@@ -404,14 +428,17 @@ class IapConnector(context: Context, private val base64Key: String) {
      * This will avoid refunding for these products to users by Google.
      *
      * Consumable products might be brought/consumed by users multiple times (for eg. diamonds, coins).
-     * They have to be consumed or acknowledged within 3 days otherwise Google will refund the products.
+     * They have to be consumed within 3 days otherwise Google will refund the products.
      */
     fun acknowledgePurchase(purchaseInfo: PurchaseInfo) {
 
         if (checkBeforeUserInteraction(purchaseInfo.skuId)) {
 
             when (purchaseInfo.skuProductType) {
-                CONSUMABLE, NON_CONSUMABLE, SUBSCRIPTION -> {
+                CONSUMABLE -> {
+                    throw IllegalArgumentException("Consumables arent allowed to be acknowledged, use consume!")
+                }
+                NON_CONSUMABLE, SUBSCRIPTION -> {
                     purchaseInfo.run {
                         billingClient.acknowledgePurchase(
                             AcknowledgePurchaseParams.newBuilder().setPurchaseToken(
