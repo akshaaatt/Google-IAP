@@ -17,5 +17,6 @@ interface BillingEventListener {
     fun onPurchasedProductsFetched(purchases: List<PurchaseInfo>)
     fun onProductsPurchased(purchases: List<PurchaseInfo>)
     fun onPurchaseAcknowledged(purchase: PurchaseInfo)
+    fun onConsumed(purchase: PurchaseInfo)
     fun onError(inAppConnector: IapConnector, result: BillingResponse)
 }
