@@ -8,7 +8,7 @@ import com.alphelios.iap.IapConnector
 import com.alphelios.iap.model.BillingResponse
 import com.alphelios.iap.model.PurchaseInfo
 import com.alphelios.iap.model.SkuInfo
-import com.alphelios.superrich.databinding.ActivityMainBinding
+import com.alphelios.richierich.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
@@ -24,7 +24,8 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
         iapConnector = IapConnector(this, "License Key")
             .setNonConsumableInAppIds("no_ads", "super_sword")
-            .setConsumableInAppIds("100_coins", "200_coins")
+            .setConsumableInAppIds("base","yearly","quite","moderate", "plenty")
+            .setSubscriptionIds("subscribe")
             .autoAcknowledge()
             .connect()
 

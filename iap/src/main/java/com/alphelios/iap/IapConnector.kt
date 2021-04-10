@@ -431,12 +431,10 @@ class IapConnector(context: Context, private val base64Key: String) {
      * They have to be consumed within 3 days otherwise Google will refund the products.
      */
     fun acknowledgePurchase(purchaseInfo: PurchaseInfo) {
-
         if (checkBeforeUserInteraction(purchaseInfo.skuId)) {
-
             when (purchaseInfo.skuProductType) {
                 CONSUMABLE -> {
-                    throw IllegalArgumentException("Consumables arent allowed to be acknowledged, use consume!")
+                    throw IllegalArgumentException("Consumables aren't allowed to be acknowledged, use consume!")
                 }
                 NON_CONSUMABLE, SUBSCRIPTION -> {
                     purchaseInfo.run {
