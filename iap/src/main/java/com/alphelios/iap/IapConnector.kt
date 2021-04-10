@@ -282,15 +282,16 @@ class IapConnector(context: Context, private val base64Key: String) {
 
     private fun generateSkuInfo(skuDetails: SkuDetails): SkuInfo {
 
-        fun isSkuIdConsumable(skuId: String): Boolean {
-            if (consumableIds.isNullOrEmpty()) return false
-            return consumableIds!!.contains(skuId)
+        fun isInAppSkuIdConsumable(skuId: String): Boolean {
+            if (consumableInAppIds == null) return false
+
+            return consumableInAppIds!!.contains(skuId)
         }
 
         val skuProductType: SkuProductType = when (skuDetails.type) {
             SUBS -> SUBSCRIPTION
             INAPP -> {
-                val consumable = isSkuIdConsumable(skuDetails.sku)
+                val consumable = isInAppSkuIdConsumable(skuDetails.sku)
                 if (consumable)
                     CONSUMABLE
                 else
