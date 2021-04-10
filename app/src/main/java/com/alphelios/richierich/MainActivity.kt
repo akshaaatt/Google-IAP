@@ -8,7 +8,6 @@ import com.alphelios.iap.IapConnector
 import com.alphelios.iap.model.BillingResponse
 import com.alphelios.iap.model.PurchaseInfo
 import com.alphelios.iap.model.SkuInfo
-import com.alphelios.iap.type.ErrorType.*
 import com.alphelios.richierich.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
@@ -24,11 +23,11 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         setContentView(binding.root)
 
         iapConnector = IapConnector(this, "License Key")
-            .setNonConsumableIds("no_ads", "super_sword")
-            .setConsumableIds("base","yearly","quite","moderate", "plenty")
+                .setNonConsumableIds("no_ads", "super_sword")
+                .setConsumableIds("base","yearly","quite","moderate", "plenty")
                 .setSubscriptionIds("subscribe")
-            .autoAcknowledge()
-            .connect()
+                .autoAcknowledge()
+                .connect()
 
         iapConnector.setBillingEventListener(object : BillingEventListener {
             override fun onProductsFetched(skuDetailsList: List<SkuInfo>) {
@@ -66,17 +65,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
             override fun onError(inAppConnector: IapConnector, result: BillingResponse) {
                 Log.d(tag, "Error : $result")
-
-                when (result.errorType) {
-                    CLIENT_NOT_READY -> TODO()
-                    CLIENT_DISCONNECTED -> TODO()
-                    ITEM_ALREADY_OWNED -> TODO()
-                    CONSUME_ERROR -> TODO()
-                    ACKNOWLEDGE_ERROR -> TODO()
-                    FETCH_PURCHASED_PRODUCTS_ERROR -> TODO()
-                    BILLING_ERROR -> TODO()
-                    else -> {}
-                }
             }
         })
 
