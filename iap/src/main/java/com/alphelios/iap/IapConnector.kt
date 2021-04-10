@@ -306,7 +306,7 @@ class IapConnector(context: Context, private val base64Key: String) {
     /**
      * Load all purchases of the user and trigger the listener.
      */
-    fun fetchPurchasedProducts() {
+    private fun fetchPurchasedProducts() {
         if (billingClient.isReady) {
             val allPurchases = mutableListOf<Purchase>()
 
@@ -345,8 +345,7 @@ class IapConnector(context: Context, private val base64Key: String) {
             if (purchasedProductsFetched) {
                 fetchedPurchasedProducts = true
                 billingEventListener?.onPurchasedProductsFetched(validPurchases)
-            }
-            else{
+            } else {
                 billingEventListener?.onProductsPurchased(validPurchases)
             }
 
