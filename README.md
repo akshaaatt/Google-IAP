@@ -87,17 +87,6 @@ iapConnector = IapConnector(
                 this, "key" // License Key
         )
 ```
-* Replace the games_ids.xml with your App's resources from the Play Console
-
-```kotlin
-achievementsClient?.unlock(getString(R.string.achievement_ultimate))
-```
-
-* Replace the default_web_client_id with your App's client_id from the Play Sign In
-
-```kotlin
-requestIdToken(getString(R.string.default_web_client_id))
-```
 
 ## Contribution
 
