@@ -31,7 +31,7 @@ class IapConnector(context: Context, private val base64Key: String) {
     private var nonConsumableInAppIds: List<String>? = null
     private var subIds: List<String>? = null
     private var consumableInAppIds: List<String>? = null
-    private lateinit var allIds: List<String>
+    private var allIds: List<String>? = null
 
     private var shouldAutoAcknowledge: Boolean = false
 
