@@ -36,12 +36,11 @@ object Security {
             if (!signatureAlgorithm.verify(signatureBytes))
                 return false
             return true
-        }
-        catch (e: NoSuchAlgorithmException) {
+        } catch (e: NoSuchAlgorithmException) {
             throw RuntimeException(e)
+        } catch (e: InvalidKeyException) {
+        } catch (e: SignatureException) {
         }
-        catch (e: InvalidKeyException) { }
-        catch (e: SignatureException) { }
         return false
     }
 
