@@ -52,7 +52,7 @@ class IapConnector(context: Context, private val base64Key: String) {
             Log.d(tag, "Billing client : is not ready because iapClient is not ready yet")
 
         // Check if all Ids are fetched
-        if (fetchedSkuInfosList.contains(allIds))
+        if (fetchedSkuInfosList.map { it.skuId }.containsAll(allIds))
             Log.d(tag, "Billing client : is not ready because fetchedSkuDetailsList is empty or not (completely) fetched yet")
 
         // Check if purchased products are fetched yet
@@ -167,8 +167,6 @@ class IapConnector(context: Context, private val base64Key: String) {
      */
     fun connect(): IapConnector {
 
-        if (isReady()) throw IllegalArgumentException("Client is already connected")
-
         val tempAllIds = mutableListOf<String>()
 
         // Before we start, check input params we set empty list to null so we only have to deal with lists who are null (not provided) or not empty.
@@ -188,7 +186,7 @@ class IapConnector(context: Context, private val base64Key: String) {
             tempAllIds.addAll(subIds!!)
 
         // Check if any list is provided.
-        if (nonConsumableInAppIds == null && consumableInAppIds == null && subIds == null) {
+        if (tempAllIds.isEmpty()) {
             throw IllegalArgumentException("At least one list of subscriptions, non-consumables or consumables is needed")
         }
 
@@ -200,7 +198,6 @@ class IapConnector(context: Context, private val base64Key: String) {
         }
 
         allIds = tempAllIds
-
 
         Log.d(tag, "Billing service : Connecting...")
         if (!billingClient.isReady) {
