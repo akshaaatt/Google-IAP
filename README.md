@@ -28,7 +28,7 @@ allprojects {
 
 ```
 dependencies {
-    implementation 'com.github.akshaaatt:Google-IAP:1.0.5'
+    implementation 'com.github.akshaaatt:Google-IAP:1.1.0'
 }
 ```
 
@@ -37,56 +37,59 @@ dependencies {
 #### Establishing connection with Play console
 
 ```kotlin
-iapConnector = IapConnector(this, "...")
-            .setInAppProductIds(listOf("id1", "id2"))   /*pass the list of INAPP IDs*/
-            .setSubscriptionIds(listOf("id1", "id2"))   /*pass the list of SUBS IDs*/
-            .setConsumableProductIds(listOf("id1", "id2"))  /*pass the list of consumable product IDs*/
-            .autoAcknowledge()  /*to enable auto acknowledgement*/
-            .connect()
+ val iapConnector = IapConnector(
+            this,
+            skuList, // pass the list of in-app products
+            subsList, // pass the list of subscriptions
+            "LICENSE KEY", // pass your app's license key
+            true // to enable/disable logging
+        )
 ```
 
 #### Receiving events
 
 ```kotlin
-iapConnector.setOnInAppEventsListener(object : InAppEventsListener {
-
-            override fun onSubscriptionsFetched(skuDetailsList: List<DataWrappers.SkuInfo>) {
-                /*provides list of product details of subs type*/
+ iapConnector.addPurchaseListener(object : PurchaseServiceListener {
+            override fun onPricesUpdated(iapKeyPrices: Map<String, String>) {
+                // list of available products will be received here, so you can update UI with prices if needed
             }
 
-            override fun onInAppProductsFetched(skuDetailsList: List<DataWrappers.SkuInfo>) {
-                /*provides list of product details of inapp type*/
+            override fun onProductPurchased(sku: String?) {
+               // will be triggered whenever purchase succeeded
             }
 
-            override fun onPurchaseAcknowledged(purchase: DataWrappers.PurchaseInfo) {
-                /*callback after purchase being acknowledged*/
-            }
-
-            override fun onProductsPurchased(purchases: List<DataWrappers.PurchaseInfo>) {
-                /*provides recent purchases*/
-            }
-
-            override fun onError(inAppConnector: EasyIapConnector, result: DataWrappers.BillingResponse?) {
-                /*provides error message if anything goes wrong*/
+            override fun onProductRestored(sku: String?) {
+                // will be triggered fetching owned products using IAPManager.init();
             }
         })
+
+ iapConnector.addSubscriptionListener(object : SubscriptionServiceListener {
+            override fun onSubscriptionRestored(sku: String?) {
+                // will be triggered upon fetching owned subscription upon initialization
+            }
+
+            override fun onSubscriptionPurchased(sku: String?) {
+                // will be triggered whenever subscription succeeded
+            }
+
+            override fun onPricesUpdated(iapKeyPrices: Map<String, String>) {
+                // list of available products will be received here, so you can update UI with prices if needed
+            }
+        })
+
 ```
 
 #### Making a purchase
 
 ```kotlin
-iapConnector.makePurchase(this, "<sku>")
+iapConnector.purchase(this, "<sku>")
 ```
 
 ## Sample App
 
-* Replace the key with your App's License Key
+* Add your products to the developer console
 
-```kotlin
-iapConnector = IapConnector(
-                this, "key" // License Key
-        )
-```
+* Replace the key with your App's License Key
 
 ## Contribution
 
