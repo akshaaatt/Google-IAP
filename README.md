@@ -85,6 +85,18 @@ dependencies {
 iapConnector.purchase(this, "<sku>")
 ```
 
+#### Making a subscription
+
+```kotlin
+iapConnector.susbcribe(this, "<sku>")
+```
+
+#### Removing a subscription
+
+```kotlin
+iapConnector.unsubscribe(this, "<sku>")
+```
+
 ## Sample App
 
 * Add your products to the developer console
