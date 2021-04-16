@@ -19,13 +19,13 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
         binding.bottomnavview.itemIconTintList = null
 
         val skuList = listOf("base", "moderate", "quite", "plenty", "yearly")
-        val subsList = listOf("subscribe")
+        val subsList = listOf("subscription")
 
         val iapConnector = IapConnector(
             this,
             skuList,
             subsList,
-            "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAh09sfdDzMhCh3AG9mq2EsyFUN72FBKabPpMsJyUUwXVsVJRLDWQYKmWnr0bVGsdVHwQtEDi//EY1NubXjCmViAxFnnfbdUrAk9PbRRTaMQ4taifn9fCaQ6XAW70ju3/mXuL+1xX+r8B0O9B373sP0YqiUs0b8HTtTjQoOGtcGb2KlYpQlJjjtISfVpsSk2RdKatkDyeesv+6568O7xgb5zp/KNJk8d1fMqKGWJiveFkZvedDh1ECdi3rSz1aQB+z/aEf6AIiuLzu0V8NNKjvZnxUjVJgL+lcLDrL1YZuKx9h5BX7k8lPZI7fLIVE6b6iNx3msfVdiqPkZ3s49JxA1QIDAQAB",
+            "LICENSE KEY",
             true
         )
 
@@ -48,9 +48,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
                     "plenty" -> {
 
                     }
-                    "subscribe" -> {
-
-                    }
                     "yearly" -> {
 
                     }
@@ -69,6 +66,11 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
             override fun onSubscriptionPurchased(sku: String?) {
                 // will be triggered whenever subscription succeeded
+                when(sku){
+                    "subscription"->{
+
+                    }
+                }
             }
 
             override fun onPricesUpdated(iapKeyPrices: Map<String, String>) {
@@ -80,7 +82,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             iapConnector.purchase(this, "base")
         }
         binding.btnMonthly.setOnClickListener {
-            iapConnector.purchase(this, "subscribe")
+            iapConnector.subscribe(this, "subscription")
         }
 
         binding.btnYearly.setOnClickListener {
