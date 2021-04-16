@@ -20,7 +20,6 @@ android {
 }
 
 dependencies {
-    implementation files('libs/in-app-purchasing-2.0.76.jar')
     implementation "com.android.billingclient:billing-ktx:3.0.3"
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"

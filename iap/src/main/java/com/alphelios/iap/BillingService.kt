@@ -7,7 +7,9 @@ import android.net.Uri
 import android.util.Log
 import com.android.billingclient.api.*
 
-class BillingService(private val context: Context, private val inAppSkuKeys: List<String>, private val subscriptionSkuKeys: List<String>)
+class BillingService(private val context: Context,
+                     private val inAppSkuKeys: List<String>,
+                     private val subscriptionSkuKeys: List<String>)
     : IBillingService(), PurchasesUpdatedListener, BillingClientStateListener, AcknowledgePurchaseResponseListener {
 
     private lateinit var mBillingClient: BillingClient
