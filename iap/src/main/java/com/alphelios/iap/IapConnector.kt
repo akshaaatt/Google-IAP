@@ -1,6 +1,5 @@
 package com.alphelios.iap
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 
@@ -15,18 +14,18 @@ class IapConnector @JvmOverloads constructor
  */
     (
     context: Context,
-    iapKeys: List<String>,
+    nonConsumableKeys: List<String>,
+    consumableKeys: List<String>,
     subscriptionKeys: List<String> = emptyList(),
     key: String? = null,
     enableLogging: Boolean = false
 ) {
 
-    @SuppressLint("StaticFieldLeak")
     private var mBillingService: IBillingService? = null
 
     init {
         val contextLocal = context.applicationContext ?: context
-        mBillingService = BillingService(contextLocal, iapKeys, subscriptionKeys)
+        mBillingService = BillingService(contextLocal, nonConsumableKeys, consumableKeys, subscriptionKeys)
         getBillingService().init(key)
         getBillingService().enableDebugLogging(enableLogging)
     }
@@ -65,7 +64,7 @@ class IapConnector @JvmOverloads constructor
 
     fun getBillingService(): IBillingService {
         return mBillingService ?: let {
-            throw RuntimeException("Call IAPManager.build to initialize billing service")
+            throw RuntimeException("Call IapConnector to initialize billing service")
         }
     }
 }

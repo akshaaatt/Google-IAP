@@ -11,14 +11,14 @@ interface PurchaseServiceListener : BillingServiceListener {
     /**
      * Callback will be triggered when a product purchased successfully
      *
-     * @param sku - specificator of owned product
+     * @param sku - specifier of owned product
      */
     fun onProductPurchased(sku: String?)
 
     /**
      * Callback will be triggered upon owned products restore
      *
-     * @param sku - specificator of owned product
+     * @param sku - specifier of owned product
      */
     fun onProductRestored(sku: String?)
 }

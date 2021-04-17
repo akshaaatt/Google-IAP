@@ -8,7 +8,8 @@ import android.util.Log
 import com.android.billingclient.api.*
 
 class BillingService(private val context: Context,
-                     private val inAppSkuKeys: List<String>,
+                     private val nonConsumableKeys: List<String>,
+                     private val consumableKeys: List<String>,
                      private val subscriptionSkuKeys: List<String>)
     : IBillingService(), PurchasesUpdatedListener, BillingClientStateListener, AcknowledgePurchaseResponseListener {
 
@@ -29,9 +30,11 @@ class BillingService(private val context: Context,
     override fun onBillingSetupFinished(billingResult: BillingResult) {
         log("onBillingSetupFinished: billingResult: $billingResult")
         if (billingResult.isOk()) {
-            inAppSkuKeys.querySkuDetails(BillingClient.SkuType.INAPP) {
-                subscriptionSkuKeys.querySkuDetails(BillingClient.SkuType.SUBS) {
-                    queryPurchases()
+            nonConsumableKeys.querySkuDetails(BillingClient.SkuType.INAPP) {
+                consumableKeys.querySkuDetails(BillingClient.SkuType.INAPP) {
+                    subscriptionSkuKeys.querySkuDetails(BillingClient.SkuType.SUBS) {
+                        queryPurchases()
+                    }
                 }
             }
         }
@@ -143,7 +146,26 @@ class BillingService(private val context: Context,
                     val skuDetails = skusDetails[purchase.sku]
                     when (skuDetails?.type) {
                         BillingClient.SkuType.INAPP -> {
-                            productOwned(purchase.sku, isRestore)
+                            /**
+                             * Consume the purchase
+                             */
+                            if(consumableKeys.contains(purchase.sku)){
+                                mBillingClient.consumeAsync(
+                                    ConsumeParams.newBuilder().setPurchaseToken(purchase.purchaseToken).build()
+                                ) { billingResult, _ ->
+                                    when (billingResult.responseCode) {
+                                        BillingClient.BillingResponseCode.OK -> {
+                                            productOwned(purchase.sku, !isRestore)
+                                        }
+                                        else -> {
+                                            Log.d(TAG, "Handling consumables : Error during consumption attempt -> ${billingResult.debugMessage}")
+                                        }
+                                    }
+                                }
+                            }
+                           else{
+                                productOwned(purchase.sku, isRestore)
+                            }
                         }
                         BillingClient.SkuType.SUBS -> {
                             subscriptionOwned(purchase.sku, isRestore)

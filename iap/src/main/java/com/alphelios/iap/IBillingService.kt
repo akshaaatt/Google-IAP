@@ -27,7 +27,7 @@ abstract class IBillingService {
     }
 
     /**
-     * @param sku       - product specificator
+     * @param sku       - product specifier
      * @param isRestore - a flag indicating whether it's a fresh purchase or restored product
      */
     fun productOwned(sku: String?, isRestore: Boolean) {
@@ -47,7 +47,7 @@ abstract class IBillingService {
     }
 
     /**
-     * @param sku       - subscription specificator
+     * @param sku       - subscription specifier
      * @param isRestore - a flag indicating whether it's a fresh purchase or restored subscription
      */
     fun subscriptionOwned(sku: String, isRestore: Boolean) {
