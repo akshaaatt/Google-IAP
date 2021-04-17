@@ -18,7 +18,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
         binding.bottomnavview.itemIconTintList = null
 
-        val nonConsumablesList = listOf("base")
+        val nonConsumablesList = listOf("lifetime")
         val consumablesList = listOf("base", "moderate", "quite", "plenty", "yearly")
         val subsList = listOf("subscription")
 

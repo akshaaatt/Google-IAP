@@ -14,8 +14,8 @@ class IapConnector @JvmOverloads constructor
  */
     (
     context: Context,
-    nonConsumableKeys: List<String>,
-    consumableKeys: List<String>,
+    nonConsumableKeys: List<String> = emptyList(),
+    consumableKeys: List<String> = emptyList(),
     subscriptionKeys: List<String> = emptyList(),
     key: String? = null,
     enableLogging: Boolean = false
