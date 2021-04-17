@@ -28,7 +28,7 @@ allprojects {
 
 ```
 dependencies {
-    implementation 'com.github.akshaaatt:Google-IAP:1.1.0'
+    implementation 'com.github.akshaaatt:Google-IAP:1.1.2'
 }
 ```
 
@@ -38,11 +38,12 @@ dependencies {
 
 ```kotlin
  val iapConnector = IapConnector(
-            this,
-            skuList, // pass the list of in-app products
-            subsList, // pass the list of subscriptions
-            "LICENSE KEY", // pass your app's license key
-            true // to enable/disable logging
+            context = this, // activity / context
+            nonConsumableKeys = nonConsumablesList, // pass the list of non-consumables
+            consumableKeys = consumablesList, // pass the list of consumables
+            subscriptionKeys = subsList, // pass the list of subscriptions
+            key = "LICENSE KEY" // pass your app's license key
+            enableLogging = true // to enable / disable logging
         )
 ```
 
@@ -59,7 +60,7 @@ dependencies {
             }
 
             override fun onProductRestored(sku: String?) {
-                // will be triggered fetching owned products using IAPManager.init();
+                // will be triggered fetching owned products using IapConnector
             }
         })
 
