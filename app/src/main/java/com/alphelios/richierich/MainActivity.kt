@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             nonConsumableKeys = nonConsumablesList,
             consumableKeys = consumablesList,
             subscriptionKeys = subsList,
-            key = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAh09sfdDzMhCh3AG9mq2EsyFUN72FBKabPpMsJyUUwXVsVJRLDWQYKmWnr0bVGsdVHwQtEDi//EY1NubXjCmViAxFnnfbdUrAk9PbRRTaMQ4taifn9fCaQ6XAW70ju3/mXuL+1xX+r8B0O9B373sP0YqiUs0b8HTtTjQoOGtcGb2KlYpQlJjjtISfVpsSk2RdKatkDyeesv+6568O7xgb5zp/KNJk8d1fMqKGWJiveFkZvedDh1ECdi3rSz1aQB+z/aEf6AIiuLzu0V8NNKjvZnxUjVJgL+lcLDrL1YZuKx9h5BX7k8lPZI7fLIVE6b6iNx3msfVdiqPkZ3s49JxA1QIDAQAB",
+            key = "LICENSE KEY",
             enableLogging = true
         )
 

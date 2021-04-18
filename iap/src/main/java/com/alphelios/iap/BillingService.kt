@@ -155,7 +155,7 @@ class BillingService(private val context: Context,
                                 ) { billingResult, _ ->
                                     when (billingResult.responseCode) {
                                         BillingClient.BillingResponseCode.OK -> {
-                                            productOwned(purchase.sku, !isRestore)
+                                            productOwned(purchase.sku, false)
                                         }
                                         else -> {
                                             Log.d(TAG, "Handling consumables : Error during consumption attempt -> ${billingResult.debugMessage}")
