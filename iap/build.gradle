@@ -26,5 +26,5 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.2.0'
 
     testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.mockito:mockito-core:2.24.0'
+    testImplementation 'org.mockito:mockito-core:3.6.28'
 }

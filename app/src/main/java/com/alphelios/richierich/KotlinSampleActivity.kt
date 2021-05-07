@@ -7,7 +7,7 @@ import com.alphelios.iap.PurchaseServiceListener
 import com.alphelios.iap.SubscriptionServiceListener
 import com.alphelios.richierich.databinding.ActivityMainBinding
 
-class MainActivity : AppCompatActivity(R.layout.activity_main) {
+class KotlinSampleActivity : AppCompatActivity(R.layout.activity_main) {
 
     private lateinit var binding: ActivityMainBinding
 
