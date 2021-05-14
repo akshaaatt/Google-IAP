@@ -1,11 +1,11 @@
-package com.alphelios.richierich
+package com.limerse.iapsample
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.alphelios.iap.IapConnector
-import com.alphelios.iap.PurchaseServiceListener
-import com.alphelios.iap.SubscriptionServiceListener
-import com.alphelios.richierich.databinding.ActivityMainBinding
+import com.limerse.iap.IapConnector
+import com.limerse.iap.PurchaseServiceListener
+import com.limerse.iap.SubscriptionServiceListener
+import com.limerse.iapsample.databinding.ActivityMainBinding
 
 class KotlinSampleActivity : AppCompatActivity(R.layout.activity_main) {
 

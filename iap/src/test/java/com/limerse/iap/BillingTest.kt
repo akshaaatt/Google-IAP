@@ -1,7 +1,7 @@
 import android.content.Context
-import com.alphelios.iap.IapConnector
-import com.alphelios.iap.PurchaseServiceListener
-import com.alphelios.iap.SubscriptionServiceListener
+import com.limerse.iap.IapConnector
+import com.limerse.iap.PurchaseServiceListener
+import com.limerse.iap.SubscriptionServiceListener
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
