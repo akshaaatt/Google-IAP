@@ -7,7 +7,7 @@ import com.limerse.iap.PurchaseServiceListener
 import com.limerse.iap.SubscriptionServiceListener
 import com.limerse.iapsample.databinding.ActivityMainBinding
 
-class KotlinSampleActivity : AppCompatActivity(R.layout.activity_main) {
+class KotlinSampleActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 

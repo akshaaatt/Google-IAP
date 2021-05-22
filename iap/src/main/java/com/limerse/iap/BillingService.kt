@@ -6,6 +6,8 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import com.android.billingclient.api.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class BillingService(private val context: Context,
                      private val nonConsumableKeys: List<String>,
@@ -33,7 +35,9 @@ class BillingService(private val context: Context,
             nonConsumableKeys.querySkuDetails(BillingClient.SkuType.INAPP) {
                 consumableKeys.querySkuDetails(BillingClient.SkuType.INAPP) {
                     subscriptionSkuKeys.querySkuDetails(BillingClient.SkuType.SUBS) {
-                        queryPurchases()
+                        GlobalScope.launch {
+                            queryPurchases()
+                        }
                     }
                 }
             }
@@ -44,15 +48,11 @@ class BillingService(private val context: Context,
      * Query Google Play Billing for existing purchases.
      * New purchases will be provided to the PurchasesUpdatedListener.
      */
-    private fun queryPurchases() {
-        val inappResult: Purchase.PurchasesResult = mBillingClient.queryPurchases(BillingClient.SkuType.INAPP)
-        if (inappResult.purchasesList != null) {
-            processPurchases(inappResult.purchasesList, isRestore = true)
-        }
-        val subsResult: Purchase.PurchasesResult = mBillingClient.queryPurchases(BillingClient.SkuType.SUBS)
-        if (subsResult.purchasesList != null) {
-            processPurchases(subsResult.purchasesList, isRestore = true)
-        }
+    private suspend fun queryPurchases() {
+        val inappResult: PurchasesResult = mBillingClient.queryPurchasesAsync(BillingClient.SkuType.INAPP)
+        processPurchases(inappResult.purchasesList, isRestore = true)
+        val subsResult: PurchasesResult = mBillingClient.queryPurchasesAsync(BillingClient.SkuType.SUBS)
+        processPurchases(subsResult.purchasesList, isRestore = true)
     }
 
     override fun buy(activity: Activity, sku: String) {
@@ -119,7 +119,9 @@ class BillingService(private val context: Context,
             BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED -> {
                 log("onPurchasesUpdated: The user already owns this item")
                 //item already owned? call queryPurchases to verify and process all such items
-                queryPurchases()
+                GlobalScope.launch {
+                    queryPurchases()
+                }
             }
             BillingClient.BillingResponseCode.DEVELOPER_ERROR ->
                 Log.e(
@@ -136,26 +138,26 @@ class BillingService(private val context: Context,
         if (purchasesList != null) {
             log("processPurchases: " + purchasesList.size + " purchase(s)")
             purchases@ for (purchase in purchasesList) {
-                if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED && purchase.sku.isSkuReady()) {
+                if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED && purchase.skus[0].isSkuReady()) {
                     if (!isSignatureValid(purchase)) {
                         log("processPurchases. Signature is not valid for: $purchase")
                         continue@purchases
                     }
 
                     // Grant entitlement to the user.
-                    val skuDetails = skusDetails[purchase.sku]
+                    val skuDetails = skusDetails[purchase.skus[0]]
                     when (skuDetails?.type) {
                         BillingClient.SkuType.INAPP -> {
                             /**
                              * Consume the purchase
                              */
-                            if(consumableKeys.contains(purchase.sku)){
+                            if(consumableKeys.contains(purchase.skus[0])){
                                 mBillingClient.consumeAsync(
                                     ConsumeParams.newBuilder().setPurchaseToken(purchase.purchaseToken).build()
                                 ) { billingResult, _ ->
                                     when (billingResult.responseCode) {
                                         BillingClient.BillingResponseCode.OK -> {
-                                            productOwned(purchase.sku, false)
+                                            productOwned(purchase.skus[0], false)
                                         }
                                         else -> {
                                             Log.d(TAG, "Handling consumables : Error during consumption attempt -> ${billingResult.debugMessage}")
@@ -164,11 +166,11 @@ class BillingService(private val context: Context,
                                 }
                             }
                            else{
-                                productOwned(purchase.sku, isRestore)
+                                productOwned(purchase.skus[0], isRestore)
                             }
                         }
                         BillingClient.SkuType.SUBS -> {
-                            subscriptionOwned(purchase.sku, isRestore)
+                            subscriptionOwned(purchase.skus[0], isRestore)
                         }
                     }
 
@@ -181,7 +183,7 @@ class BillingService(private val context: Context,
                 } else {
                     Log.e(
                         TAG, "processPurchases failed. purchase: $purchase " +
-                            "purchaseState: ${purchase.purchaseState} isSkuReady: ${purchase.sku.isSkuReady()}")
+                            "purchaseState: ${purchase.purchaseState} isSkuReady: ${purchase.skus[0].isSkuReady()}")
                 }
             }
         } else {

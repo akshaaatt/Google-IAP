@@ -28,7 +28,7 @@ class JavaSampleActivity extends AppCompatActivity {
 
         List<String> nonConsumablesList = Collections.singletonList("lifetime");
         List<String> consumablesList = Arrays.asList("base", "moderate", "quite", "plenty", "yearly");
-        List<String> subsList = Arrays.asList("subscription");
+        List<String> subsList = Collections.singletonList("subscription");
 
         IapConnector iapConnector = new IapConnector(
                 this,
