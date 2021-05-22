@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import com.android.billingclient.api.*
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
@@ -29,6 +30,7 @@ class BillingService(private val context: Context,
         mBillingClient.startConnection(this)
     }
 
+    @DelicateCoroutinesApi
     override fun onBillingSetupFinished(billingResult: BillingResult) {
         log("onBillingSetupFinished: billingResult: $billingResult")
         if (billingResult.isOk()) {
@@ -105,6 +107,7 @@ class BillingService(private val context: Context,
     /**
      * Called by the Billing Library when new purchases are detected.
      */
+    @DelicateCoroutinesApi
     override fun onPurchasesUpdated(billingResult: BillingResult, purchases: List<Purchase>?) {
         val responseCode = billingResult.responseCode
         val debugMessage = billingResult.debugMessage
