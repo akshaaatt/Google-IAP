@@ -1,8 +1,10 @@
 package com.limerse.iapsample
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.limerse.iap.IapConnector
+import com.limerse.iap.PurchaseInfo
 import com.limerse.iap.PurchaseServiceListener
 import com.limerse.iap.SubscriptionServiceListener
 import com.limerse.iapsample.databinding.ActivityMainBinding
@@ -36,8 +38,8 @@ class KotlinSampleActivity : AppCompatActivity() {
                 // list of available products will be received here, so you can update UI with prices if needed
             }
 
-            override fun onProductPurchased(sku: String?) {
-                when (sku) {
+            override fun onProductPurchased(purchaseInfo: PurchaseInfo) {
+                when (purchaseInfo.skuDetails.sku) {
                     "base" -> {
 
                     }
@@ -56,19 +58,19 @@ class KotlinSampleActivity : AppCompatActivity() {
                 }
             }
 
-            override fun onProductRestored(sku: String?) {
+            override fun onProductRestored(purchaseInfo: PurchaseInfo) {
                 // will be triggered fetching owned products using IapConnector;
             }
         })
 
         iapConnector.addSubscriptionListener(object : SubscriptionServiceListener {
-            override fun onSubscriptionRestored(sku: String?) {
+            override fun onSubscriptionRestored(purchaseInfo: PurchaseInfo) {
                 // will be triggered upon fetching owned subscription upon initialization
             }
 
-            override fun onSubscriptionPurchased(sku: String?) {
+            override fun onSubscriptionPurchased(purchaseInfo: PurchaseInfo) {
                 // will be triggered whenever subscription succeeded
-                when(sku){
+                when(purchaseInfo.skuDetails.sku){
                     "subscription"->{
 
                     }

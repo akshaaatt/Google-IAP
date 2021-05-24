@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import com.android.billingclient.api.*
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -32,7 +33,8 @@ class BillingService(private val context: Context,
 
     @DelicateCoroutinesApi
     override fun onBillingSetupFinished(billingResult: BillingResult) {
-        log("onBillingSetupFinished: billingResult: $billingResult")
+        log("onBillingSetupFinishedOkay: billingResult: $billingResult")
+
         if (billingResult.isOk()) {
             nonConsumableKeys.querySkuDetails(BillingClient.SkuType.INAPP) {
                 consumableKeys.querySkuDetails(BillingClient.SkuType.INAPP) {
@@ -160,7 +162,7 @@ class BillingService(private val context: Context,
                                 ) { billingResult, _ ->
                                     when (billingResult.responseCode) {
                                         BillingClient.BillingResponseCode.OK -> {
-                                            productOwned(purchase.skus[0], false)
+                                            productOwned(PurchaseInfo(skuDetails,purchase), false)
                                         }
                                         else -> {
                                             Log.d(TAG, "Handling consumables : Error during consumption attempt -> ${billingResult.debugMessage}")
@@ -169,11 +171,11 @@ class BillingService(private val context: Context,
                                 }
                             }
                            else{
-                                productOwned(purchase.skus[0], isRestore)
+                                productOwned(PurchaseInfo(skuDetails,purchase), isRestore)
                             }
                         }
                         BillingClient.SkuType.SUBS -> {
-                            subscriptionOwned(purchase.skus[0], isRestore)
+                            subscriptionOwned(PurchaseInfo(skuDetails,purchase), isRestore)
                         }
                     }
 

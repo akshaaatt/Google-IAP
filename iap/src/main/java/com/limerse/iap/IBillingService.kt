@@ -27,41 +27,41 @@ abstract class IBillingService {
     }
 
     /**
-     * @param sku       - product specifier
+     * @param purchaseInfo       - product specifier
      * @param isRestore - a flag indicating whether it's a fresh purchase or restored product
      */
-    fun productOwned(sku: String?, isRestore: Boolean) {
+    fun productOwned(purchaseInfo: PurchaseInfo, isRestore: Boolean) {
         findUiHandler().post {
-            productOwnedInternal(sku, isRestore)
+            productOwnedInternal(purchaseInfo, isRestore)
         }
     }
 
-    fun productOwnedInternal(sku: String?, isRestore: Boolean) {
+    fun productOwnedInternal(purchaseInfo: PurchaseInfo, isRestore: Boolean) {
         for (purchaseServiceListener in purchaseServiceListeners) {
             if (isRestore) {
-                purchaseServiceListener.onProductRestored(sku)
+                purchaseServiceListener.onProductRestored(purchaseInfo)
             } else {
-                purchaseServiceListener.onProductPurchased(sku)
+                purchaseServiceListener.onProductPurchased(purchaseInfo)
             }
         }
     }
 
     /**
-     * @param sku       - subscription specifier
+     * @param purchaseInfo       - subscription specifier
      * @param isRestore - a flag indicating whether it's a fresh purchase or restored subscription
      */
-    fun subscriptionOwned(sku: String, isRestore: Boolean) {
+    fun subscriptionOwned(purchaseInfo: PurchaseInfo, isRestore: Boolean) {
         findUiHandler().post {
-            subscriptionOwnedInternal(sku, isRestore)
+            subscriptionOwnedInternal(purchaseInfo, isRestore)
         }
     }
 
-    fun subscriptionOwnedInternal(sku: String, isRestore: Boolean) {
+    fun subscriptionOwnedInternal(purchaseInfo: PurchaseInfo, isRestore: Boolean) {
         for (subscriptionServiceListener in subscriptionServiceListeners) {
             if (isRestore) {
-                subscriptionServiceListener.onSubscriptionRestored(sku)
+                subscriptionServiceListener.onSubscriptionRestored(purchaseInfo)
             } else {
-                subscriptionServiceListener.onSubscriptionPurchased(sku)
+                subscriptionServiceListener.onSubscriptionPurchased(purchaseInfo)
             }
         }
     }

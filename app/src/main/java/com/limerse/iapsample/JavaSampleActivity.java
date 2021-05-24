@@ -1,10 +1,12 @@
 package com.limerse.iapsample;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.limerse.iap.IapConnector;
+import com.limerse.iap.PurchaseInfo;
 import com.limerse.iap.PurchaseServiceListener;
 import com.limerse.iap.SubscriptionServiceListener;
 import com.limerse.iapsample.databinding.ActivityMainBinding;
@@ -44,36 +46,35 @@ class JavaSampleActivity extends AppCompatActivity {
 
             }
 
-            public void onProductPurchased(@Nullable String sku) {
-                if (sku != null) {
-                    if (sku.equals("plenty")) {
+            public void onProductPurchased(PurchaseInfo purchaseInfo) {
+                String sku = purchaseInfo.getSkuDetails().getSku();
+                if (sku.equals("plenty")) {
 
-                    }
-                    else if (sku.equals("yearly")) {
+                }
+                else if (sku.equals("yearly")) {
 
-                    }
-                    else if (sku.equals("moderate")) {
+                }
+                else if (sku.equals("moderate")) {
 
-                    }
-                    else if (sku.equals("base")) {
+                }
+                else if (sku.equals("base")) {
 
-                    }
-                    else if (sku.equals("quite")) {
+                }
+                else if (sku.equals("quite")) {
 
-                    }
                 }
             }
 
-            public void onProductRestored(@Nullable String sku) {
+            public void onProductRestored(PurchaseInfo sku) {
 
             }
         });
         iapConnector.addSubscriptionListener(new SubscriptionServiceListener() {
-            public void onSubscriptionRestored(@Nullable String sku) {
+            public void onSubscriptionRestored(PurchaseInfo purchaseInfo) {
             }
 
-            public void onSubscriptionPurchased(@Nullable String sku) {
-                if (sku.equals("subscription")) {
+            public void onSubscriptionPurchased(PurchaseInfo purchaseInfo) {
+                if (purchaseInfo.getSkuDetails().getSku().equals("subscription")) {
 
                 }
             }
