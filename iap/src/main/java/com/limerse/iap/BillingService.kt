@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
-import android.widget.Toast
 import com.android.billingclient.api.*
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -162,7 +161,7 @@ class BillingService(private val context: Context,
                                 ) { billingResult, _ ->
                                     when (billingResult.responseCode) {
                                         BillingClient.BillingResponseCode.OK -> {
-                                            productOwned(PurchaseInfo(skuDetails,purchase), false)
+                                            productOwned(skuDetails.sku, false)
                                         }
                                         else -> {
                                             Log.d(TAG, "Handling consumables : Error during consumption attempt -> ${billingResult.debugMessage}")
@@ -171,11 +170,11 @@ class BillingService(private val context: Context,
                                 }
                             }
                            else{
-                                productOwned(PurchaseInfo(skuDetails,purchase), isRestore)
+                                productOwned(skuDetails.sku, isRestore)
                             }
                         }
                         BillingClient.SkuType.SUBS -> {
-                            subscriptionOwned(PurchaseInfo(skuDetails,purchase), isRestore)
+                            subscriptionOwned(skuDetails.sku, isRestore)
                         }
                     }
 

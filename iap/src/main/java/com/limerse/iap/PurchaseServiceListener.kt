@@ -13,12 +13,12 @@ interface PurchaseServiceListener : BillingServiceListener {
      *
      * @param purchaseInfo - specifier of owned product
      */
-    fun onProductPurchased(purchaseInfo: PurchaseInfo)
+    fun onProductPurchased(sku: String)
 
     /**
      * Callback will be triggered upon owned products restore
      *
      * @param purchaseInfo - specifier of owned product
      */
-    fun onProductRestored(purchaseInfo: PurchaseInfo)
+    fun onProductRestored(sku: String)
 }

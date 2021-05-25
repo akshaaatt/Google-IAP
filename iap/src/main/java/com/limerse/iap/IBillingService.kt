@@ -30,18 +30,18 @@ abstract class IBillingService {
      * @param purchaseInfo       - product specifier
      * @param isRestore - a flag indicating whether it's a fresh purchase or restored product
      */
-    fun productOwned(purchaseInfo: PurchaseInfo, isRestore: Boolean) {
+    fun productOwned(sku: String, isRestore: Boolean) {
         findUiHandler().post {
-            productOwnedInternal(purchaseInfo, isRestore)
+            productOwnedInternal(sku, isRestore)
         }
     }
 
-    fun productOwnedInternal(purchaseInfo: PurchaseInfo, isRestore: Boolean) {
+    fun productOwnedInternal(sku: String, isRestore: Boolean) {
         for (purchaseServiceListener in purchaseServiceListeners) {
             if (isRestore) {
-                purchaseServiceListener.onProductRestored(purchaseInfo)
+                purchaseServiceListener.onProductRestored(sku)
             } else {
-                purchaseServiceListener.onProductPurchased(purchaseInfo)
+                purchaseServiceListener.onProductPurchased(sku)
             }
         }
     }
@@ -50,18 +50,18 @@ abstract class IBillingService {
      * @param purchaseInfo       - subscription specifier
      * @param isRestore - a flag indicating whether it's a fresh purchase or restored subscription
      */
-    fun subscriptionOwned(purchaseInfo: PurchaseInfo, isRestore: Boolean) {
+    fun subscriptionOwned(sku: String, isRestore: Boolean) {
         findUiHandler().post {
-            subscriptionOwnedInternal(purchaseInfo, isRestore)
+            subscriptionOwnedInternal(sku, isRestore)
         }
     }
 
-    fun subscriptionOwnedInternal(purchaseInfo: PurchaseInfo, isRestore: Boolean) {
+    fun subscriptionOwnedInternal(sku: String, isRestore: Boolean) {
         for (subscriptionServiceListener in subscriptionServiceListeners) {
             if (isRestore) {
-                subscriptionServiceListener.onSubscriptionRestored(purchaseInfo)
+                subscriptionServiceListener.onSubscriptionRestored(sku)
             } else {
-                subscriptionServiceListener.onSubscriptionPurchased(purchaseInfo)
+                subscriptionServiceListener.onSubscriptionPurchased(sku)
             }
         }
     }

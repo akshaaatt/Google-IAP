@@ -1,12 +1,10 @@
 package com.limerse.iapsample;
 
 import android.os.Bundle;
-import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.limerse.iap.IapConnector;
-import com.limerse.iap.PurchaseInfo;
 import com.limerse.iap.PurchaseServiceListener;
 import com.limerse.iap.SubscriptionServiceListener;
 import com.limerse.iapsample.databinding.ActivityMainBinding;
@@ -46,8 +44,7 @@ class JavaSampleActivity extends AppCompatActivity {
 
             }
 
-            public void onProductPurchased(PurchaseInfo purchaseInfo) {
-                String sku = purchaseInfo.getSkuDetails().getSku();
+            public void onProductPurchased(String sku) {
                 if (sku.equals("plenty")) {
 
                 }
@@ -65,16 +62,16 @@ class JavaSampleActivity extends AppCompatActivity {
                 }
             }
 
-            public void onProductRestored(PurchaseInfo sku) {
+            public void onProductRestored(String sku) {
 
             }
         });
         iapConnector.addSubscriptionListener(new SubscriptionServiceListener() {
-            public void onSubscriptionRestored(PurchaseInfo purchaseInfo) {
+            public void onSubscriptionRestored(String sku) {
             }
 
-            public void onSubscriptionPurchased(PurchaseInfo purchaseInfo) {
-                if (purchaseInfo.getSkuDetails().getSku().equals("subscription")) {
+            public void onSubscriptionPurchased(String sku) {
+                if (sku.equals("subscription")) {
 
                 }
             }
