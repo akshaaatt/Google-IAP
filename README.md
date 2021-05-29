@@ -10,7 +10,7 @@ IAP is an Android library to handle In-App purchases with minimal code.
 
 * Written in Kotlin
 * No boilerplate code
-* Easy initialisation
+* Easy initialization
 * Supports InApp & Subscription products
 * Simple configuration for consumable products
 
@@ -31,7 +31,7 @@ allprojects {
 
 ```
 dependencies {
-    implementation 'com.github.akshaaatt:Google-IAP:1.1.6'
+    implementation 'com.github.akshaaatt:Google-IAP:1.1.7'
 }
 ```
 
@@ -58,21 +58,21 @@ dependencies {
                 // list of available products will be received here, so you can update UI with prices if needed
             }
 
-            override fun onProductPurchased(sku: String?) {
+            override fun onProductPurchased(purchaseInfo: DataWrappers.PurchaseInfo) {
                // will be triggered whenever purchase succeeded
             }
 
-            override fun onProductRestored(sku: String?) {
+            override fun onProductRestored(purchaseInfo: DataWrappers.PurchaseInfo) {
                 // will be triggered fetching owned products using IapConnector
             }
         })
 
  iapConnector.addSubscriptionListener(object : SubscriptionServiceListener {
-            override fun onSubscriptionRestored(sku: String?) {
+            override fun onSubscriptionRestored(purchaseInfo: DataWrappers.PurchaseInfo) {
                 // will be triggered upon fetching owned subscription upon initialization
             }
 
-            override fun onSubscriptionPurchased(sku: String?) {
+            override fun onSubscriptionPurchased(purchaseInfo: DataWrappers.PurchaseInfo) {
                 // will be triggered whenever subscription succeeded
             }
 
