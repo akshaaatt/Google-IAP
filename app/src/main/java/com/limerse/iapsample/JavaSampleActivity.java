@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.limerse.iap.DataWrappers;
 import com.limerse.iap.IapConnector;
 import com.limerse.iap.PurchaseServiceListener;
 import com.limerse.iap.SubscriptionServiceListener;
@@ -44,34 +45,34 @@ class JavaSampleActivity extends AppCompatActivity {
 
             }
 
-            public void onProductPurchased(String sku) {
-                if (sku.equals("plenty")) {
+            public void onProductPurchased(DataWrappers.PurchaseInfo purchaseInfo) {
+                if (purchaseInfo.getSku().equals("plenty")) {
 
                 }
-                else if (sku.equals("yearly")) {
+                else if (purchaseInfo.getSku().equals("yearly")) {
 
                 }
-                else if (sku.equals("moderate")) {
+                else if (purchaseInfo.getSku().equals("moderate")) {
 
                 }
-                else if (sku.equals("base")) {
+                else if (purchaseInfo.getSku().equals("base")) {
 
                 }
-                else if (sku.equals("quite")) {
+                else if (purchaseInfo.getSku().equals("quite")) {
 
                 }
             }
 
-            public void onProductRestored(String sku) {
+            public void onProductRestored(DataWrappers.PurchaseInfo purchaseInfo) {
 
             }
         });
         iapConnector.addSubscriptionListener(new SubscriptionServiceListener() {
-            public void onSubscriptionRestored(String sku) {
+            public void onSubscriptionRestored(DataWrappers.PurchaseInfo purchaseInfo) {
             }
 
-            public void onSubscriptionPurchased(String sku) {
-                if (sku.equals("subscription")) {
+            public void onSubscriptionPurchased(DataWrappers.PurchaseInfo purchaseInfo) {
+                if (purchaseInfo.getSku().equals("subscription")) {
 
                 }
             }

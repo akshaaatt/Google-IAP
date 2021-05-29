@@ -161,7 +161,7 @@ class BillingService(private val context: Context,
                                 ) { billingResult, _ ->
                                     when (billingResult.responseCode) {
                                         BillingClient.BillingResponseCode.OK -> {
-                                            productOwned(skuDetails.sku, false)
+                                            productOwned(getPurchaseInfo(purchase), false)
                                         }
                                         else -> {
                                             Log.d(TAG, "Handling consumables : Error during consumption attempt -> ${billingResult.debugMessage}")
@@ -170,11 +170,11 @@ class BillingService(private val context: Context,
                                 }
                             }
                            else{
-                                productOwned(skuDetails.sku, isRestore)
+                                productOwned(getPurchaseInfo(purchase), isRestore)
                             }
                         }
                         BillingClient.SkuType.SUBS -> {
-                            subscriptionOwned(skuDetails.sku, isRestore)
+                            subscriptionOwned(getPurchaseInfo(purchase), isRestore)
                         }
                     }
 
@@ -193,6 +193,46 @@ class BillingService(private val context: Context,
         } else {
             log("processPurchases: with no purchases")
         }
+    }
+
+    private fun getPurchaseInfo(purchase: Purchase): DataWrappers.PurchaseInfo {
+        return  DataWrappers.PurchaseInfo(
+            getSkuInfo(skusDetails[purchase.skus[0]]!!),
+            purchase.purchaseState,
+            purchase.developerPayload,
+            purchase.isAcknowledged,
+            purchase.isAutoRenewing,
+            purchase.orderId,
+            purchase.originalJson,
+            purchase.packageName,
+            purchase.purchaseTime,
+            purchase.purchaseToken,
+            purchase.signature,
+            purchase.skus[0],
+            purchase.accountIdentifiers
+        )
+    }
+
+    private fun getSkuInfo(skuDetails: SkuDetails): DataWrappers.SkuInfo {
+        return DataWrappers.SkuInfo(
+            skuDetails.sku,
+            skuDetails.description,
+            skuDetails.freeTrialPeriod,
+            skuDetails.iconUrl,
+            skuDetails.introductoryPrice,
+            skuDetails.introductoryPriceAmountMicros,
+            skuDetails.introductoryPriceCycles,
+            skuDetails.introductoryPricePeriod,
+            skuDetails.originalJson,
+            skuDetails.originalPrice,
+            skuDetails.originalPriceAmountMicros,
+            skuDetails.price,
+            skuDetails.priceAmountMicros,
+            skuDetails.priceCurrencyCode,
+            skuDetails.subscriptionPeriod,
+            skuDetails.title,
+            skuDetails.type
+        )
     }
 
     private fun isSignatureValid(purchase: Purchase): Boolean {

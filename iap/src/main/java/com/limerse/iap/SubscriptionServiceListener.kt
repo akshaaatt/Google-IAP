@@ -6,12 +6,12 @@ interface SubscriptionServiceListener : BillingServiceListener {
      *
      * @param purchaseInfo - specifier of owned subscription
      */
-    fun onSubscriptionRestored(sku: String)
+    fun onSubscriptionRestored(purchaseInfo: DataWrappers.PurchaseInfo)
 
     /**
      * Callback will be triggered when a subscription purchased successfully
      *
      * @param purchaseInfo - specifier of purchased subscription
      */
-    fun onSubscriptionPurchased(sku: String)
+    fun onSubscriptionPurchased(purchaseInfo: DataWrappers.PurchaseInfo)
 }

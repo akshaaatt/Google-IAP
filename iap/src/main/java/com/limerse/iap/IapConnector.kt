@@ -7,7 +7,7 @@ class IapConnector @JvmOverloads constructor
 /**
  * Initialize billing service.
  *
- * @param key - key to verify purchase messages. Currently valid only for Google Billing. Leave empty if you want to skip verification
+ * @param key - key to verify purchase messages. Leave empty if you want to skip verification
  * @param context          - application context
  * @param iapKeys          - list of sku for purchases
  * @param subscriptionKeys - list of sku for subscriptions
