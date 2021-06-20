@@ -107,6 +107,13 @@ iapConnector.unsubscribe(this, "<sku>")
 
 * Replace the key with your App's License Key
 
+
+## Apps Using this Library
+
+* https://play.google.com/store/apps/details?id=com.redalck.gameone
+
+* https://play.google.com/store/apps/details?id=daily.status.earn.money
+
 ## Contribution
 
 You are most welcome to contribute to this project!
