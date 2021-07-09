@@ -112,6 +112,14 @@ iapConnector.unsubscribe(this, "<sku>")
 
 * https://play.google.com/store/apps/details?id=com.redalck.gameone
 
+* https://play.google.com/store/apps/details?id=com.redalck.gametwo
+
+* https://play.google.com/store/apps/details?id=com.redalck.gamethree
+
+* https://play.google.com/store/apps/details?id=com.redalck.gamefour
+
+* https://play.google.com/store/apps/details?id=com.redalck.gamefive
+
 * https://play.google.com/store/apps/details?id=daily.status.earn.money
 
 ## Contribution
