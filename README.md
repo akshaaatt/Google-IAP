@@ -1,3 +1,26 @@
+<h1 align="center">Google-IAP</h1>
+
+<p align="center">
+    <a href="https://github.com/akshaaatt/Google-IAP/commits/master">
+    <img src="https://img.shields.io/github/last-commit/akshaaatt/Google-IAP.svg?style=flat-square&logo=github&logoColor=white"
+         alt="GitHub last commit">
+    <a href="https://github.com/akshaaatt/Google-IAP/issues">
+    <img src="https://img.shields.io/github/issues-raw/akshaaatt/Google-IAP.svg?style=flat-square&logo=github&logoColor=white"
+         alt="GitHub issues">
+    <a href="https://github.com/akshaaatt/Google-IAP/pulls">
+    <img src="https://img.shields.io/github/issues-pr-raw/akshaaatt/Google-IAP.svg?style=flat-square&logo=github&logoColor=white"
+         alt="GitHub pull requests">
+</p>
+      
+<p align="center">
+  <a href="#features">Features</a> •
+  <a href="#development">Development</a> •
+  <a href="#usage">Usage</a> •
+  <a href="#contribution">Contribution</a>
+</p>
+
+---
+
 ## Play Billing Library Version 4.0.0
 
 
@@ -34,6 +57,12 @@ dependencies {
     implementation 'com.github.akshaaatt:Google-IAP:1.1.7'
 }
 ```
+        
+## Development
+	    
+* Prerequisite: Latest version of the Android Studio and SDKs on your pc.
+* Clone this repository.
+* Use the `gradlew build` command to build the project directly or use the IDE to run the project to your phone or the emulator.
 
 ## Usage
 
