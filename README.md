@@ -16,6 +16,7 @@
   <a href="#features">Features</a> •
   <a href="#development">Development</a> •
   <a href="#usage">Usage</a> •
+  <a href="#license">License</a> •
   <a href="#contribution">Contribution</a>
 </p>
 
@@ -150,6 +151,10 @@ iapConnector.unsubscribe(this, "<sku>")
 * https://play.google.com/store/apps/details?id=com.redalck.gamefive
 
 * https://play.google.com/store/apps/details?id=daily.status.earn.money
+	    
+## License
+
+This Project is licensed under the [GPL version 3 or later](https://www.gnu.org/licenses/gpl-3.0.html).
 
 ## Contribution
 
