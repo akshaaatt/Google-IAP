@@ -55,7 +55,7 @@ allprojects {
 
 ```
 dependencies {
-    implementation 'com.github.akshaaatt:Google-IAP:1.1.7'
+    implementation 'com.github.akshaaatt:Google-IAP:1.1.8'
 }
 ```
         
