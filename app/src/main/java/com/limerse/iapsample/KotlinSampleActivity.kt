@@ -40,7 +40,7 @@ class KotlinSampleActivity : AppCompatActivity() {
             override fun onProductPurchased(purchaseInfo: DataWrappers.PurchaseInfo) {
                 when (purchaseInfo.sku) {
                     "base" -> {
-
+                        purchaseInfo.orderId
                     }
                     "moderate" -> {
 

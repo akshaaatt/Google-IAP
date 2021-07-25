@@ -1,4 +1,5 @@
 import android.content.Context
+import com.limerse.iap.DataWrappers
 import com.limerse.iap.IapConnector
 import com.limerse.iap.PurchaseServiceListener
 import com.limerse.iap.SubscriptionServiceListener
@@ -26,11 +27,11 @@ class BillingTest {
         )
         iapConnector.addPurchaseListener(secondListener)
         iapConnector.getBillingService()
-            .productOwnedInternal(TestConstants.TEST_SKU, false)
+            .productOwnedInternal(DataWrappers.PurchaseInfo(sku = TestConstants.TEST_SKU), false)
         Mockito.verify(firstListener, Mockito.times(1))
-            .onProductPurchased(TestConstants.TEST_SKU)
+            .onProductPurchased(DataWrappers.PurchaseInfo(sku = TestConstants.TEST_SKU))
         Mockito.verify(secondListener, Mockito.times(1))
-            .onProductPurchased(TestConstants.TEST_SKU)
+            .onProductPurchased(DataWrappers.PurchaseInfo(sku = TestConstants.TEST_SKU))
     }
 
     @Test
@@ -64,10 +65,10 @@ class BillingTest {
         )
         iapConnector.addPurchaseListener(secondListener)
         iapConnector.removePurchaseListener(firstListener)
-        iapConnector.getBillingService().productOwnedInternal(TestConstants.Companion.TEST_SKU, false)
-        Mockito.verify(firstListener, Mockito.never()).onProductPurchased(Mockito.anyString())
+        iapConnector.getBillingService().productOwnedInternal(DataWrappers.PurchaseInfo(sku = TestConstants.TEST_SKU), false)
+        Mockito.verify(firstListener, Mockito.never()).onProductPurchased(Mockito.any())
         Mockito.verify(secondListener, Mockito.times(1))
-            .onProductPurchased(TestConstants.Companion.TEST_SKU)
+            .onProductPurchased(DataWrappers.PurchaseInfo(sku = TestConstants.TEST_SKU))
     }
 
     @Test
@@ -77,9 +78,9 @@ class BillingTest {
             PurchaseServiceListener::class.java
         )
         iapConnector.addPurchaseListener(listener)
-        iapConnector.getBillingService().productOwnedInternal(TestConstants.Companion.TEST_SKU, false)
+        iapConnector.getBillingService().productOwnedInternal(DataWrappers.PurchaseInfo(sku = TestConstants.TEST_SKU), false)
         Mockito.verify(listener, Mockito.times(1))
-            .onProductPurchased(TestConstants.Companion.TEST_SKU)
+            .onProductPurchased(DataWrappers.PurchaseInfo(sku = TestConstants.TEST_SKU))
     }
 
     @Test
@@ -89,9 +90,9 @@ class BillingTest {
             PurchaseServiceListener::class.java
         )
         iapConnector.addPurchaseListener(listener)
-        iapConnector.getBillingService().productOwnedInternal(TestConstants.TEST_SKU, true)
+        iapConnector.getBillingService().productOwnedInternal(DataWrappers.PurchaseInfo(sku = TestConstants.TEST_SKU), true)
         Mockito.verify(listener, Mockito.times(1))
-            .onProductRestored(TestConstants.TEST_SKU)
+            .onProductRestored(DataWrappers.PurchaseInfo(sku = TestConstants.TEST_SKU))
     }
 
     @Test
@@ -102,9 +103,9 @@ class BillingTest {
         )
         iapConnector.addSubscriptionListener(listener)
         iapConnector.getBillingService()
-            .subscriptionOwnedInternal(TestConstants.TEST_SKU, false)
+            .subscriptionOwnedInternal(DataWrappers.PurchaseInfo(sku = TestConstants.TEST_SKU), false)
         Mockito.verify(listener, Mockito.times(1))
-            .onSubscriptionPurchased(TestConstants.TEST_SKU)
+            .onSubscriptionPurchased(DataWrappers.PurchaseInfo(sku = TestConstants.TEST_SKU))
     }
 
     @Test
@@ -115,8 +116,8 @@ class BillingTest {
         )
         iapConnector.addSubscriptionListener(listener)
         iapConnector.getBillingService()
-            .subscriptionOwnedInternal(TestConstants.TEST_SKU, true)
+            .subscriptionOwnedInternal(DataWrappers.PurchaseInfo(sku = TestConstants.TEST_SKU), true)
         Mockito.verify(listener, Mockito.times(1))
-            .onSubscriptionRestored(TestConstants.TEST_SKU)
+            .onSubscriptionRestored(DataWrappers.PurchaseInfo(sku = TestConstants.TEST_SKU))
     }
 }

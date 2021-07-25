@@ -7,9 +7,9 @@ android {
     compileSdkVersion 30
 
     defaultConfig {
-        minSdkVersion 17
+        minSdkVersion 16
         targetSdkVersion 30
-        versionCode 17
+        versionCode 16
         versionName "1.1.6"
     }
 
@@ -32,5 +32,5 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlin_coroutines_version"
 
     testImplementation 'junit:junit:4.13.2'
-    testImplementation 'org.mockito:mockito-core:3.10.0'
+    testImplementation 'org.mockito:mockito-core:3.11.2'
 }

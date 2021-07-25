@@ -20,11 +20,9 @@ import java.util.Map;
 
 class JavaSampleActivity extends AppCompatActivity {
 
-    private ActivityMainBinding binding;
-
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         List<String> nonConsumablesList = Collections.singletonList("lifetime");

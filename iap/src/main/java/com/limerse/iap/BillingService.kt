@@ -10,11 +10,12 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
-class BillingService(private val context: Context,
-                     private val nonConsumableKeys: List<String>,
-                     private val consumableKeys: List<String>,
-                     private val subscriptionSkuKeys: List<String>)
-    : IBillingService(), PurchasesUpdatedListener, BillingClientStateListener, AcknowledgePurchaseResponseListener {
+class BillingService(
+    private val context: Context,
+    private val nonConsumableKeys: List<String>,
+    private val consumableKeys: List<String>,
+    private val subscriptionSkuKeys: List<String>
+) : IBillingService(), PurchasesUpdatedListener, BillingClientStateListener, AcknowledgePurchaseResponseListener {
 
     private lateinit var mBillingClient: BillingClient
     private var decodedKey: String? = null
@@ -80,7 +81,7 @@ class BillingService(private val context: Context,
         sku.toSkuDetails(type) { skuDetails ->
             if (skuDetails != null) {
                 val purchaseParams = BillingFlowParams.newBuilder()
-                        .setSkuDetails(skuDetails).build()
+                    .setSkuDetails(skuDetails).build()
                 mBillingClient.launchBillingFlow(activity, purchaseParams)
             }
         }
@@ -130,10 +131,10 @@ class BillingService(private val context: Context,
             BillingClient.BillingResponseCode.DEVELOPER_ERROR ->
                 Log.e(
                     TAG, "onPurchasesUpdated: Developer error means that Google Play " +
-                        "does not recognize the configuration. If you are just getting started, " +
-                        "make sure you have configured the application correctly in the " +
-                        "Google Play Console. The SKU product ID must match and the APK you " +
-                        "are using must be signed with release keys."
+                            "does not recognize the configuration. If you are just getting started, " +
+                            "make sure you have configured the application correctly in the " +
+                            "Google Play Console. The SKU product ID must match and the APK you " +
+                            "are using must be signed with release keys."
                 )
         }
     }
@@ -169,7 +170,7 @@ class BillingService(private val context: Context,
                                     }
                                 }
                             }
-                           else{
+                            else{
                                 productOwned(getPurchaseInfo(purchase), isRestore)
                             }
                         }
@@ -181,13 +182,13 @@ class BillingService(private val context: Context,
                     // Acknowledge the purchase if it hasn't already been acknowledged.
                     if (!purchase.isAcknowledged) {
                         val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
-                                .setPurchaseToken(purchase.purchaseToken).build()
+                            .setPurchaseToken(purchase.purchaseToken).build()
                         mBillingClient.acknowledgePurchase(acknowledgePurchaseParams, this)
                     }
                 } else {
                     Log.e(
                         TAG, "processPurchases failed. purchase: $purchase " +
-                            "purchaseState: ${purchase.purchaseState} isSkuReady: ${purchase.skus[0].isSkuReady()}")
+                                "purchaseState: ${purchase.purchaseState} isSkuReady: ${purchase.skus[0].isSkuReady()}")
                 }
             }
         } else {
