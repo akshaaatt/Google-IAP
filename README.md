@@ -10,6 +10,8 @@
     <a href="https://github.com/akshaaatt/Google-IAP/pulls">
     <img src="https://img.shields.io/github/issues-pr-raw/akshaaatt/Google-IAP.svg?style=flat-square&logo=github&logoColor=white"
          alt="GitHub pull requests">
+    <img src="https://PlayBadges.pavi2410.me/badge/downloads?id=com.redalck.gameone">
+    <img src="https://PlayBadges.pavi2410.me/badge/ratings?id=com.redalck.gameone">
 </p>
       
 <p align="center">
@@ -23,7 +25,6 @@
 ---
 
 ## Play Billing Library Version 4.0.0
-
 
 [![16113251508601.jpg](https://i.postimg.cc/2yjZh36s/16113251508601.jpg)](https://postimg.cc/hzwvqDVs)
 [![ezgif-com-gif-maker-3.gif](https://i.postimg.cc/cH8xyLHG/ezgif-com-gif-maker-3.gif)](https://postimg.cc/Q9hGcs1f)
