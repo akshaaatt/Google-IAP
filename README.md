@@ -1,5 +1,10 @@
 <h1 align="center">Google-IAP</h1>
 
+<h1 align="center">
+  <br>
+  <a href="https://github.com/akshaaatt/Google-IAP/archive/master.zip"><img src="https://i.postimg.cc/wMCccWJH/4910241.jpg" alt="Google-IAP"></a>
+</h1>
+
 <p align="center">
     <a href="https://github.com/akshaaatt/Google-IAP/commits/master">
     <img src="https://img.shields.io/github/last-commit/akshaaatt/Google-IAP.svg?style=flat-square&logo=github&logoColor=white"
