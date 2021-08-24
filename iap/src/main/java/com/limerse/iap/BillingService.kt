@@ -140,7 +140,7 @@ class BillingService(
     }
 
     private fun processPurchases(purchasesList: List<Purchase>?, isRestore: Boolean = false) {
-        if (purchasesList != null) {
+        if (!purchasesList.isNullOrEmpty()) {
             log("processPurchases: " + purchasesList.size + " purchase(s)")
             purchases@ for (purchase in purchasesList) {
                 if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED && purchase.skus[0].isSkuReady()) {
