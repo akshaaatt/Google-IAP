@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    compileSdkVersion 31
+    compileSdk 31
     defaultConfig {
         applicationId "com.limerse.iapsample"
-        minSdkVersion 21
-        targetSdkVersion 31
+        minSdk 21
+        targetSdk 31
         versionCode 1
         versionName "1.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -26,6 +26,14 @@ android {
     }
     buildFeatures {
         viewBinding true
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
+    }
+
+    kotlinOptions {
+        jvmTarget = "11"
     }
 }
 
