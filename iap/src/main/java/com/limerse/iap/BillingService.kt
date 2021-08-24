@@ -98,7 +98,7 @@ class BillingService(
             activity.startActivity(intent)
             activity.finish()
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.w(TAG, "Unsubscribing failed.")
         }
     }
 
