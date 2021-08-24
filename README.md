@@ -1,6 +1,8 @@
-<h1 align="center">Google-IAP</h1>
+<h1 align="center">Google-IAP (Play Billing Library Version 4.0.0)</h1>
 
 <p align="center">
+    <img src="https://PlayBadges.pavi2410.me/badge/downloads?id=com.redalck.gameone">
+    <img src="https://PlayBadges.pavi2410.me/badge/ratings?id=com.redalck.gameone">
     <a href="https://github.com/akshaaatt/Google-IAP/commits/master">
     <img src="https://img.shields.io/github/last-commit/akshaaatt/Google-IAP.svg?style=flat-square&logo=github&logoColor=white"
          alt="GitHub last commit">
@@ -10,8 +12,6 @@
     <a href="https://github.com/akshaaatt/Google-IAP/pulls">
     <img src="https://img.shields.io/github/issues-pr-raw/akshaaatt/Google-IAP.svg?style=flat-square&logo=github&logoColor=white"
          alt="GitHub pull requests">
-    <img src="https://PlayBadges.pavi2410.me/badge/downloads?id=com.redalck.gameone">
-    <img src="https://PlayBadges.pavi2410.me/badge/ratings?id=com.redalck.gameone">
 </p>
       
 <p align="center">
@@ -22,9 +22,12 @@
   <a href="#contribution">Contribution</a>
 </p>
 
+<h1 align="center">
+  <br>
+  <a href="https://github.com/akshaaatt/Google-IAP/archive/master.zip"><img src="https://i.postimg.cc/wMCccWJH/4910241.jpg" alt="Google-IAP"></a>
+</h1>
+	    
 ---
-
-## Play Billing Library Version 4.0.0
 
 [![16113251508601.jpg](https://i.postimg.cc/2yjZh36s/16113251508601.jpg)](https://postimg.cc/hzwvqDVs)
 [![ezgif-com-gif-maker-3.gif](https://i.postimg.cc/cH8xyLHG/ezgif-com-gif-maker-3.gif)](https://postimg.cc/Q9hGcs1f)
