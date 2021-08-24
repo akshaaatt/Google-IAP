@@ -10,7 +10,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name="com.limerse.iapsample.JavaSampleActivity" />
-        <activity android:name="com.limerse.iapsample.KotlinSampleActivity">
+        <activity android:name="com.limerse.iapsample.KotlinSampleActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

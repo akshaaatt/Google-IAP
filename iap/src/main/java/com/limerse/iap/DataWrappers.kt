@@ -25,19 +25,19 @@ class DataWrappers {
         var isConsumable: Boolean = false
     )
 
-    data class PurchaseInfo(
-        val skuInfo: SkuInfo,
-        val purchaseState: Int,
-        val developerPayload: String?,
-        val isAcknowledged: Boolean,
-        val isAutoRenewing: Boolean,
-        val orderId: String,
-        val originalJson: String,
-        val packageName: String,
-        val purchaseTime: Long,
-        val purchaseToken: String,
-        val signature: String,
-        val sku: String,
-        val accountIdentifiers: AccountIdentifiers?
+    data class PurchaseInfo @JvmOverloads constructor(
+        val skuInfo: SkuInfo? = null,
+        val purchaseState: Int = 100,
+        val developerPayload: String? = null,
+        val isAcknowledged: Boolean = true,
+        val isAutoRenewing: Boolean = true,
+        val orderId: String? = null,
+        val originalJson: String? = null,
+        val packageName: String = BuildConfig.LIBRARY_PACKAGE_NAME,
+        val purchaseTime: Long = 100,
+        val purchaseToken: String? = null,
+        val signature: String? = null,
+        val sku: String? = null,
+        val accountIdentifiers: AccountIdentifiers? = null
     )
 }
