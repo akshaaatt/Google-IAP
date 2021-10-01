@@ -6,5 +6,5 @@ interface BillingServiceListener {
      *
      * @param iapKeyPrices - a map with available products
      */
-    fun onPricesUpdated(iapKeyPrices: Map<String, String>)
+    fun onPricesUpdated(iapKeyPrices: Map<String, DataWrappers.SkuDetails>)
 }

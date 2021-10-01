@@ -88,7 +88,7 @@ dependencies {
 
 ```kotlin
  iapConnector.addPurchaseListener(object : PurchaseServiceListener {
-            override fun onPricesUpdated(iapKeyPrices: Map<String, String>) {
+            override fun onPricesUpdated(iapKeyPrices: Map<String, DataWrappers.SkuDetails>) {
                 // list of available products will be received here, so you can update UI with prices if needed
             }
 
@@ -110,7 +110,7 @@ dependencies {
                 // will be triggered whenever subscription succeeded
             }
 
-            override fun onPricesUpdated(iapKeyPrices: Map<String, String>) {
+            override fun onPricesUpdated(iapKeyPrices: Map<String, DataWrappers.SkuDetails>) {
                 // list of available products will be received here, so you can update UI with prices if needed
             }
         })

@@ -8,7 +8,8 @@ import androidx.annotation.CallSuper
 abstract class IBillingService {
 
     private val purchaseServiceListeners: MutableList<PurchaseServiceListener> = mutableListOf()
-    private val subscriptionServiceListeners: MutableList<SubscriptionServiceListener> = mutableListOf()
+    private val subscriptionServiceListeners: MutableList<SubscriptionServiceListener> =
+        mutableListOf()
 
     fun addPurchaseListener(purchaseServiceListener: PurchaseServiceListener) {
         purchaseServiceListeners.add(purchaseServiceListener)
@@ -66,13 +67,13 @@ abstract class IBillingService {
         }
     }
 
-    fun updatePrices(iapkeyPrices: Map<String, String>) {
+    fun updatePrices(iapkeyPrices: Map<String, DataWrappers.SkuDetails>) {
         findUiHandler().post {
             updatePricesInternal(iapkeyPrices)
         }
     }
 
-    fun updatePricesInternal(iapkeyPrices: Map<String, String>) {
+    fun updatePricesInternal(iapkeyPrices: Map<String, DataWrappers.SkuDetails>) {
         for (billingServiceListener in purchaseServiceListeners) {
             billingServiceListener.onPricesUpdated(iapkeyPrices)
         }

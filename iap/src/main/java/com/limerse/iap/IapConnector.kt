@@ -25,7 +25,8 @@ class IapConnector @JvmOverloads constructor
 
     init {
         val contextLocal = context.applicationContext ?: context
-        mBillingService = BillingService(contextLocal, nonConsumableKeys, consumableKeys, subscriptionKeys)
+        mBillingService =
+            BillingService(contextLocal, nonConsumableKeys, consumableKeys, subscriptionKeys)
         getBillingService().init(key)
         getBillingService().enableDebugLogging(enableLogging)
     }
