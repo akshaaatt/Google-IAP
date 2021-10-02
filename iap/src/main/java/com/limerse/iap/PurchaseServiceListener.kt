@@ -6,7 +6,7 @@ interface PurchaseServiceListener : BillingServiceListener {
      *
      * @param iapKeyPrices - a map with available products
      */
-    override fun onPricesUpdated(iapKeyPrices: Map<String, String>)
+    override fun onPricesUpdated(iapKeyPrices: Map<String, DataWrappers.SkuDetails>)
 
     /**
      * Callback will be triggered when a product purchased successfully

@@ -15,7 +15,8 @@ class BillingService(
     private val nonConsumableKeys: List<String>,
     private val consumableKeys: List<String>,
     private val subscriptionSkuKeys: List<String>
-) : IBillingService(), PurchasesUpdatedListener, BillingClientStateListener, AcknowledgePurchaseResponseListener {
+) : IBillingService(), PurchasesUpdatedListener, BillingClientStateListener,
+    AcknowledgePurchaseResponseListener {
 
     private lateinit var mBillingClient: BillingClient
     private var decodedKey: String? = null
@@ -27,7 +28,8 @@ class BillingService(
     override fun init(key: String?) {
         decodedKey = key
 
-        mBillingClient = BillingClient.newBuilder(context).setListener(this).enablePendingPurchases().build()
+        mBillingClient =
+            BillingClient.newBuilder(context).setListener(this).enablePendingPurchases().build()
         mBillingClient.startConnection(this)
     }
 
@@ -53,9 +55,11 @@ class BillingService(
      * New purchases will be provided to the PurchasesUpdatedListener.
      */
     private suspend fun queryPurchases() {
-        val inappResult: PurchasesResult = mBillingClient.queryPurchasesAsync(BillingClient.SkuType.INAPP)
+        val inappResult: PurchasesResult =
+            mBillingClient.queryPurchasesAsync(BillingClient.SkuType.INAPP)
         processPurchases(inappResult.purchasesList, isRestore = true)
-        val subsResult: PurchasesResult = mBillingClient.queryPurchasesAsync(BillingClient.SkuType.SUBS)
+        val subsResult: PurchasesResult =
+            mBillingClient.queryPurchasesAsync(BillingClient.SkuType.SUBS)
         processPurchases(subsResult.purchasesList, isRestore = true)
     }
 
@@ -156,21 +160,24 @@ class BillingService(
                             /**
                              * Consume the purchase
                              */
-                            if(consumableKeys.contains(purchase.skus[0])){
+                            if (consumableKeys.contains(purchase.skus[0])) {
                                 mBillingClient.consumeAsync(
-                                    ConsumeParams.newBuilder().setPurchaseToken(purchase.purchaseToken).build()
+                                    ConsumeParams.newBuilder()
+                                        .setPurchaseToken(purchase.purchaseToken).build()
                                 ) { billingResult, _ ->
                                     when (billingResult.responseCode) {
                                         BillingClient.BillingResponseCode.OK -> {
                                             productOwned(getPurchaseInfo(purchase), false)
                                         }
                                         else -> {
-                                            Log.d(TAG, "Handling consumables : Error during consumption attempt -> ${billingResult.debugMessage}")
+                                            Log.d(
+                                                TAG,
+                                                "Handling consumables : Error during consumption attempt -> ${billingResult.debugMessage}"
+                                            )
                                         }
                                     }
                                 }
-                            }
-                            else{
+                            } else {
                                 productOwned(getPurchaseInfo(purchase), isRestore)
                             }
                         }
@@ -188,7 +195,8 @@ class BillingService(
                 } else {
                     Log.e(
                         TAG, "processPurchases failed. purchase: $purchase " +
-                                "purchaseState: ${purchase.purchaseState} isSkuReady: ${purchase.skus[0].isSkuReady()}")
+                                "purchaseState: ${purchase.purchaseState} isSkuReady: ${purchase.skus[0].isSkuReady()}"
+                    )
                 }
             }
         } else {
@@ -197,7 +205,7 @@ class BillingService(
     }
 
     private fun getPurchaseInfo(purchase: Purchase): DataWrappers.PurchaseInfo {
-        return  DataWrappers.PurchaseInfo(
+        return DataWrappers.PurchaseInfo(
             getSkuInfo(skusDetails[purchase.skus[0]]!!),
             purchase.purchaseState,
             purchase.developerPayload,
@@ -257,11 +265,31 @@ class BillingService(
 
         mBillingClient.querySkuDetailsAsync(params.build()) { billingResult, skuDetailsList ->
             if (billingResult.isOk()) {
-                skuDetailsList?.forEach { skusDetails[it.sku] = it }
+                skuDetailsList?.forEach {
+                    skusDetails[it.sku] = it
+                }
 
                 skusDetails.mapNotNull { entry ->
-                    entry.value?.price?.let { entry.key to it }
-                }.let { updatePrices(it.toMap()) }
+                    entry.value?.let {
+                        entry.key to DataWrappers.SkuDetails(
+                            title = it.title,
+                            description = it.description,
+                            priceCurrencyCode = it.priceCurrencyCode,
+                            freeTrailPeriod = it.freeTrialPeriod,
+                            introductoryPrice = it.introductoryPrice,
+                            introductoryPriceAmount = it.introductoryPriceAmountMicros / 1000000.0,
+                            introductoryPriceCycles = it.introductoryPriceCycles,
+                            introductoryPricePeriod = it.introductoryPricePeriod,
+                            originalPrice = it.originalPrice,
+                            originalPriceAmount = it.originalPriceAmountMicros / 1000000.0,
+                            price = it.price,
+                            priceAmount = it.priceAmountMicros / 1000000.0,
+                            subscriptionPeriod = it.subscriptionPeriod,
+                        )
+                    }
+                }.let {
+                    updatePrices(it.toMap())
+                }
             }
             done()
         }

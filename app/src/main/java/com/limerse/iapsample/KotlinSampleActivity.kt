@@ -33,7 +33,7 @@ class KotlinSampleActivity : AppCompatActivity() {
         )
 
         iapConnector.addPurchaseListener(object : PurchaseServiceListener {
-            override fun onPricesUpdated(iapKeyPrices: Map<String, String>) {
+            override fun onPricesUpdated(iapKeyPrices: Map<String, DataWrappers.SkuDetails>) {
                 // list of available products will be received here, so you can update UI with prices if needed
             }
 
@@ -69,14 +69,14 @@ class KotlinSampleActivity : AppCompatActivity() {
 
             override fun onSubscriptionPurchased(purchaseInfo: DataWrappers.PurchaseInfo) {
                 // will be triggered whenever subscription succeeded
-                when(purchaseInfo.sku){
-                    "subscription"->{
+                when (purchaseInfo.sku) {
+                    "subscription" -> {
 
                     }
                 }
             }
 
-            override fun onPricesUpdated(iapKeyPrices: Map<String, String>) {
+            override fun onPricesUpdated(iapKeyPrices: Map<String, DataWrappers.SkuDetails>) {
                 // list of available products will be received here, so you can update UI with prices if needed
             }
         })

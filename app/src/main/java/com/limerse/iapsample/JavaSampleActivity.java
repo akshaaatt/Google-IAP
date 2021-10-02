@@ -46,17 +46,13 @@ class JavaSampleActivity extends AppCompatActivity {
             public void onProductPurchased(DataWrappers.PurchaseInfo purchaseInfo) {
                 if (purchaseInfo.getSku().equals("plenty")) {
 
-                }
-                else if (purchaseInfo.getSku().equals("yearly")) {
+                } else if (purchaseInfo.getSku().equals("yearly")) {
 
-                }
-                else if (purchaseInfo.getSku().equals("moderate")) {
+                } else if (purchaseInfo.getSku().equals("moderate")) {
 
-                }
-                else if (purchaseInfo.getSku().equals("base")) {
+                } else if (purchaseInfo.getSku().equals("base")) {
 
-                }
-                else if (purchaseInfo.getSku().equals("quite")) {
+                } else if (purchaseInfo.getSku().equals("quite")) {
 
                 }
             }
