@@ -2,6 +2,7 @@ package com.limerse.iapsample;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.limerse.iap.DataWrappers;
@@ -43,7 +44,7 @@ class JavaSampleActivity extends AppCompatActivity {
 
             }
 
-            public void onProductPurchased(DataWrappers.PurchaseInfo purchaseInfo) {
+            public void onProductPurchased(@NonNull DataWrappers.PurchaseInfo purchaseInfo) {
                 if (purchaseInfo.getSku().equals("plenty")) {
 
                 } else if (purchaseInfo.getSku().equals("yearly")) {
@@ -57,15 +58,15 @@ class JavaSampleActivity extends AppCompatActivity {
                 }
             }
 
-            public void onProductRestored(DataWrappers.PurchaseInfo purchaseInfo) {
+            public void onProductRestored(@NonNull DataWrappers.PurchaseInfo purchaseInfo) {
 
             }
         });
         iapConnector.addSubscriptionListener(new SubscriptionServiceListener() {
-            public void onSubscriptionRestored(DataWrappers.PurchaseInfo purchaseInfo) {
+            public void onSubscriptionRestored(@NonNull DataWrappers.PurchaseInfo purchaseInfo) {
             }
 
-            public void onSubscriptionPurchased(DataWrappers.PurchaseInfo purchaseInfo) {
+            public void onSubscriptionPurchased(@NonNull DataWrappers.PurchaseInfo purchaseInfo) {
                 if (purchaseInfo.getSku().equals("subscription")) {
 
                 }

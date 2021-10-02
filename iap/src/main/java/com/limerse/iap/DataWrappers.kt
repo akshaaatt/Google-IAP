@@ -6,30 +6,16 @@ class DataWrappers {
 
     data class SkuInfo(
         val sku: String,
-        val description: String,
-        val freeTrailPeriod: String,
         val iconUrl: String,
-        val introductoryPrice: String,
-        val introductoryPriceAmountMicros: Long,
-        val introductoryPriceCycles: Int,
-        val introductoryPricePeriod: String,
         val originalJson: String,
-        val originalPrice: String,
-        val originalPriceAmountMicros: Long,
-        val price: String,
-        val priceAmountMicros: Long,
-        val priceCurrencyCode: String,
-        val subscriptionPeriod: String,
-        val title: String,
         val type: String,
+        val skuDetails: SkuDetails,
         var isConsumable: Boolean = false
     )
-
 
     data class SkuDetails(
         val title: String?,
         val description: String?,
-        val priceCurrencyCode: String?,
         val freeTrailPeriod: String?,
         val introductoryPrice: String?,
         val introductoryPriceAmount: Double?,
@@ -39,6 +25,7 @@ class DataWrappers {
         val originalPriceAmount: Double?,
         val price: String?,
         val priceAmount: Double?,
+        val priceCurrencyCode: String?,
         val subscriptionPeriod: String?,
     )
 

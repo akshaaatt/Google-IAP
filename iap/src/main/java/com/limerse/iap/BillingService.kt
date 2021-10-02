@@ -10,6 +10,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
+@DelicateCoroutinesApi
 class BillingService(
     private val context: Context,
     private val nonConsumableKeys: List<String>,
@@ -33,7 +34,6 @@ class BillingService(
         mBillingClient.startConnection(this)
     }
 
-    @DelicateCoroutinesApi
     override fun onBillingSetupFinished(billingResult: BillingResult) {
         log("onBillingSetupFinishedOkay: billingResult: $billingResult")
 
@@ -113,7 +113,6 @@ class BillingService(
     /**
      * Called by the Billing Library when new purchases are detected.
      */
-    @DelicateCoroutinesApi
     override fun onPurchasesUpdated(billingResult: BillingResult, purchases: List<Purchase>?) {
         val responseCode = billingResult.responseCode
         val debugMessage = billingResult.debugMessage
@@ -225,22 +224,24 @@ class BillingService(
     private fun getSkuInfo(skuDetails: SkuDetails): DataWrappers.SkuInfo {
         return DataWrappers.SkuInfo(
             skuDetails.sku,
-            skuDetails.description,
-            skuDetails.freeTrialPeriod,
             skuDetails.iconUrl,
-            skuDetails.introductoryPrice,
-            skuDetails.introductoryPriceAmountMicros,
-            skuDetails.introductoryPriceCycles,
-            skuDetails.introductoryPricePeriod,
             skuDetails.originalJson,
-            skuDetails.originalPrice,
-            skuDetails.originalPriceAmountMicros,
-            skuDetails.price,
-            skuDetails.priceAmountMicros,
-            skuDetails.priceCurrencyCode,
-            skuDetails.subscriptionPeriod,
-            skuDetails.title,
-            skuDetails.type
+            skuDetails.type,
+            DataWrappers.SkuDetails(
+                skuDetails.title,
+                skuDetails.description,
+                skuDetails.freeTrialPeriod,
+                skuDetails.introductoryPrice,
+                skuDetails.introductoryPriceAmountMicros / 1000000.0,
+                skuDetails.introductoryPriceCycles,
+                skuDetails.introductoryPricePeriod,
+                skuDetails.originalPrice,
+                skuDetails.originalPriceAmountMicros / 1000000.0,
+                skuDetails.price,
+                skuDetails.priceAmountMicros / 1000000.0,
+                skuDetails.priceCurrencyCode,
+                skuDetails.subscriptionPeriod
+            )
         )
     }
 
