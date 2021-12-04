@@ -1,9 +1,9 @@
 <h1 align="center">Google-IAP (Play Billing Library Version 4.0.0)</h1>
 
 <p align="center">
-    <img src="https://jitpack.io/v/akshaaatt/Cropper.svg?style=flat-square&logo=github&logoColor=white"
+    <img src="https://jitpack.io/v/akshaaatt/Google-IAP.svg?style=flat-square&logo=github&logoColor=white"
          alt="GitHub issues">
-    <a href="https://jitpack.io/#akshaaatt/Cropper">
+    <a href="https://jitpack.io/#akshaaatt/Google-IAP">
     <img src="https://PlayBadges.pavi2410.me/badge/downloads?id=com.redalck.gameone">
     <img src="https://PlayBadges.pavi2410.me/badge/ratings?id=com.redalck.gameone">
     <a href="https://github.com/akshaaatt/Google-IAP/commits/master">
