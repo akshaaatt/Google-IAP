@@ -1,4 +1,4 @@
-package com.limerse.iap
+package com.aemerse.iap
 
 interface PurchaseServiceListener : BillingServiceListener {
     /**

@@ -1,12 +1,12 @@
-package com.limerse.iapsample
+package com.aemerse.iapsample
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.limerse.iap.DataWrappers
-import com.limerse.iap.IapConnector
-import com.limerse.iap.PurchaseServiceListener
-import com.limerse.iap.SubscriptionServiceListener
-import com.limerse.iapsample.databinding.ActivityMainBinding
+import com.aemerse.iap.DataWrappers
+import com.aemerse.iap.IapConnector
+import com.aemerse.iap.PurchaseServiceListener
+import com.aemerse.iap.SubscriptionServiceListener
+import com.aemerse.iapsample.databinding.ActivityMainBinding
 
 class KotlinSampleActivity : AppCompatActivity() {
 
