@@ -4,7 +4,9 @@
     <img src="https://jitpack.io/v/akshaaatt/Google-IAP.svg?style=flat-square&logo=github&logoColor=white"
          alt="GitHub issues">
     <a href="https://jitpack.io/#akshaaatt/Google-IAP">
-    <img src="https://PlayBadges.pavi2410.me/badge/downloads?id=com.redalck.gameone">
+    <a href="https://play.google.com/store/apps/details?id=com.redalck.gameone">
+       <img src="https://PlayBadges.pavi2410.me/badge/downloads?id=com.redalck.gameone">
+    </a>
     <a href="https://github.com/akshaaatt/Google-IAP/commits/master">
     <img src="https://img.shields.io/github/last-commit/akshaaatt/Google-IAP.svg?style=flat-square&logo=github&logoColor=white"
          alt="GitHub last commit">
