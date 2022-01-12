@@ -10,6 +10,16 @@ abstract class IBillingService {
     private val purchaseServiceListeners: MutableList<PurchaseServiceListener> = mutableListOf()
     private val subscriptionServiceListeners: MutableList<SubscriptionServiceListener> =
         mutableListOf()
+    private val billingClientConnectedListeners: MutableList<BillingClientConnectionListener> =
+        mutableListOf()
+
+    fun addBillingClientConnectionListener(billingClientConnectionListener: BillingClientConnectionListener) {
+        billingClientConnectedListeners.add(billingClientConnectionListener)
+    }
+
+    fun removeBillingClientConnectionListener(billingClientConnectionListener: BillingClientConnectionListener) {
+        billingClientConnectedListeners.remove(billingClientConnectionListener)
+    }
 
     fun addPurchaseListener(purchaseServiceListener: PurchaseServiceListener) {
         purchaseServiceListeners.add(purchaseServiceListener)
@@ -67,6 +77,14 @@ abstract class IBillingService {
         }
     }
 
+    fun isBillingClientConnected(status: Boolean, responseCode: Int) {
+        findUiHandler().post {
+            for (billingServiceListener in billingClientConnectedListeners) {
+                billingServiceListener.onConnected(status, responseCode)
+            }
+        }
+    }
+
     fun updatePrices(iapkeyPrices: Map<String, DataWrappers.SkuDetails>) {
         findUiHandler().post {
             updatePricesInternal(iapkeyPrices)
@@ -92,6 +110,7 @@ abstract class IBillingService {
     open fun close() {
         subscriptionServiceListeners.clear()
         purchaseServiceListeners.clear()
+        billingClientConnectedListeners.clear()
     }
 }
 

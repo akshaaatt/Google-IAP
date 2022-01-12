@@ -1,16 +1,19 @@
 package com.aemerse.iapsample
 
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import com.aemerse.iap.DataWrappers
-import com.aemerse.iap.IapConnector
-import com.aemerse.iap.PurchaseServiceListener
-import com.aemerse.iap.SubscriptionServiceListener
+import androidx.lifecycle.MutableLiveData
+import com.aemerse.iap.*
 import com.aemerse.iapsample.databinding.ActivityMainBinding
 
 class KotlinSampleActivity : AppCompatActivity() {
 
+    private lateinit var iapConnector: IapConnector
     private lateinit var binding: ActivityMainBinding
+
+    val isBillingClientConnected: MutableLiveData<Boolean> = MutableLiveData()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -18,12 +21,13 @@ class KotlinSampleActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.bottomnavview.itemIconTintList = null
+        isBillingClientConnected.value = false
 
         val nonConsumablesList = listOf("lifetime")
         val consumablesList = listOf("base", "moderate", "quite", "plenty", "yearly")
         val subsList = listOf("subscription")
 
-        val iapConnector = IapConnector(
+        iapConnector = IapConnector(
             context = this,
             nonConsumableKeys = nonConsumablesList,
             consumableKeys = consumablesList,
@@ -31,6 +35,19 @@ class KotlinSampleActivity : AppCompatActivity() {
             key = "LICENSE KEY",
             enableLogging = true
         )
+
+        iapConnector.addBillingClientConnectionListener(object : BillingClientConnectionListener {
+
+            override fun onConnected(status: Boolean, billingResponseCode: Int) {
+                Log.d(
+                    "KSA",
+                    "This is the status: $status and response code is: $billingResponseCode"
+                )
+                isBillingClientConnected.value = status
+
+            }
+
+        })
 
         iapConnector.addPurchaseListener(object : PurchaseServiceListener {
             override fun onPricesUpdated(iapKeyPrices: Map<String, DataWrappers.SkuDetails>) {
@@ -81,27 +98,51 @@ class KotlinSampleActivity : AppCompatActivity() {
             }
         })
 
-        binding.btPurchaseCons.setOnClickListener {
-            iapConnector.purchase(this, "base")
-        }
-        binding.btnMonthly.setOnClickListener {
-            iapConnector.subscribe(this, "subscription")
-        }
 
-        binding.btnYearly.setOnClickListener {
-            iapConnector.purchase(this, "yearly")
-        }
-        binding.btnQuite.setOnClickListener {
-            iapConnector.purchase(this, "quite")
+        isBillingClientConnected.observe(this, {
 
-        }
-        binding.btnModerate.setOnClickListener {
-            iapConnector.purchase(this, "moderate")
-        }
+            Log.d("KSA", "This is the new billing client status $it")
+            if (it) {
+                binding.btPurchaseCons.isEnabled = true
+                binding.btnMonthly.isEnabled = true
+                binding.btnYearly.isEnabled = true
+                binding.btnQuite.isEnabled = true
+                binding.btnModerate.isEnabled = true
+                binding.btnUltimate.isEnabled = true
 
-        binding.btnUltimate.setOnClickListener {
-            iapConnector.purchase(this, "plenty")
+                binding.btPurchaseCons.setOnClickListener {
+                    iapConnector.purchase(this, "base")
+                }
+                binding.btnMonthly.setOnClickListener {
+                    iapConnector.subscribe(this, "subscription")
+                }
 
-        }
+                binding.btnYearly.setOnClickListener {
+                    iapConnector.purchase(this, "yearly")
+                }
+                binding.btnQuite.setOnClickListener {
+                    iapConnector.purchase(this, "quite")
+
+                }
+                binding.btnModerate.setOnClickListener {
+                    iapConnector.purchase(this, "moderate")
+                }
+
+                binding.btnUltimate.setOnClickListener {
+                    iapConnector.purchase(this, "plenty")
+
+                }
+            } else {
+                binding.btPurchaseCons.isEnabled = false
+                binding.btnMonthly.isEnabled = false
+                binding.btnYearly.isEnabled = false
+                binding.btnQuite.isEnabled = false
+                binding.btnModerate.isEnabled = false
+                binding.btnUltimate.isEnabled = false
+            }
+
+        })
+
+
     }
 }

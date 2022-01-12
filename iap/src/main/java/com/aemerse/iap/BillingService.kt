@@ -38,6 +38,7 @@ class BillingService(
         log("onBillingSetupFinishedOkay: billingResult: $billingResult")
 
         if (billingResult.isOk()) {
+            isBillingClientConnected(true, billingResult.responseCode)
             nonConsumableKeys.querySkuDetails(BillingClient.SkuType.INAPP) {
                 consumableKeys.querySkuDetails(BillingClient.SkuType.INAPP) {
                     subscriptionSkuKeys.querySkuDetails(BillingClient.SkuType.SUBS) {
@@ -47,6 +48,8 @@ class BillingService(
                     }
                 }
             }
+        } else {
+            isBillingClientConnected(false, billingResult.responseCode)
         }
     }
 
@@ -65,7 +68,7 @@ class BillingService(
 
     override fun buy(activity: Activity, sku: String) {
         if (!sku.isSkuReady()) {
-            log("buy. Google billing service is not ready yet.")
+            log("buy. Google billing service is not ready yet. (SKU is not ready yet -1)")
             return
         }
 
@@ -74,7 +77,7 @@ class BillingService(
 
     override fun subscribe(activity: Activity, sku: String) {
         if (!sku.isSkuReady()) {
-            log("buy. Google billing service is not ready yet.")
+            log("buy. Google billing service is not ready yet. (SKU is not ready yet -2)")
             return
         }
 
@@ -266,6 +269,7 @@ class BillingService(
 
         mBillingClient.querySkuDetailsAsync(params.build()) { billingResult, skuDetailsList ->
             if (billingResult.isOk()) {
+                isBillingClientConnected(true, billingResult.responseCode)
                 skuDetailsList?.forEach {
                     skusDetails[it.sku] = it
                 }
@@ -302,7 +306,7 @@ class BillingService(
      */
     private fun String.toSkuDetails(type: String, done: (skuDetails: SkuDetails?) -> Unit = {}) {
         if (::mBillingClient.isInitialized.not() || !mBillingClient.isReady) {
-            log("buy. Google billing service is not ready yet.")
+            log("buy. Google billing service is not ready yet.(mBillingClient is not ready yet - 001)")
             done(null)
             return
         }
@@ -318,6 +322,7 @@ class BillingService(
 
         mBillingClient.querySkuDetailsAsync(params.build()) { billingResult, skuDetailsList ->
             if (billingResult.isOk()) {
+                isBillingClientConnected(true, billingResult.responseCode)
                 val skuDetails: SkuDetails? = skuDetailsList?.find { it.sku == this }
                 skusDetails[this] = skuDetails
                 done(skuDetails)
