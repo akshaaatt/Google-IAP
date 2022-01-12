@@ -31,6 +31,14 @@ class IapConnector @JvmOverloads constructor
         getBillingService().enableDebugLogging(enableLogging)
     }
 
+    fun addBillingClientConnectionListener(billingClientConnectionListener: BillingClientConnectionListener) {
+        getBillingService().addBillingClientConnectionListener(billingClientConnectionListener)
+    }
+
+    fun removeBillingClientConnectionListener(billingClientConnectionListener: BillingClientConnectionListener) {
+        getBillingService().removeBillingClientConnectionListener(billingClientConnectionListener)
+    }
+
     fun addPurchaseListener(purchaseServiceListener: PurchaseServiceListener) {
         getBillingService().addPurchaseListener(purchaseServiceListener)
     }
