@@ -14,7 +14,6 @@ class KotlinSampleActivity : AppCompatActivity() {
 
     val isBillingClientConnected: MutableLiveData<Boolean> = MutableLiveData()
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -98,9 +97,7 @@ class KotlinSampleActivity : AppCompatActivity() {
             }
         })
 
-
-        isBillingClientConnected.observe(this, {
-
+        isBillingClientConnected.observe(this) {
             Log.d("KSA", "This is the new billing client status $it")
             if (it) {
                 binding.btPurchaseCons.isEnabled = true
@@ -140,9 +137,6 @@ class KotlinSampleActivity : AppCompatActivity() {
                 binding.btnModerate.isEnabled = false
                 binding.btnUltimate.isEnabled = false
             }
-
-        })
-
-
+        }
     }
 }
