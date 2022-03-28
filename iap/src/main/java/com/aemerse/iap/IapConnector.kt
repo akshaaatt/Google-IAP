@@ -2,7 +2,9 @@ package com.aemerse.iap
 
 import android.app.Activity
 import android.content.Context
+import kotlinx.coroutines.DelicateCoroutinesApi
 
+@OptIn(DelicateCoroutinesApi::class)
 class IapConnector @JvmOverloads constructor
 /**
  * Initialize billing service.
