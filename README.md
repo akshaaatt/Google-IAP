@@ -57,7 +57,6 @@ allprojects {
     }
 }
 ```
-
 * Add the dependency in your app's build.gradle file
 
 ```
