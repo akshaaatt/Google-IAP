@@ -4,17 +4,18 @@ import android.app.Activity
 import android.content.Context
 import kotlinx.coroutines.DelicateCoroutinesApi
 
-@OptIn(DelicateCoroutinesApi::class)
-class IapConnector @JvmOverloads constructor
 /**
  * Initialize billing service.
  *
- * @param key - key to verify purchase messages. Leave empty if you want to skip verification
- * @param context          - application context
- * @param iapKeys          - list of sku for purchases
- * @param subscriptionKeys - list of sku for subscriptions
+ * @param context Application context.
+ * @param nonConsumableKeys SKU list for non-consumable one-time products.
+ * @param consumableKeys SKU list for consumable one-time products.
+ * @param subscriptionKeys SKU list for subscriptions.
+ * @param key Key to verify purchase messages. Leave it empty if you want to skip verification.
+ * @param enableLogging Log operations/errors to the logcat for debugging purposes.
  */
-    (
+@OptIn(DelicateCoroutinesApi::class)
+class IapConnector @JvmOverloads constructor(
     context: Context,
     nonConsumableKeys: List<String> = emptyList(),
     consumableKeys: List<String> = emptyList(),
