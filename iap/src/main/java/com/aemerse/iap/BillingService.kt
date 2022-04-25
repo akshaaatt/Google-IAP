@@ -58,9 +58,9 @@ class BillingService(
      * New purchases will be provided to the PurchasesUpdatedListener.
      */
     private suspend fun queryPurchases() {
-        val inappResult: PurchasesResult =
+        val inAppResult: PurchasesResult =
             mBillingClient.queryPurchasesAsync(BillingClient.SkuType.INAPP)
-        processPurchases(inappResult.purchasesList, isRestore = true)
+        processPurchases(inAppResult.purchasesList, isRestore = true)
         val subsResult: PurchasesResult =
             mBillingClient.queryPurchasesAsync(BillingClient.SkuType.SUBS)
         processPurchases(subsResult.purchasesList, isRestore = true)
@@ -149,7 +149,11 @@ class BillingService(
         if (!purchasesList.isNullOrEmpty()) {
             log("processPurchases: " + purchasesList.size + " purchase(s)")
             purchases@ for (purchase in purchasesList) {
-                if (purchase.purchaseState == Purchase.PurchaseState.PURCHASED && purchase.skus[0].isSkuReady()) {
+                // The purchase is considered successful in both PURCHASED and PENDING states.
+                val purchaseSuccess = purchase.purchaseState == Purchase.PurchaseState.PURCHASED
+                        || purchase.purchaseState == Purchase.PurchaseState.PENDING
+
+                if (purchaseSuccess && purchase.skus[0].isSkuReady()) {
                     if (!isSignatureValid(purchase)) {
                         log("processPurchases. Signature is not valid for: $purchase")
                         continue@purchases
@@ -159,9 +163,7 @@ class BillingService(
                     val skuDetails = skusDetails[purchase.skus[0]]
                     when (skuDetails?.type) {
                         BillingClient.SkuType.INAPP -> {
-                            /**
-                             * Consume the purchase
-                             */
+                            // Consume the purchase
                             if (consumableKeys.contains(purchase.skus[0])) {
                                 mBillingClient.consumeAsync(
                                     ConsumeParams.newBuilder()
@@ -188,8 +190,8 @@ class BillingService(
                         }
                     }
 
-                    // Acknowledge the purchase if it hasn't already been acknowledged.
-                    if (!purchase.isAcknowledged) {
+                    // If the state is PURCHASED, acknowledge the purchase if it hasn't been acknowledged yet.
+                    if (!purchase.isAcknowledged && purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
                         val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
                             .setPurchaseToken(purchase.purchaseToken).build()
                         mBillingClient.acknowledgePurchase(acknowledgePurchaseParams, this)
