@@ -38,8 +38,8 @@ abstract class IBillingService {
     }
 
     /**
-     * @param purchaseInfo       - product specifier
-     * @param isRestore - a flag indicating whether it's a fresh purchase or restored product
+     * @param purchaseInfo Product specifier
+     * @param isRestore Flag indicating whether it's a fresh purchase or restored product
      */
     fun productOwned(purchaseInfo: DataWrappers.PurchaseInfo, isRestore: Boolean) {
         findUiHandler().post {
@@ -47,7 +47,7 @@ abstract class IBillingService {
         }
     }
 
-    fun productOwnedInternal(purchaseInfo: DataWrappers.PurchaseInfo, isRestore: Boolean) {
+    private fun productOwnedInternal(purchaseInfo: DataWrappers.PurchaseInfo, isRestore: Boolean) {
         for (purchaseServiceListener in purchaseServiceListeners) {
             if (isRestore) {
                 purchaseServiceListener.onProductRestored(purchaseInfo)
@@ -58,8 +58,8 @@ abstract class IBillingService {
     }
 
     /**
-     * @param purchaseInfo       - subscription specifier
-     * @param isRestore - a flag indicating whether it's a fresh purchase or restored subscription
+     * @param purchaseInfo Subscription specifier
+     * @param isRestore Flag indicating whether it's a fresh purchase or restored subscription
      */
     fun subscriptionOwned(purchaseInfo: DataWrappers.PurchaseInfo, isRestore: Boolean) {
         findUiHandler().post {
@@ -67,7 +67,7 @@ abstract class IBillingService {
         }
     }
 
-    fun subscriptionOwnedInternal(purchaseInfo: DataWrappers.PurchaseInfo, isRestore: Boolean) {
+    private fun subscriptionOwnedInternal(purchaseInfo: DataWrappers.PurchaseInfo, isRestore: Boolean) {
         for (subscriptionServiceListener in subscriptionServiceListeners) {
             if (isRestore) {
                 subscriptionServiceListener.onSubscriptionRestored(purchaseInfo)
@@ -85,18 +85,18 @@ abstract class IBillingService {
         }
     }
 
-    fun updatePrices(iapkeyPrices: Map<String, DataWrappers.SkuDetails>) {
+    fun updatePrices(iapKeyPrices: Map<String, DataWrappers.SkuDetails>) {
         findUiHandler().post {
-            updatePricesInternal(iapkeyPrices)
+            updatePricesInternal(iapKeyPrices)
         }
     }
 
-    fun updatePricesInternal(iapkeyPrices: Map<String, DataWrappers.SkuDetails>) {
+    private fun updatePricesInternal(iapKeyPrices: Map<String, DataWrappers.SkuDetails>) {
         for (billingServiceListener in purchaseServiceListeners) {
-            billingServiceListener.onPricesUpdated(iapkeyPrices)
+            billingServiceListener.onPricesUpdated(iapKeyPrices)
         }
         for (billingServiceListener in subscriptionServiceListeners) {
-            billingServiceListener.onPricesUpdated(iapkeyPrices)
+            billingServiceListener.onPricesUpdated(iapKeyPrices)
         }
     }
 
