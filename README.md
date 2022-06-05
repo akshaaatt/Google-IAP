@@ -1,4 +1,4 @@
-<h1 align="center">Google-IAP (Play Billing Library Version 4.1.0)</h1>
+<h1 align="center">Google-IAP (Play Billing Library Version 5.0.0)</h1>
 
 <p align="center">
     <img src="https://jitpack.io/v/akshaaatt/Google-IAP.svg?style=flat-square&logo=github&logoColor=white"
