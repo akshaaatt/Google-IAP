@@ -28,8 +28,7 @@ class IapConnector @JvmOverloads constructor(
 
     init {
         val contextLocal = context.applicationContext ?: context
-        mBillingService =
-            BillingService(contextLocal, nonConsumableKeys, consumableKeys, subscriptionKeys)
+        mBillingService = BillingService(contextLocal, nonConsumableKeys, consumableKeys, subscriptionKeys)
         getBillingService().init(key)
         getBillingService().enableDebugLogging(enableLogging)
     }
@@ -74,7 +73,7 @@ class IapConnector @JvmOverloads constructor(
         getBillingService().close()
     }
 
-    fun getBillingService(): IBillingService {
+    private fun getBillingService(): IBillingService {
         return mBillingService ?: let {
             throw RuntimeException("Call IapConnector to initialize billing service")
         }

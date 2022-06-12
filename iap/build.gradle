@@ -43,7 +43,7 @@ afterEvaluate {
                 // You can then customize attributes of the publication as shown below.
                 groupId = 'com.aemerse'
                 artifactId = 'Google-IAP'
-                version = '1.2.3'
+                version = '1.2.4'
             }
         }
     }

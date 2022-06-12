@@ -16,41 +16,46 @@ class BillingService(
     private val nonConsumableKeys: List<String>,
     private val consumableKeys: List<String>,
     private val subscriptionSkuKeys: List<String>
-) : IBillingService(), PurchasesUpdatedListener, BillingClientStateListener,
-    AcknowledgePurchaseResponseListener {
+) : IBillingService(), PurchasesUpdatedListener, AcknowledgePurchaseResponseListener {
 
     private lateinit var mBillingClient: BillingClient
     private var decodedKey: String? = null
 
     private var enableDebug: Boolean = false
 
-    private val skusDetails = mutableMapOf<String, SkuDetails?>()
+    private val productDetails = mutableMapOf<String, ProductDetails?>()
 
     override fun init(key: String?) {
         decodedKey = key
+        mBillingClient = BillingClient.newBuilder(context).setListener(this).enablePendingPurchases().build()
+        mBillingClient.startConnection(object : BillingClientStateListener{
+            override fun onBillingServiceDisconnected() {
+                log("onBillingServiceDisconnected")
+            }
 
-        mBillingClient =
-            BillingClient.newBuilder(context).setListener(this).enablePendingPurchases().build()
-        mBillingClient.startConnection(this)
-    }
+            override fun onBillingSetupFinished(billingResult: BillingResult) {
+                log("onBillingSetupFinishedOkay: billingResult: $billingResult")
 
-    override fun onBillingSetupFinished(billingResult: BillingResult) {
-        log("onBillingSetupFinishedOkay: billingResult: $billingResult")
-
-        if (billingResult.isOk()) {
-            isBillingClientConnected(true, billingResult.responseCode)
-            nonConsumableKeys.querySkuDetails(BillingClient.SkuType.INAPP) {
-                consumableKeys.querySkuDetails(BillingClient.SkuType.INAPP) {
-                    subscriptionSkuKeys.querySkuDetails(BillingClient.SkuType.SUBS) {
-                        GlobalScope.launch {
-                            queryPurchases()
+                when {
+                    billingResult.isOk() -> {
+                        isBillingClientConnected(true, billingResult.responseCode)
+                        nonConsumableKeys.queryProductDetails(BillingClient.ProductType.INAPP) {
+                            consumableKeys.queryProductDetails(BillingClient.ProductType.INAPP) {
+                                subscriptionSkuKeys.queryProductDetails(BillingClient.ProductType.SUBS) {
+                                    GlobalScope.launch {
+                                        queryPurchases()
+                                    }
+                                }
+                            }
                         }
+                    }
+                    else -> {
+                        isBillingClientConnected(false, billingResult.responseCode)
                     }
                 }
             }
-        } else {
-            isBillingClientConnected(false, billingResult.responseCode)
-        }
+
+        })
     }
 
     /**
@@ -58,38 +63,51 @@ class BillingService(
      * New purchases will be provided to the PurchasesUpdatedListener.
      */
     private suspend fun queryPurchases() {
-        val inAppResult: PurchasesResult =
-            mBillingClient.queryPurchasesAsync(BillingClient.SkuType.INAPP)
+        val inAppResult: PurchasesResult = mBillingClient.queryPurchasesAsync(
+            QueryPurchasesParams.newBuilder()
+            .setProductType(BillingClient.ProductType.INAPP)
+            .build()
+        )
         processPurchases(inAppResult.purchasesList, isRestore = true)
-        val subsResult: PurchasesResult =
-            mBillingClient.queryPurchasesAsync(BillingClient.SkuType.SUBS)
+        val subsResult: PurchasesResult = mBillingClient.queryPurchasesAsync(
+            QueryPurchasesParams.newBuilder()
+            .setProductType(BillingClient.ProductType.SUBS)
+            .build()
+        )
         processPurchases(subsResult.purchasesList, isRestore = true)
     }
 
     override fun buy(activity: Activity, sku: String) {
-        if (!sku.isSkuReady()) {
+        if (!sku.isProductReady()) {
             log("buy. Google billing service is not ready yet. (SKU is not ready yet -1)")
             return
         }
 
-        launchBillingFlow(activity, sku, BillingClient.SkuType.INAPP)
+        launchBillingFlow(activity, sku, BillingClient.ProductType.INAPP)
     }
 
     override fun subscribe(activity: Activity, sku: String) {
-        if (!sku.isSkuReady()) {
+        if (!sku.isProductReady()) {
             log("buy. Google billing service is not ready yet. (SKU is not ready yet -2)")
             return
         }
 
-        launchBillingFlow(activity, sku, BillingClient.SkuType.SUBS)
+        launchBillingFlow(activity, sku, BillingClient.ProductType.SUBS)
     }
 
     private fun launchBillingFlow(activity: Activity, sku: String, type: String) {
-        sku.toSkuDetails(type) { skuDetails ->
-            if (skuDetails != null) {
-                val purchaseParams = BillingFlowParams.newBuilder()
-                    .setSkuDetails(skuDetails).build()
-                mBillingClient.launchBillingFlow(activity, purchaseParams)
+        sku.toProductDetails(type) { productDetails ->
+            if (productDetails != null) {
+                val productDetailsParamsList =
+                    listOf(
+                        BillingFlowParams.ProductDetailsParams.newBuilder()
+                            .setProductDetails(productDetails)
+                            .build()
+                    )
+                val billingFlowParams = BillingFlowParams.newBuilder()
+                        .setProductDetailsParamsList(productDetailsParamsList).build()
+                
+                mBillingClient.launchBillingFlow(activity, billingFlowParams)
             }
         }
     }
@@ -153,39 +171,42 @@ class BillingService(
                 val purchaseSuccess = purchase.purchaseState == Purchase.PurchaseState.PURCHASED
                         || purchase.purchaseState == Purchase.PurchaseState.PENDING
 
-                if (purchaseSuccess && purchase.skus[0].isSkuReady()) {
+                if (purchaseSuccess && purchase.products[0].isProductReady()) {
                     if (!isSignatureValid(purchase)) {
                         log("processPurchases. Signature is not valid for: $purchase")
                         continue@purchases
                     }
 
                     // Grant entitlement to the user.
-                    val skuDetails = skusDetails[purchase.skus[0]]
-                    when (skuDetails?.type) {
-                        BillingClient.SkuType.INAPP -> {
+                    val productDetails = productDetails[purchase.products[0]]
+                    when (productDetails?.productType) {
+                        BillingClient.ProductType.INAPP -> {
                             // Consume the purchase
-                            if (consumableKeys.contains(purchase.skus[0])) {
-                                mBillingClient.consumeAsync(
-                                    ConsumeParams.newBuilder()
-                                        .setPurchaseToken(purchase.purchaseToken).build()
-                                ) { billingResult, _ ->
-                                    when (billingResult.responseCode) {
-                                        BillingClient.BillingResponseCode.OK -> {
-                                            productOwned(getPurchaseInfo(purchase), false)
-                                        }
-                                        else -> {
-                                            Log.d(
-                                                TAG,
-                                                "Handling consumables : Error during consumption attempt -> ${billingResult.debugMessage}"
-                                            )
+                            when {
+                                consumableKeys.contains(purchase.products[0]) -> {
+                                    mBillingClient.consumeAsync(
+                                        ConsumeParams.newBuilder()
+                                            .setPurchaseToken(purchase.purchaseToken).build()
+                                    ) { billingResult, _ ->
+                                        when (billingResult.responseCode) {
+                                            BillingClient.BillingResponseCode.OK -> {
+                                                productOwned(getPurchaseInfo(purchase), false)
+                                            }
+                                            else -> {
+                                                Log.d(
+                                                    TAG,
+                                                    "Handling consumables : Error during consumption attempt -> ${billingResult.debugMessage}"
+                                                )
+                                            }
                                         }
                                     }
                                 }
-                            } else {
-                                productOwned(getPurchaseInfo(purchase), isRestore)
+                                else -> {
+                                    productOwned(getPurchaseInfo(purchase), isRestore)
+                                }
                             }
                         }
-                        BillingClient.SkuType.SUBS -> {
+                        BillingClient.ProductType.SUBS -> {
                             subscriptionOwned(getPurchaseInfo(purchase), isRestore)
                         }
                     }
@@ -199,7 +220,7 @@ class BillingService(
                 } else {
                     Log.e(
                         TAG, "processPurchases failed. purchase: $purchase " +
-                                "purchaseState: ${purchase.purchaseState} isSkuReady: ${purchase.skus[0].isSkuReady()}"
+                                "purchaseState: ${purchase.purchaseState} isSkuReady: ${purchase.products[0].isProductReady()}"
                     )
                 }
             }
@@ -210,7 +231,6 @@ class BillingService(
 
     private fun getPurchaseInfo(purchase: Purchase): DataWrappers.PurchaseInfo {
         return DataWrappers.PurchaseInfo(
-            getSkuInfo(skusDetails[purchase.skus[0]]!!),
             purchase.purchaseState,
             purchase.developerPayload,
             purchase.isAcknowledged,
@@ -221,32 +241,8 @@ class BillingService(
             purchase.purchaseTime,
             purchase.purchaseToken,
             purchase.signature,
-            purchase.skus[0],
+            purchase.products[0],
             purchase.accountIdentifiers
-        )
-    }
-
-    private fun getSkuInfo(skuDetails: SkuDetails): DataWrappers.SkuInfo {
-        return DataWrappers.SkuInfo(
-            skuDetails.sku,
-            skuDetails.iconUrl,
-            skuDetails.originalJson,
-            skuDetails.type,
-            DataWrappers.SkuDetails(
-                skuDetails.title,
-                skuDetails.description,
-                skuDetails.freeTrialPeriod,
-                skuDetails.introductoryPrice,
-                skuDetails.introductoryPriceAmountMicros / 1000000.0,
-                skuDetails.introductoryPriceCycles,
-                skuDetails.introductoryPricePeriod,
-                skuDetails.originalPrice,
-                skuDetails.originalPriceAmountMicros / 1000000.0,
-                skuDetails.price,
-                skuDetails.priceAmountMicros / 1000000.0,
-                skuDetails.priceCurrencyCode,
-                skuDetails.subscriptionPeriod
-            )
         )
     }
 
@@ -259,40 +255,52 @@ class BillingService(
      * Update Sku details after initialization.
      * This method has cache functionality.
      */
-    private fun List<String>.querySkuDetails(type: String, done: () -> Unit) {
+    private fun List<String>.queryProductDetails(type: String, done: () -> Unit) {
         if (::mBillingClient.isInitialized.not() || !mBillingClient.isReady) {
-            log("querySkuDetails. Google billing service is not ready yet.")
+            log("queryProductDetails. Google billing service is not ready yet.")
             done()
             return
         }
 
-        val params = SkuDetailsParams.newBuilder()
-        params.setSkusList(this).setType(type)
+        val productList = mutableListOf<QueryProductDetailsParams.Product>()
+        this.forEach {
+            productList.add(QueryProductDetailsParams.Product.newBuilder()
+                .setProductId(it)
+                .setProductType(type)
+                .build())
+        }
+        
+        val params = QueryProductDetailsParams.newBuilder().setProductList(productList)
 
-        mBillingClient.querySkuDetailsAsync(params.build()) { billingResult, skuDetailsList ->
+        mBillingClient.queryProductDetailsAsync(params.build()) { billingResult, productDetailsList ->
             if (billingResult.isOk()) {
                 isBillingClientConnected(true, billingResult.responseCode)
-                skuDetailsList?.forEach {
-                    skusDetails[it.sku] = it
+                productDetailsList.forEach {
+                    productDetails[it.productId] = it
                 }
 
-                skusDetails.mapNotNull { entry ->
+                productDetails.mapNotNull { entry ->
                     entry.value?.let {
-                        entry.key to DataWrappers.SkuDetails(
-                            title = it.title,
-                            description = it.description,
-                            priceCurrencyCode = it.priceCurrencyCode,
-                            freeTrailPeriod = it.freeTrialPeriod,
-                            introductoryPrice = it.introductoryPrice,
-                            introductoryPriceAmount = it.introductoryPriceAmountMicros / 1000000.0,
-                            introductoryPriceCycles = it.introductoryPriceCycles,
-                            introductoryPricePeriod = it.introductoryPricePeriod,
-                            originalPrice = it.originalPrice,
-                            originalPriceAmount = it.originalPriceAmountMicros / 1000000.0,
-                            price = it.price,
-                            priceAmount = it.priceAmountMicros / 1000000.0,
-                            subscriptionPeriod = it.subscriptionPeriod,
-                        )
+                        when(it.productType){
+                            BillingClient.ProductType.SUBS->{
+                                entry.key to DataWrappers.ProductDetails(
+                                    title = it.title,
+                                    description = it.description,
+                                    priceCurrencyCode = it.subscriptionOfferDetails?.get(0)?.pricingPhases?.pricingPhaseList?.get(0)?.priceCurrencyCode,
+                                    price = it.subscriptionOfferDetails?.get(0)?.pricingPhases?.pricingPhaseList?.get(0)?.formattedPrice,
+                                    priceAmount = it.subscriptionOfferDetails?.get(0)?.pricingPhases?.pricingPhaseList?.get(0)?.priceAmountMicros?.div(1000000.0)
+                                )
+                            }
+                            else->{
+                                entry.key to DataWrappers.ProductDetails(
+                                    title = it.title,
+                                    description = it.description,
+                                    priceCurrencyCode = it.oneTimePurchaseOfferDetails?.priceCurrencyCode,
+                                    price = it.oneTimePurchaseOfferDetails?.formattedPrice,
+                                    priceAmount = it.oneTimePurchaseOfferDetails?.priceAmountMicros?.div(1000000.0)
+                                )
+                            }
+                        }
                     }
                 }.let {
                     updatePrices(it.toMap())
@@ -306,41 +314,47 @@ class BillingService(
      * Get Sku details by sku and type.
      * This method has cache functionality.
      */
-    private fun String.toSkuDetails(type: String, done: (skuDetails: SkuDetails?) -> Unit = {}) {
+    private fun String.toProductDetails(type: String, done: (productDetails: ProductDetails?) -> Unit = {}) {
         if (::mBillingClient.isInitialized.not() || !mBillingClient.isReady) {
             log("buy. Google billing service is not ready yet.(mBillingClient is not ready yet - 001)")
             done(null)
             return
         }
 
-        val skuDetailsCached = skusDetails[this]
-        if (skuDetailsCached != null) {
-            done(skuDetailsCached)
+        val productDetailsCached = productDetails[this]
+        if (productDetailsCached != null) {
+            done(productDetailsCached)
             return
         }
 
-        val params = SkuDetailsParams.newBuilder()
-        params.setSkusList(listOf(this)).setType(type)
+        val productList = mutableListOf<QueryProductDetailsParams.Product>()
+        this.forEach {
+            productList.add(QueryProductDetailsParams.Product.newBuilder()
+                .setProductId(it.toString())
+                .setProductType(type)
+                .build())
+        }
 
-        mBillingClient.querySkuDetailsAsync(params.build()) { billingResult, skuDetailsList ->
-            if (billingResult.isOk()) {
-                isBillingClientConnected(true, billingResult.responseCode)
-                val skuDetails: SkuDetails? = skuDetailsList?.find { it.sku == this }
-                skusDetails[this] = skuDetails
-                done(skuDetails)
-            } else {
-                log("launchBillingFlow. Failed to get details for sku: $this")
-                done(null)
+        val params = QueryProductDetailsParams.newBuilder().setProductList(productList)
+
+        mBillingClient.queryProductDetailsAsync(params.build()) { billingResult, productDetailsList ->
+            when {
+                billingResult.isOk() -> {
+                    isBillingClientConnected(true, billingResult.responseCode)
+                    val productDetails: ProductDetails? = productDetailsList.find { it.productId == this }
+                   // productDetails[this] = productDetails
+                    done(productDetails)
+                }
+                else -> {
+                    log("launchBillingFlow. Failed to get details for sku: $this")
+                    done(null)
+                }
             }
         }
     }
 
-    private fun String.isSkuReady(): Boolean {
-        return skusDetails.containsKey(this) && skusDetails[this] != null
-    }
-
-    override fun onBillingServiceDisconnected() {
-        log("onBillingServiceDisconnected")
+    private fun String.isProductReady(): Boolean {
+        return productDetails.containsKey(this) && productDetails[this] != null
     }
 
     override fun onAcknowledgePurchaseResponse(billingResult: BillingResult) {
@@ -357,8 +371,10 @@ class BillingService(
     }
 
     private fun log(message: String) {
-        if (enableDebug) {
-            Log.d(TAG, message)
+        when {
+            enableDebug -> {
+                Log.d(TAG, message)
+            }
         }
     }
 

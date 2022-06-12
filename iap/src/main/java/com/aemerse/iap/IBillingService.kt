@@ -8,10 +8,8 @@ import androidx.annotation.CallSuper
 abstract class IBillingService {
 
     private val purchaseServiceListeners: MutableList<PurchaseServiceListener> = mutableListOf()
-    private val subscriptionServiceListeners: MutableList<SubscriptionServiceListener> =
-        mutableListOf()
-    private val billingClientConnectedListeners: MutableList<BillingClientConnectionListener> =
-        mutableListOf()
+    private val subscriptionServiceListeners: MutableList<SubscriptionServiceListener> = mutableListOf()
+    private val billingClientConnectedListeners: MutableList<BillingClientConnectionListener> = mutableListOf()
 
     fun addBillingClientConnectionListener(billingClientConnectionListener: BillingClientConnectionListener) {
         billingClientConnectedListeners.add(billingClientConnectionListener)
@@ -85,13 +83,13 @@ abstract class IBillingService {
         }
     }
 
-    fun updatePrices(iapKeyPrices: Map<String, DataWrappers.SkuDetails>) {
+    fun updatePrices(iapKeyPrices: Map<String, DataWrappers.ProductDetails>) {
         findUiHandler().post {
             updatePricesInternal(iapKeyPrices)
         }
     }
 
-    private fun updatePricesInternal(iapKeyPrices: Map<String, DataWrappers.SkuDetails>) {
+    private fun updatePricesInternal(iapKeyPrices: Map<String, DataWrappers.ProductDetails>) {
         for (billingServiceListener in purchaseServiceListeners) {
             billingServiceListener.onPricesUpdated(iapKeyPrices)
         }
