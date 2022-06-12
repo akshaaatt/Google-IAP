@@ -49,7 +49,7 @@ class KotlinSampleActivity : AppCompatActivity() {
         })
 
         iapConnector.addPurchaseListener(object : PurchaseServiceListener {
-            override fun onPricesUpdated(iapKeyPrices: Map<String, DataWrappers.SkuDetails>) {
+            override fun onPricesUpdated(iapKeyPrices: Map<String, DataWrappers.ProductDetails>) {
                 // list of available products will be received here, so you can update UI with prices if needed
             }
 
@@ -92,50 +92,53 @@ class KotlinSampleActivity : AppCompatActivity() {
                 }
             }
 
-            override fun onPricesUpdated(iapKeyPrices: Map<String, DataWrappers.SkuDetails>) {
+            override fun onPricesUpdated(iapKeyPrices: Map<String, DataWrappers.ProductDetails>) {
                 // list of available products will be received here, so you can update UI with prices if needed
             }
         })
 
         isBillingClientConnected.observe(this) {
             Log.d("KSA", "This is the new billing client status $it")
-            if (it) {
-                binding.btPurchaseCons.isEnabled = true
-                binding.btnMonthly.isEnabled = true
-                binding.btnYearly.isEnabled = true
-                binding.btnQuite.isEnabled = true
-                binding.btnModerate.isEnabled = true
-                binding.btnUltimate.isEnabled = true
+            when {
+                it -> {
+                    binding.btPurchaseCons.isEnabled = true
+                    binding.btnMonthly.isEnabled = true
+                    binding.btnYearly.isEnabled = true
+                    binding.btnQuite.isEnabled = true
+                    binding.btnModerate.isEnabled = true
+                    binding.btnUltimate.isEnabled = true
 
-                binding.btPurchaseCons.setOnClickListener {
-                    iapConnector.purchase(this, "base")
-                }
-                binding.btnMonthly.setOnClickListener {
-                    iapConnector.subscribe(this, "subscription")
-                }
+                    binding.btPurchaseCons.setOnClickListener {
+                        iapConnector.purchase(this, "base")
+                    }
+                    binding.btnMonthly.setOnClickListener {
+                        iapConnector.subscribe(this, "subscription")
+                    }
 
-                binding.btnYearly.setOnClickListener {
-                    iapConnector.purchase(this, "yearly")
-                }
-                binding.btnQuite.setOnClickListener {
-                    iapConnector.purchase(this, "quite")
+                    binding.btnYearly.setOnClickListener {
+                        iapConnector.purchase(this, "yearly")
+                    }
+                    binding.btnQuite.setOnClickListener {
+                        iapConnector.purchase(this, "quite")
 
-                }
-                binding.btnModerate.setOnClickListener {
-                    iapConnector.purchase(this, "moderate")
-                }
+                    }
+                    binding.btnModerate.setOnClickListener {
+                        iapConnector.purchase(this, "moderate")
+                    }
 
-                binding.btnUltimate.setOnClickListener {
-                    iapConnector.purchase(this, "plenty")
+                    binding.btnUltimate.setOnClickListener {
+                        iapConnector.purchase(this, "plenty")
 
+                    }
                 }
-            } else {
-                binding.btPurchaseCons.isEnabled = false
-                binding.btnMonthly.isEnabled = false
-                binding.btnYearly.isEnabled = false
-                binding.btnQuite.isEnabled = false
-                binding.btnModerate.isEnabled = false
-                binding.btnUltimate.isEnabled = false
+                else -> {
+                    binding.btPurchaseCons.isEnabled = false
+                    binding.btnMonthly.isEnabled = false
+                    binding.btnYearly.isEnabled = false
+                    binding.btnQuite.isEnabled = false
+                    binding.btnModerate.isEnabled = false
+                    binding.btnUltimate.isEnabled = false
+                }
             }
         }
     }
