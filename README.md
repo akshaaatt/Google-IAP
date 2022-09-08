@@ -49,7 +49,7 @@ IAP is an Android library to handle In-App purchases with minimal code.
 
 * Add the JitPack repository to your project's build.gradle file
 
-```
+```groovy
 allprojects {
     repositories {
         ...
@@ -59,7 +59,7 @@ allprojects {
 ```
 * Add the dependency in your app's build.gradle file
 
-```
+```groovy
 dependencies {
     implementation 'com.github.akshaaatt:Google-IAP:1.2.2'
 }
