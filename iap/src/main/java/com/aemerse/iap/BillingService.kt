@@ -104,14 +104,17 @@ class BillingService(
     private fun launchBillingFlow(activity: Activity, sku: String, type: String) {
         sku.toProductDetails(type) { productDetails ->
             if (productDetails != null) {
-                val productDetailsParamsList =
-                    listOf(
-                        BillingFlowParams.ProductDetailsParams.newBuilder()
-                            .setProductDetails(productDetails)
-                            .build()
-                    )
+
+                val productDetailsParamsList = mutableListOf<BillingFlowParams.ProductDetailsParams>()
+                val builder = BillingFlowParams.ProductDetailsParams.newBuilder()
+                    .setProductDetails(productDetails)
+
+                if(type == BillingClient.ProductType.SUBS){
+                    builder.setOfferToken(productDetails.subscriptionOfferDetails!![0].offerToken)
+                }
+                productDetailsParamsList.add(builder.build())
                 val billingFlowParams = BillingFlowParams.newBuilder()
-                        .setProductDetailsParamsList(productDetailsParamsList).build()
+                    .setProductDetailsParamsList(productDetailsParamsList).build()
                 
                 mBillingClient.launchBillingFlow(activity, billingFlowParams)
             }
