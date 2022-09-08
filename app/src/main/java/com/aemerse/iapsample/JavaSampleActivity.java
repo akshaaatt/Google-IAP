@@ -1,10 +1,13 @@
 package com.aemerse.iapsample;
 
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.MutableLiveData;
 
+import com.aemerse.iap.BillingClientConnectionListener;
 import com.aemerse.iap.DataWrappers;
 import com.aemerse.iap.IapConnector;
 import com.aemerse.iap.PurchaseServiceListener;
@@ -19,11 +22,14 @@ import java.util.List;
 import java.util.Map;
 
 class JavaSampleActivity extends AppCompatActivity {
+    MutableLiveData<Boolean> isBillingClientConnected  = new MutableLiveData<>();
 
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        isBillingClientConnected.setValue(false);
 
         List<String> nonConsumablesList = Collections.singletonList("lifetime");
         List<String> consumablesList = Arrays.asList("base", "moderate", "quite", "plenty", "yearly");
@@ -37,6 +43,12 @@ class JavaSampleActivity extends AppCompatActivity {
                 "LICENSE KEY",
                 true
         );
+
+
+        iapConnector.addBillingClientConnectionListener((status, billingResponseCode) -> {
+            Log.d("KSA", "This is the status: "+status+" and response code is: "+billingResponseCode);
+            isBillingClientConnected.setValue(status);
+        });
 
         iapConnector.addPurchaseListener(new PurchaseServiceListener() {
             public void onPricesUpdated(@NotNull Map iapKeyPrices) {
