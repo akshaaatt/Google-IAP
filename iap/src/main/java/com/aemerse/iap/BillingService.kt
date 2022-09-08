@@ -40,12 +40,18 @@ class BillingService(
                     billingResult.isOk() -> {
                         isBillingClientConnected(true, billingResult.responseCode)
                         nonConsumableKeys.queryProductDetails(BillingClient.ProductType.INAPP) {
-                            consumableKeys.queryProductDetails(BillingClient.ProductType.INAPP) {
-                                subscriptionSkuKeys.queryProductDetails(BillingClient.ProductType.SUBS) {
-                                    GlobalScope.launch {
-                                        queryPurchases()
-                                    }
-                                }
+                            GlobalScope.launch {
+                                queryPurchases()
+                            }
+                        }
+                        consumableKeys.queryProductDetails(BillingClient.ProductType.INAPP) {
+                            GlobalScope.launch {
+                                queryPurchases()
+                            }
+                        }
+                        subscriptionSkuKeys.queryProductDetails(BillingClient.ProductType.SUBS) {
+                            GlobalScope.launch {
+                                queryPurchases()
                             }
                         }
                     }
