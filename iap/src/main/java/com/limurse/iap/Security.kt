@@ -1,4 +1,4 @@
-package com.aemerse.iap
+package com.limurse.iap
 
 import android.text.TextUtils
 import android.util.Base64

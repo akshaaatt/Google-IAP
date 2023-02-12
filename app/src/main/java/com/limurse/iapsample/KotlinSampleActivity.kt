@@ -1,11 +1,11 @@
-package com.aemerse.iapsample
+package com.limurse.iapsample
 
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
-import com.aemerse.iap.*
-import com.aemerse.iapsample.databinding.ActivityMainBinding
+import com.limurse.iap.*
+import com.limurse.iapsample.databinding.ActivityMainBinding
 
 class KotlinSampleActivity : AppCompatActivity() {
 

@@ -1,4 +1,4 @@
-package com.aemerse.iap
+package com.limurse.iap
 
 import android.app.Activity
 import android.content.Context

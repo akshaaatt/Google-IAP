@@ -1,4 +1,4 @@
-package com.aemerse.iapsample;
+package com.limurse.iapsample;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -7,12 +7,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.MutableLiveData;
 
-import com.aemerse.iap.BillingClientConnectionListener;
-import com.aemerse.iap.DataWrappers;
-import com.aemerse.iap.IapConnector;
-import com.aemerse.iap.PurchaseServiceListener;
-import com.aemerse.iap.SubscriptionServiceListener;
-import com.aemerse.iapsample.databinding.ActivityMainBinding;
+import com.limurse.iap.DataWrappers;
+import com.limurse.iap.IapConnector;
+import com.limurse.iap.PurchaseServiceListener;
+import com.limurse.iap.SubscriptionServiceListener;
+import com.limurse.iapsample.databinding.ActivityMainBinding;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

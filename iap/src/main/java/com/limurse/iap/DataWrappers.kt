@@ -1,4 +1,4 @@
-package com.aemerse.iap
+package com.limurse.iap
 
 import com.android.billingclient.api.AccountIdentifiers
 
