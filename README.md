@@ -76,47 +76,46 @@ dependencies {
 #### Establishing connection with Play console
 
 ```kotlin
- val iapConnector = IapConnector(
-            context = this, // activity / context
-            nonConsumableKeys = nonConsumablesList, // pass the list of non-consumables
-            consumableKeys = consumablesList, // pass the list of consumables
-            subscriptionKeys = subsList, // pass the list of subscriptions
-            key = "LICENSE KEY" // pass your app's license key
-            enableLogging = true // to enable / disable logging
-        )
+val iapConnector = IapConnector(
+    context = this, // activity / context
+    nonConsumableKeys = nonConsumablesList, // pass the list of non-consumables
+    consumableKeys = consumablesList, // pass the list of consumables
+    subscriptionKeys = subsList, // pass the list of subscriptions
+    key = "LICENSE KEY", // pass your app's license key
+    enableLogging = true // to enable / disable logging
+)
 ```
 
 #### Receiving events
 
 ```kotlin
- iapConnector.addPurchaseListener(object : PurchaseServiceListener {
-            override fun onPricesUpdated(iapKeyPrices: Map<String, DataWrappers.SkuDetails>) {
-                // list of available products will be received here, so you can update UI with prices if needed
-            }
+iapConnector.addPurchaseListener(object : PurchaseServiceListener {
+    override fun onPricesUpdated(iapKeyPrices: Map<String, DataWrappers.SkuDetails>) {
+        // list of available products will be received here, so you can update UI with prices if needed
+    }
+    
+    override fun onProductPurchased(purchaseInfo: DataWrappers.PurchaseInfo) {
+        // will be triggered whenever purchase succeeded
+    }
+    
+    override fun onProductRestored(purchaseInfo: DataWrappers.PurchaseInfo) {
+        // will be triggered fetching owned products using IapConnector
+    }
+})
 
-            override fun onProductPurchased(purchaseInfo: DataWrappers.PurchaseInfo) {
-               // will be triggered whenever purchase succeeded
-            }
-
-            override fun onProductRestored(purchaseInfo: DataWrappers.PurchaseInfo) {
-                // will be triggered fetching owned products using IapConnector
-            }
-        })
-
- iapConnector.addSubscriptionListener(object : SubscriptionServiceListener {
-            override fun onSubscriptionRestored(purchaseInfo: DataWrappers.PurchaseInfo) {
-                // will be triggered upon fetching owned subscription upon initialization
-            }
-
-            override fun onSubscriptionPurchased(purchaseInfo: DataWrappers.PurchaseInfo) {
-                // will be triggered whenever subscription succeeded
-            }
-
-            override fun onPricesUpdated(iapKeyPrices: Map<String, DataWrappers.SkuDetails>) {
-                // list of available products will be received here, so you can update UI with prices if needed
-            }
-        })
-
+iapConnector.addSubscriptionListener(object : SubscriptionServiceListener {
+    override fun onSubscriptionRestored(purchaseInfo: DataWrappers.PurchaseInfo) {
+        // will be triggered upon fetching owned subscription upon initialization
+    }
+    
+    override fun onSubscriptionPurchased(purchaseInfo: DataWrappers.PurchaseInfo) {
+        // will be triggered whenever subscription succeeded
+    }
+    
+    override fun onPricesUpdated(iapKeyPrices: Map<String, DataWrappers.SkuDetails>) {
+        // list of available products will be received here, so you can update UI with prices if needed
+    }
+})
 ```
 
 #### Making a purchase
