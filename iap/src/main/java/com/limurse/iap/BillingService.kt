@@ -9,7 +9,6 @@ import com.android.billingclient.api.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 @DelicateCoroutinesApi
@@ -153,7 +152,7 @@ class BillingService(
             BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED -> {
                 log("onPurchasesUpdated: The user already owns this item")
                 //item already owned? call queryPurchases to verify and process all such items
-                GlobalScope.launch {
+                CoroutineScope(Dispatchers.IO).launch {
                     queryPurchases()
                 }
             }
@@ -263,6 +262,12 @@ class BillingService(
     private fun List<String>.queryProductDetails(type: String, done: () -> Unit) {
         if (::mBillingClient.isInitialized.not() || !mBillingClient.isReady) {
             log("queryProductDetails. Google billing service is not ready yet.")
+            done()
+            return
+        }
+
+        if (this.isEmpty()) {
+            log("queryProductDetails. Sku list is empty.")
             done()
             return
         }
