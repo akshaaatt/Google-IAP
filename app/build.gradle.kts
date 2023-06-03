@@ -13,23 +13,9 @@ android {
         applicationId = "com.limurse.iapsample"
         minSdk = 21
         targetSdk = 33
-        versionCode = 5
-        versionName = "1.0.4"
+        versionCode = 7
+        versionName = "1.0.6"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    val localProperties = Properties().apply {
-        val localPropertiesFile = rootProject.file("local.properties")
-        if (localPropertiesFile.exists()) {
-            load(localPropertiesFile.inputStream())
-        }
-    }
-
-    val keystoreProperties = Properties().apply {
-        val keystorePropertiesFile = rootProject.file("keystore.properties")
-        if (keystorePropertiesFile.exists()) {
-            load(keystorePropertiesFile.inputStream())
-        }
     }
 
     buildTypes {
@@ -39,30 +25,28 @@ android {
             proguardFiles(
                 "proguard-rules.pro"
             )
-            when {
-                !keystoreProperties.isEmpty && localProperties.contains("licenseKey") -> {
-                    val licenseKey = keystoreProperties.getProperty("licenseKey")
-                    resValue("string", "licenseKey", licenseKey)
-                }
-                else -> {
-                    resValue("string", "licenseKey", "test")
+            val keystoreProperties = Properties().apply {
+                val keystorePropertiesFile = rootProject.file("keystore.properties")
+                if (keystorePropertiesFile.exists()) {
+                    load(keystorePropertiesFile.inputStream())
                 }
             }
+            val licenseKey = keystoreProperties.getProperty("licenseKey")
+            resValue("string", "licenseKey", licenseKey)
         }
         debug {
             isMinifyEnabled = false
             proguardFiles(
                 "proguard-rules.pro"
             )
-            when {
-                !localProperties.isEmpty && localProperties.contains("licenseKey") -> {
-                    val licenseKey = localProperties.getProperty("licenseKey")
-                    resValue("string", "licenseKey", licenseKey)
-                }
-                else -> {
-                    resValue("string", "licenseKey", "test")
+            val localProperties = Properties().apply {
+                val localPropertiesFile = rootProject.file("local.properties")
+                if (localPropertiesFile.exists()) {
+                    load(localPropertiesFile.inputStream())
                 }
             }
+            val licenseKey = localProperties.getProperty("licenseKey")
+            resValue("string", "licenseKey", licenseKey)
         }
     }
 

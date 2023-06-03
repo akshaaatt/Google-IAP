@@ -42,18 +42,12 @@ class BillingService(
                     billingResult.isOk() -> {
                         isBillingClientConnected(true, billingResult.responseCode)
                         nonConsumableKeys.queryProductDetails(BillingClient.ProductType.INAPP) {
-                            CoroutineScope(Dispatchers.IO).launch {
-                                queryPurchases()
-                            }
-                        }
-                        consumableKeys.queryProductDetails(BillingClient.ProductType.INAPP) {
-                            CoroutineScope(Dispatchers.IO).launch {
-                                queryPurchases()
-                            }
-                        }
-                        subscriptionSkuKeys.queryProductDetails(BillingClient.ProductType.SUBS) {
-                            CoroutineScope(Dispatchers.IO).launch {
-                                queryPurchases()
+                            consumableKeys.queryProductDetails(BillingClient.ProductType.INAPP) {
+                                subscriptionSkuKeys.queryProductDetails(BillingClient.ProductType.SUBS) {
+                                    CoroutineScope(Dispatchers.IO).launch {
+                                        queryPurchases()
+                                    }
+                                }
                             }
                         }
                     }
