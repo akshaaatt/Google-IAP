@@ -54,7 +54,7 @@ publishing {
         create<MavenPublication>("release") {
             groupId = "com.limurse"
             artifactId = "Google-IAP"
-            version = "1.2.5"
+            version = "1.3.0"
 
             afterEvaluate {
                 from(components["release"])
