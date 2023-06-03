@@ -39,7 +39,7 @@ class JavaSampleActivity extends AppCompatActivity {
                 nonConsumablesList,
                 consumablesList,
                 subsList,
-                "LICENSE KEY",
+                getString(R.string.licenseKey),
                 true
         );
 

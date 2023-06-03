@@ -17,7 +17,7 @@ class DataWrappers {
         val developerPayload: String,
         val isAcknowledged: Boolean,
         val isAutoRenewing: Boolean,
-        val orderId: String,
+        val orderId: String?,
         val originalJson: String,
         val packageName: String,
         val purchaseTime: Long,

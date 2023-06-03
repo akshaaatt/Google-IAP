@@ -6,7 +6,9 @@ import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import com.android.billingclient.api.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
@@ -40,17 +42,17 @@ class BillingService(
                     billingResult.isOk() -> {
                         isBillingClientConnected(true, billingResult.responseCode)
                         nonConsumableKeys.queryProductDetails(BillingClient.ProductType.INAPP) {
-                            GlobalScope.launch {
+                            CoroutineScope(Dispatchers.IO).launch {
                                 queryPurchases()
                             }
                         }
                         consumableKeys.queryProductDetails(BillingClient.ProductType.INAPP) {
-                            GlobalScope.launch {
+                            CoroutineScope(Dispatchers.IO).launch {
                                 queryPurchases()
                             }
                         }
                         subscriptionSkuKeys.queryProductDetails(BillingClient.ProductType.SUBS) {
-                            GlobalScope.launch {
+                            CoroutineScope(Dispatchers.IO).launch {
                                 queryPurchases()
                             }
                         }

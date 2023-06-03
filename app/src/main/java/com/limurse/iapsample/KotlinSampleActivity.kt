@@ -4,7 +4,11 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
-import com.limurse.iap.*
+import com.limurse.iap.BillingClientConnectionListener
+import com.limurse.iap.DataWrappers
+import com.limurse.iap.IapConnector
+import com.limurse.iap.PurchaseServiceListener
+import com.limurse.iap.SubscriptionServiceListener
 import com.limurse.iapsample.databinding.ActivityMainBinding
 
 class KotlinSampleActivity : AppCompatActivity() {
@@ -23,29 +27,26 @@ class KotlinSampleActivity : AppCompatActivity() {
         isBillingClientConnected.value = false
 
         val nonConsumablesList = listOf("lifetime")
-        val consumablesList = listOf("base", "moderate", "quite", "plenty", "yearly")
-        val subsList = listOf("subscription")
+        val consumablesList = listOf("base", "moderate", "quite")
+        val subsList = listOf("subscription", "yearly")
 
         iapConnector = IapConnector(
             context = this,
             nonConsumableKeys = nonConsumablesList,
             consumableKeys = consumablesList,
             subscriptionKeys = subsList,
-            key = "LICENSE KEY",
+            key = getString(R.string.licenseKey),
             enableLogging = true
         )
 
         iapConnector.addBillingClientConnectionListener(object : BillingClientConnectionListener {
-
             override fun onConnected(status: Boolean, billingResponseCode: Int) {
                 Log.d(
                     "KSA",
                     "This is the status: $status and response code is: $billingResponseCode"
                 )
                 isBillingClientConnected.value = status
-
             }
-
         })
 
         iapConnector.addPurchaseListener(object : PurchaseServiceListener {
@@ -58,16 +59,16 @@ class KotlinSampleActivity : AppCompatActivity() {
                     "base" -> {
                         purchaseInfo.orderId
                     }
+
                     "moderate" -> {
 
                     }
+
                     "quite" -> {
 
                     }
-                    "plenty" -> {
 
-                    }
-                    "yearly" -> {
+                    "plenty" -> {
 
                     }
                 }
@@ -89,6 +90,9 @@ class KotlinSampleActivity : AppCompatActivity() {
                     "subscription" -> {
 
                     }
+                    "yearly" -> {
+
+                    }
                 }
             }
 
@@ -97,10 +101,10 @@ class KotlinSampleActivity : AppCompatActivity() {
             }
         })
 
-        isBillingClientConnected.observe(this) {
-            Log.d("KSA", "This is the new billing client status $it")
-            when {
-                it -> {
+        isBillingClientConnected.observe(this) {connected->
+            Log.d("KSA", "limurse $connected")
+            when(connected) {
+                true -> {
                     binding.btPurchaseCons.isEnabled = true
                     binding.btnMonthly.isEnabled = true
                     binding.btnYearly.isEnabled = true
@@ -120,15 +124,13 @@ class KotlinSampleActivity : AppCompatActivity() {
                     }
                     binding.btnQuite.setOnClickListener {
                         iapConnector.purchase(this, "quite")
-
                     }
                     binding.btnModerate.setOnClickListener {
                         iapConnector.purchase(this, "moderate")
                     }
 
                     binding.btnUltimate.setOnClickListener {
-                        iapConnector.purchase(this, "plenty")
-
+                        iapConnector.purchase(this, "lifetime")
                     }
                 }
                 else -> {
