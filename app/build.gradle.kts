@@ -40,7 +40,7 @@ android {
                 "proguard-rules.pro"
             )
             when {
-                !keystoreProperties.isEmpty -> {
+                !keystoreProperties.isEmpty && localProperties.contains("licenseKey") -> {
                     val licenseKey = keystoreProperties.getProperty("licenseKey")
                     resValue("string", "licenseKey", licenseKey)
                 }
@@ -55,7 +55,7 @@ android {
                 "proguard-rules.pro"
             )
             when {
-                !localProperties.isEmpty -> {
+                !localProperties.isEmpty && localProperties.contains("licenseKey") -> {
                     val licenseKey = localProperties.getProperty("licenseKey")
                     resValue("string", "licenseKey", licenseKey)
                 }
