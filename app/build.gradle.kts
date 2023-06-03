@@ -19,19 +19,19 @@ android {
     }
 
     buildTypes {
+        val keystoreProperties = Properties().apply {
+            val keystorePropertiesFile = rootProject.file("keystore.properties")
+            if (keystorePropertiesFile.exists()) {
+                load(keystorePropertiesFile.inputStream())
+            }
+        }
+        val licenseKey = keystoreProperties.getProperty("licenseKey")
         release {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
                 "proguard-rules.pro"
             )
-            val keystoreProperties = Properties().apply {
-                val keystorePropertiesFile = rootProject.file("keystore.properties")
-                if (keystorePropertiesFile.exists()) {
-                    load(keystorePropertiesFile.inputStream())
-                }
-            }
-            val licenseKey = keystoreProperties.getProperty("licenseKey")
             resValue("string", "licenseKey", licenseKey)
         }
         debug {
@@ -39,13 +39,6 @@ android {
             proguardFiles(
                 "proguard-rules.pro"
             )
-            val localProperties = Properties().apply {
-                val localPropertiesFile = rootProject.file("local.properties")
-                if (localPropertiesFile.exists()) {
-                    load(localPropertiesFile.inputStream())
-                }
-            }
-            val licenseKey = localProperties.getProperty("licenseKey")
             resValue("string", "licenseKey", licenseKey)
         }
     }
