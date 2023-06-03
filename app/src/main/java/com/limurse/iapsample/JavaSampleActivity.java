@@ -45,7 +45,7 @@ class JavaSampleActivity extends AppCompatActivity {
 
 
         iapConnector.addBillingClientConnectionListener((status, billingResponseCode) -> {
-            Log.d("KSA", "This is the status: "+status+" and response code is: "+billingResponseCode);
+            Log.d("JSA", "This is the status: "+status+" and response code is: "+billingResponseCode);
             isBillingClientConnected.setValue(status);
         });
 
@@ -96,7 +96,7 @@ class JavaSampleActivity extends AppCompatActivity {
         );
 
         binding.btnYearly.setOnClickListener(it ->
-                iapConnector.purchase(this, "yearly")
+                iapConnector.subscribe(this, "yearly")
         );
 
         binding.btnQuite.setOnClickListener(it ->

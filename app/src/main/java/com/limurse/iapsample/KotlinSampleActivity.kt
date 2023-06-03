@@ -120,7 +120,7 @@ class KotlinSampleActivity : AppCompatActivity() {
                     }
 
                     binding.btnYearly.setOnClickListener {
-                        iapConnector.purchase(this, "yearly")
+                        iapConnector.subscribe(this, "yearly")
                     }
                     binding.btnQuite.setOnClickListener {
                         iapConnector.purchase(this, "quite")
