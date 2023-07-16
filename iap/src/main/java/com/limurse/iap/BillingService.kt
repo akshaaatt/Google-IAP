@@ -293,20 +293,21 @@ class BillingService(
                     entry.value?.let {
                         when(it.productType){
                             BillingClient.ProductType.SUBS->{
-                                val firstPricingPhaseList = it.subscriptionOfferDetails?.get(0)?.pricingPhases?.pricingPhaseList?.get(0)
-                                entry.key to DataWrappers.ProductDetails(
-                                    title = it.title,
-                                    description = it.description,
-                                    priceCurrencyCode = firstPricingPhaseList?.priceCurrencyCode,
-                                    price = firstPricingPhaseList?.formattedPrice,
-                                    priceAmount = firstPricingPhaseList?.priceAmountMicros?.div(1000000.0),
-                                    billingCycleCount = firstPricingPhaseList?.billingCycleCount,
-                                    billingPeriod = firstPricingPhaseList?.billingPeriod,
-                                    recurrenceMode = firstPricingPhaseList?.recurrenceMode
-                                )
+                                entry.key to it.subscriptionOfferDetails!![0].pricingPhases.pricingPhaseList.map { pricingPhase ->
+                                    DataWrappers.ProductDetails(
+                                        title = it.title,
+                                        description = it.description,
+                                        priceCurrencyCode = pricingPhase.priceCurrencyCode,
+                                        price = pricingPhase.formattedPrice,
+                                        priceAmount = pricingPhase.priceAmountMicros.div(1000000.0),
+                                        billingCycleCount = pricingPhase.billingCycleCount,
+                                        billingPeriod = pricingPhase.billingPeriod,
+                                        recurrenceMode = pricingPhase.recurrenceMode
+                                    )
+                                }
                             }
                             else->{
-                                entry.key to DataWrappers.ProductDetails(
+                                entry.key to listOf(DataWrappers.ProductDetails(
                                     title = it.title,
                                     description = it.description,
                                     priceCurrencyCode = it.oneTimePurchaseOfferDetails?.priceCurrencyCode,
@@ -315,7 +316,7 @@ class BillingService(
                                     billingCycleCount = null,
                                     billingPeriod = null,
                                     recurrenceMode = ProductDetails.RecurrenceMode.NON_RECURRING
-                                )
+                                ))
                             }
                         }
                     }
