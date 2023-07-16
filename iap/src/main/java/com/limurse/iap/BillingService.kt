@@ -107,7 +107,9 @@ class BillingService(
                     .setProductDetails(productDetails)
 
                 if(type == BillingClient.ProductType.SUBS){
-                    builder.setOfferToken(productDetails.subscriptionOfferDetails!![0].offerToken)
+                    productDetails.subscriptionOfferDetails?.getOrNull(0)?.let {
+                        builder.setOfferToken(it.offerToken)
+                    }
                 }
                 productDetailsParamsList.add(builder.build())
                 val billingFlowParamsBuilder = BillingFlowParams.newBuilder().setProductDetailsParamsList(productDetailsParamsList)
@@ -301,7 +303,7 @@ class BillingService(
                     entry.value?.let {
                         when(it.productType){
                             BillingClient.ProductType.SUBS->{
-                                entry.key to it.subscriptionOfferDetails!![0].pricingPhases.pricingPhaseList.map { pricingPhase ->
+                                entry.key to (it.subscriptionOfferDetails?.getOrNull(0)?.pricingPhases?.pricingPhaseList?.map { pricingPhase ->
                                     DataWrappers.ProductDetails(
                                         title = it.title,
                                         description = it.description,
@@ -312,7 +314,7 @@ class BillingService(
                                         billingPeriod = pricingPhase.billingPeriod,
                                         recurrenceMode = pricingPhase.recurrenceMode
                                     )
-                                }
+                                } ?: listOf())
                             }
                             else->{
                                 entry.key to listOf(DataWrappers.ProductDetails(
