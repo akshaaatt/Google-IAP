@@ -293,12 +293,16 @@ class BillingService(
                     entry.value?.let {
                         when(it.productType){
                             BillingClient.ProductType.SUBS->{
+                                val firstPricingPhaseList = it.subscriptionOfferDetails?.get(0)?.pricingPhases?.pricingPhaseList?.get(0)
                                 entry.key to DataWrappers.ProductDetails(
                                     title = it.title,
                                     description = it.description,
-                                    priceCurrencyCode = it.subscriptionOfferDetails?.get(0)?.pricingPhases?.pricingPhaseList?.get(0)?.priceCurrencyCode,
-                                    price = it.subscriptionOfferDetails?.get(0)?.pricingPhases?.pricingPhaseList?.get(0)?.formattedPrice,
-                                    priceAmount = it.subscriptionOfferDetails?.get(0)?.pricingPhases?.pricingPhaseList?.get(0)?.priceAmountMicros?.div(1000000.0)
+                                    priceCurrencyCode = firstPricingPhaseList?.priceCurrencyCode,
+                                    price = firstPricingPhaseList?.formattedPrice,
+                                    priceAmount = firstPricingPhaseList?.priceAmountMicros?.div(1000000.0),
+                                    billingCycleCount = firstPricingPhaseList?.billingCycleCount,
+                                    billingPeriod = firstPricingPhaseList?.billingPeriod,
+                                    recurrenceMode = firstPricingPhaseList?.recurrenceMode
                                 )
                             }
                             else->{
@@ -307,7 +311,10 @@ class BillingService(
                                     description = it.description,
                                     priceCurrencyCode = it.oneTimePurchaseOfferDetails?.priceCurrencyCode,
                                     price = it.oneTimePurchaseOfferDetails?.formattedPrice,
-                                    priceAmount = it.oneTimePurchaseOfferDetails?.priceAmountMicros?.div(1000000.0)
+                                    priceAmount = it.oneTimePurchaseOfferDetails?.priceAmountMicros?.div(1000000.0),
+                                    billingCycleCount = null,
+                                    billingPeriod = null,
+                                    recurrenceMode = ProductDetails.RecurrenceMode.NON_RECURRING
                                 )
                             }
                         }
