@@ -12,6 +12,8 @@ import kotlinx.coroutines.DelicateCoroutinesApi
  * @param consumableKeys SKU list for consumable one-time products.
  * @param subscriptionKeys SKU list for subscriptions.
  * @param key Key to verify purchase messages. Leave it empty if you want to skip verification.
+ * @param obfuscatedAccountId Specifies an optional obfuscated string that is uniquely associated with the user's account in your app.
+ * @param obfuscatedProfileId Specifies an optional obfuscated string that is uniquely associated with the user's profile in your app.
  * @param enableLogging Log operations/errors to the logcat for debugging purposes.
  */
 @OptIn(DelicateCoroutinesApi::class)
@@ -21,6 +23,8 @@ class IapConnector @JvmOverloads constructor(
     consumableKeys: List<String> = emptyList(),
     subscriptionKeys: List<String> = emptyList(),
     key: String? = null,
+    obfuscatedAccountId: String? = null,
+    obfuscatedProfileId: String? = null,
     enableLogging: Boolean = false
 ) {
 
@@ -28,7 +32,7 @@ class IapConnector @JvmOverloads constructor(
 
     init {
         val contextLocal = context.applicationContext ?: context
-        mBillingService = BillingService(contextLocal, nonConsumableKeys, consumableKeys, subscriptionKeys)
+        mBillingService = BillingService(contextLocal, nonConsumableKeys, consumableKeys, subscriptionKeys, obfuscatedAccountId, obfuscatedProfileId)
         getBillingService().init(key)
         getBillingService().enableDebugLogging(enableLogging)
     }

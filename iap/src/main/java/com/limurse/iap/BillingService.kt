@@ -16,7 +16,9 @@ class BillingService(
     private val context: Context,
     private val nonConsumableKeys: List<String>,
     private val consumableKeys: List<String>,
-    private val subscriptionSkuKeys: List<String>
+    private val subscriptionSkuKeys: List<String>,
+    private val obfuscatedAccountId: String?,
+    private val obfuscatedProfileId: String?
 ) : IBillingService(), PurchasesUpdatedListener, AcknowledgePurchaseResponseListener {
 
     private lateinit var mBillingClient: BillingClient
@@ -108,8 +110,14 @@ class BillingService(
                     builder.setOfferToken(productDetails.subscriptionOfferDetails!![0].offerToken)
                 }
                 productDetailsParamsList.add(builder.build())
-                val billingFlowParams = BillingFlowParams.newBuilder()
-                    .setProductDetailsParamsList(productDetailsParamsList).build()
+                val billingFlowParamsBuilder = BillingFlowParams.newBuilder().setProductDetailsParamsList(productDetailsParamsList)
+                if (obfuscatedAccountId != null) {
+                    billingFlowParamsBuilder.setObfuscatedAccountId(obfuscatedAccountId)
+                }
+                if (obfuscatedProfileId != null) {
+                    billingFlowParamsBuilder.setObfuscatedAccountId(obfuscatedProfileId)
+                }
+                val billingFlowParams = billingFlowParamsBuilder.build()
                 
                 mBillingClient.launchBillingFlow(activity, billingFlowParams)
             }

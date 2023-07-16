@@ -40,6 +40,8 @@ class JavaSampleActivity extends AppCompatActivity {
                 consumablesList,
                 subsList,
                 getString(R.string.licenseKey),
+                null,
+                null,
                 true
         );
 
