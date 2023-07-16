@@ -40,8 +40,6 @@ class JavaSampleActivity extends AppCompatActivity {
                 consumablesList,
                 subsList,
                 getString(R.string.licenseKey),
-                null,
-                null,
                 true
         );
 
@@ -90,27 +88,27 @@ class JavaSampleActivity extends AppCompatActivity {
         });
 
         binding.btPurchaseCons.setOnClickListener(it ->
-                iapConnector.purchase(this, "base")
+                iapConnector.purchase(this, "base", null, null)
         );
 
         binding.btnMonthly.setOnClickListener(it ->
-                iapConnector.subscribe(this, "subscription")
+                iapConnector.subscribe(this, "subscription", null, null)
         );
 
         binding.btnYearly.setOnClickListener(it ->
-                iapConnector.subscribe(this, "yearly")
+                iapConnector.subscribe(this, "yearly", null, null)
         );
 
         binding.btnQuite.setOnClickListener(it ->
-                iapConnector.purchase(this, "quite")
+                iapConnector.purchase(this, "quite", null, null)
         );
 
         binding.btnModerate.setOnClickListener(it ->
-                iapConnector.purchase(this, "moderate")
+                iapConnector.purchase(this, "moderate", null, null)
         );
 
         binding.btnUltimate.setOnClickListener(it ->
-                iapConnector.purchase(this, "plenty")
+                iapConnector.purchase(this, "plenty", null, null)
         );
     }
 }

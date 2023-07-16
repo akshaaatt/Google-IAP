@@ -17,8 +17,6 @@ class BillingService(
     private val nonConsumableKeys: List<String>,
     private val consumableKeys: List<String>,
     private val subscriptionSkuKeys: List<String>,
-    private val obfuscatedAccountId: String?,
-    private val obfuscatedProfileId: String?
 ) : IBillingService(), PurchasesUpdatedListener, AcknowledgePurchaseResponseListener {
 
     private lateinit var mBillingClient: BillingClient
@@ -80,25 +78,25 @@ class BillingService(
         processPurchases(subsResult.purchasesList, isRestore = true)
     }
 
-    override fun buy(activity: Activity, sku: String) {
+    override fun buy(activity: Activity, sku: String, obfuscatedAccountId: String?, obfuscatedProfileId: String?) {
         if (!sku.isProductReady()) {
             log("buy. Google billing service is not ready yet. (SKU is not ready yet -1)")
             return
         }
 
-        launchBillingFlow(activity, sku, BillingClient.ProductType.INAPP)
+        launchBillingFlow(activity, sku, BillingClient.ProductType.INAPP, obfuscatedAccountId, obfuscatedProfileId)
     }
 
-    override fun subscribe(activity: Activity, sku: String) {
+    override fun subscribe(activity: Activity, sku: String, obfuscatedAccountId: String?, obfuscatedProfileId: String?) {
         if (!sku.isProductReady()) {
             log("buy. Google billing service is not ready yet. (SKU is not ready yet -2)")
             return
         }
 
-        launchBillingFlow(activity, sku, BillingClient.ProductType.SUBS)
+        launchBillingFlow(activity, sku, BillingClient.ProductType.SUBS, obfuscatedAccountId, obfuscatedProfileId)
     }
 
-    private fun launchBillingFlow(activity: Activity, sku: String, type: String) {
+    private fun launchBillingFlow(activity: Activity, sku: String, type: String, obfuscatedAccountId: String?, obfuscatedProfileId: String?) {
         sku.toProductDetails(type) { productDetails ->
             if (productDetails != null) {
 
