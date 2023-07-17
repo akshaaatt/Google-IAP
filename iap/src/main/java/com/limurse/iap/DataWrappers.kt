@@ -10,6 +10,9 @@ class DataWrappers {
         val price: String?,
         val priceAmount: Double?,
         val priceCurrencyCode: String?,
+        val billingCycleCount: Int?,
+        val billingPeriod: String?,
+        val recurrenceMode: Int?
     )
 
     data class PurchaseInfo(

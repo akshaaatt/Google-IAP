@@ -50,7 +50,7 @@ class KotlinSampleActivity : AppCompatActivity() {
         })
 
         iapConnector.addPurchaseListener(object : PurchaseServiceListener {
-            override fun onPricesUpdated(iapKeyPrices: Map<String, DataWrappers.ProductDetails>) {
+            override fun onPricesUpdated(iapKeyPrices: Map<String, List<DataWrappers.ProductDetails>>) {
                 // list of available products will be received here, so you can update UI with prices if needed
             }
 
@@ -96,7 +96,7 @@ class KotlinSampleActivity : AppCompatActivity() {
                 }
             }
 
-            override fun onPricesUpdated(iapKeyPrices: Map<String, DataWrappers.ProductDetails>) {
+            override fun onPricesUpdated(iapKeyPrices: Map<String, List<DataWrappers.ProductDetails>>) {
                 // list of available products will be received here, so you can update UI with prices if needed
             }
         })

@@ -57,12 +57,12 @@ class IapConnector @JvmOverloads constructor(
         getBillingService().removeSubscriptionListener(subscriptionServiceListener)
     }
 
-    fun purchase(activity: Activity, sku: String) {
-        getBillingService().buy(activity, sku)
+    fun purchase(activity: Activity, sku: String, obfuscatedAccountId: String? = null, obfuscatedProfileId: String? = null) {
+        getBillingService().buy(activity, sku, obfuscatedAccountId, obfuscatedProfileId)
     }
 
-    fun subscribe(activity: Activity, sku: String) {
-        getBillingService().subscribe(activity, sku)
+    fun subscribe(activity: Activity, sku: String, obfuscatedAccountId: String? = null, obfuscatedProfileId: String? = null) {
+        getBillingService().subscribe(activity, sku, obfuscatedAccountId, obfuscatedProfileId)
     }
 
     fun unsubscribe(activity: Activity, sku: String) {

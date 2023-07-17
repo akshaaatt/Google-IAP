@@ -83,13 +83,13 @@ abstract class IBillingService {
         }
     }
 
-    fun updatePrices(iapKeyPrices: Map<String, DataWrappers.ProductDetails>) {
+    fun updatePrices(iapKeyPrices: Map<String, List<DataWrappers.ProductDetails>>) {
         findUiHandler().post {
             updatePricesInternal(iapKeyPrices)
         }
     }
 
-    private fun updatePricesInternal(iapKeyPrices: Map<String, DataWrappers.ProductDetails>) {
+    private fun updatePricesInternal(iapKeyPrices: Map<String, List<DataWrappers.ProductDetails>>) {
         for (billingServiceListener in purchaseServiceListeners) {
             billingServiceListener.onPricesUpdated(iapKeyPrices)
         }
@@ -99,8 +99,8 @@ abstract class IBillingService {
     }
 
     abstract fun init(key: String?)
-    abstract fun buy(activity: Activity, sku: String)
-    abstract fun subscribe(activity: Activity, sku: String)
+    abstract fun buy(activity: Activity, sku: String, obfuscatedAccountId: String?, obfuscatedProfileId: String?)
+    abstract fun subscribe(activity: Activity, sku: String, obfuscatedAccountId: String?, obfuscatedProfileId: String?)
     abstract fun unsubscribe(activity: Activity, sku: String)
     abstract fun enableDebugLogging(enable: Boolean)
 

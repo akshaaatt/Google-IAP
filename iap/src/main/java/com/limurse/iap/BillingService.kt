@@ -16,7 +16,7 @@ class BillingService(
     private val context: Context,
     private val nonConsumableKeys: List<String>,
     private val consumableKeys: List<String>,
-    private val subscriptionSkuKeys: List<String>
+    private val subscriptionSkuKeys: List<String>,
 ) : IBillingService(), PurchasesUpdatedListener, AcknowledgePurchaseResponseListener {
 
     private lateinit var mBillingClient: BillingClient
@@ -78,25 +78,25 @@ class BillingService(
         processPurchases(subsResult.purchasesList, isRestore = true)
     }
 
-    override fun buy(activity: Activity, sku: String) {
+    override fun buy(activity: Activity, sku: String, obfuscatedAccountId: String?, obfuscatedProfileId: String?) {
         if (!sku.isProductReady()) {
             log("buy. Google billing service is not ready yet. (SKU is not ready yet -1)")
             return
         }
 
-        launchBillingFlow(activity, sku, BillingClient.ProductType.INAPP)
+        launchBillingFlow(activity, sku, BillingClient.ProductType.INAPP, obfuscatedAccountId, obfuscatedProfileId)
     }
 
-    override fun subscribe(activity: Activity, sku: String) {
+    override fun subscribe(activity: Activity, sku: String, obfuscatedAccountId: String?, obfuscatedProfileId: String?) {
         if (!sku.isProductReady()) {
             log("buy. Google billing service is not ready yet. (SKU is not ready yet -2)")
             return
         }
 
-        launchBillingFlow(activity, sku, BillingClient.ProductType.SUBS)
+        launchBillingFlow(activity, sku, BillingClient.ProductType.SUBS, obfuscatedAccountId, obfuscatedProfileId)
     }
 
-    private fun launchBillingFlow(activity: Activity, sku: String, type: String) {
+    private fun launchBillingFlow(activity: Activity, sku: String, type: String, obfuscatedAccountId: String?, obfuscatedProfileId: String?) {
         sku.toProductDetails(type) { productDetails ->
             if (productDetails != null) {
 
@@ -105,11 +105,19 @@ class BillingService(
                     .setProductDetails(productDetails)
 
                 if(type == BillingClient.ProductType.SUBS){
-                    builder.setOfferToken(productDetails.subscriptionOfferDetails!![0].offerToken)
+                    productDetails.subscriptionOfferDetails?.getOrNull(0)?.let {
+                        builder.setOfferToken(it.offerToken)
+                    }
                 }
                 productDetailsParamsList.add(builder.build())
-                val billingFlowParams = BillingFlowParams.newBuilder()
-                    .setProductDetailsParamsList(productDetailsParamsList).build()
+                val billingFlowParamsBuilder = BillingFlowParams.newBuilder().setProductDetailsParamsList(productDetailsParamsList)
+                if (obfuscatedAccountId != null) {
+                    billingFlowParamsBuilder.setObfuscatedAccountId(obfuscatedAccountId)
+                }
+                if (obfuscatedProfileId != null) {
+                    billingFlowParamsBuilder.setObfuscatedAccountId(obfuscatedProfileId)
+                }
+                val billingFlowParams = billingFlowParamsBuilder.build()
                 
                 mBillingClient.launchBillingFlow(activity, billingFlowParams)
             }
@@ -293,22 +301,30 @@ class BillingService(
                     entry.value?.let {
                         when(it.productType){
                             BillingClient.ProductType.SUBS->{
-                                entry.key to DataWrappers.ProductDetails(
-                                    title = it.title,
-                                    description = it.description,
-                                    priceCurrencyCode = it.subscriptionOfferDetails?.get(0)?.pricingPhases?.pricingPhaseList?.get(0)?.priceCurrencyCode,
-                                    price = it.subscriptionOfferDetails?.get(0)?.pricingPhases?.pricingPhaseList?.get(0)?.formattedPrice,
-                                    priceAmount = it.subscriptionOfferDetails?.get(0)?.pricingPhases?.pricingPhaseList?.get(0)?.priceAmountMicros?.div(1000000.0)
-                                )
+                                entry.key to (it.subscriptionOfferDetails?.getOrNull(0)?.pricingPhases?.pricingPhaseList?.map { pricingPhase ->
+                                    DataWrappers.ProductDetails(
+                                        title = it.title,
+                                        description = it.description,
+                                        priceCurrencyCode = pricingPhase.priceCurrencyCode,
+                                        price = pricingPhase.formattedPrice,
+                                        priceAmount = pricingPhase.priceAmountMicros.div(1000000.0),
+                                        billingCycleCount = pricingPhase.billingCycleCount,
+                                        billingPeriod = pricingPhase.billingPeriod,
+                                        recurrenceMode = pricingPhase.recurrenceMode
+                                    )
+                                } ?: listOf())
                             }
                             else->{
-                                entry.key to DataWrappers.ProductDetails(
+                                entry.key to listOf(DataWrappers.ProductDetails(
                                     title = it.title,
                                     description = it.description,
                                     priceCurrencyCode = it.oneTimePurchaseOfferDetails?.priceCurrencyCode,
                                     price = it.oneTimePurchaseOfferDetails?.formattedPrice,
-                                    priceAmount = it.oneTimePurchaseOfferDetails?.priceAmountMicros?.div(1000000.0)
-                                )
+                                    priceAmount = it.oneTimePurchaseOfferDetails?.priceAmountMicros?.div(1000000.0),
+                                    billingCycleCount = null,
+                                    billingPeriod = null,
+                                    recurrenceMode = ProductDetails.RecurrenceMode.NON_RECURRING
+                                ))
                             }
                         }
                     }
