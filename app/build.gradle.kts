@@ -6,13 +6,13 @@ plugins {
 }
 
 android {
-    compileSdk = 33
+    compileSdk = 34
 
     namespace = "com.limurse.iapsample"
     defaultConfig {
         applicationId = "com.limurse.iapsample"
         minSdk = 21
-        targetSdk = 33
+        targetSdk = 34
         versionCode = 7
         versionName = "1.0.6"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
