@@ -7,11 +7,9 @@ import android.net.Uri
 import android.util.Log
 import com.android.billingclient.api.*
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-@DelicateCoroutinesApi
 class BillingService(
     private val context: Context,
     private val nonConsumableKeys: List<String>,

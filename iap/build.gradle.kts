@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    compileSdk = 33
+    compileSdk = 34
 
     namespace = "com.limurse.iap"
     defaultConfig {
@@ -44,7 +44,7 @@ dependencies {
 
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.lifecycle:lifecycle-extensions:2.2.0")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
 
     testImplementation("junit:junit:4.13.2")
 }
@@ -54,7 +54,7 @@ publishing {
         create<MavenPublication>("release") {
             groupId = "com.limurse"
             artifactId = "Google-IAP"
-            version = "1.4.2"
+            version = "1.5.0"
 
             afterEvaluate {
                 from(components["release"])
