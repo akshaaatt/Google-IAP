@@ -193,11 +193,12 @@ class BillingService(
 
                     // Grant entitlement to the user.
                     val productDetails = productDetails[purchase.products[0]]
+                    val isProductConsumable = consumableKeys.contains(purchase.products[0])
                     when (productDetails?.productType) {
                         BillingClient.ProductType.INAPP -> {
                             // Consume the purchase
                             when {
-                                consumableKeys.contains(purchase.products[0]) -> {
+                                isProductConsumable && purchase.purchaseState == Purchase.PurchaseState.PURCHASED -> {
                                     mBillingClient.consumeAsync(
                                         ConsumeParams.newBuilder()
                                             .setPurchaseToken(purchase.purchaseToken).build()
@@ -227,7 +228,7 @@ class BillingService(
                     }
 
                     // If the state is PURCHASED, acknowledge the purchase if it hasn't been acknowledged yet.
-                    if (!purchase.isAcknowledged && purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
+                    if (!purchase.isAcknowledged && !isProductConsumable && purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
                         val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
                             .setPurchaseToken(purchase.purchaseToken).build()
                         mBillingClient.acknowledgePurchase(acknowledgePurchaseParams, this)
