@@ -2,6 +2,7 @@ package com.limurse.iapsample;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -71,6 +72,11 @@ class JavaSampleActivity extends AppCompatActivity {
             public void onProductRestored(@NonNull DataWrappers.PurchaseInfo purchaseInfo) {
 
             }
+
+            @Override
+            public void onPurchaseFailed(@Nullable DataWrappers.PurchaseInfo purchaseInfo, @Nullable Integer billingResponseCode) {
+                Toast.makeText(getApplicationContext(), "Your purchase has been failed", Toast.LENGTH_SHORT).show();
+            }
         });
         iapConnector.addSubscriptionListener(new SubscriptionServiceListener() {
             public void onSubscriptionRestored(@NonNull DataWrappers.PurchaseInfo purchaseInfo) {
@@ -84,6 +90,10 @@ class JavaSampleActivity extends AppCompatActivity {
 
             public void onPricesUpdated(@NotNull Map iapKeyPrices) {
 
+            }
+
+            @Override
+            public void onPurchaseFailed(@Nullable DataWrappers.PurchaseInfo purchaseInfo, @Nullable Integer billingResponseCode) {
             }
         });
 

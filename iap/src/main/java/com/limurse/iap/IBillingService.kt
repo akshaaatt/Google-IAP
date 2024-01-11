@@ -98,6 +98,27 @@ abstract class IBillingService {
         }
     }
 
+    fun updateFailedPurchases(purchaseInfo: List<DataWrappers.PurchaseInfo>? = null, billingResponseCode: Int? = null) {
+        purchaseInfo?.forEach {
+            updateFailedPurchase(it, billingResponseCode)
+        } ?: updateFailedPurchase()
+    }
+
+    fun updateFailedPurchase(purchaseInfo: DataWrappers.PurchaseInfo? = null, billingResponseCode: Int? = null) {
+        findUiHandler().post {
+            updateFailedPurchasesInternal(purchaseInfo, billingResponseCode)
+        }
+    }
+
+    private fun updateFailedPurchasesInternal(purchaseInfo: DataWrappers.PurchaseInfo? = null, billingResponseCode: Int? = null) {
+        for (billingServiceListener in purchaseServiceListeners) {
+            billingServiceListener.onPurchaseFailed(purchaseInfo, billingResponseCode)
+        }
+        for (billingServiceListener in subscriptionServiceListeners) {
+            billingServiceListener.onPurchaseFailed(purchaseInfo, billingResponseCode)
+        }
+    }
+
     abstract fun init(key: String?)
     abstract fun buy(activity: Activity, sku: String, obfuscatedAccountId: String?, obfuscatedProfileId: String?)
     abstract fun subscribe(activity: Activity, sku: String, obfuscatedAccountId: String?, obfuscatedProfileId: String?)

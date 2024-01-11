@@ -148,6 +148,9 @@ class BillingService(
         val responseCode = billingResult.responseCode
         val debugMessage = billingResult.debugMessage
         log("onPurchasesUpdated: responseCode:$responseCode debugMessage: $debugMessage")
+        if (!billingResult.isOk()){
+            updateFailedPurchases(purchases?.map { getPurchaseInfo(it) }, responseCode)
+        }
         when (responseCode) {
             BillingClient.BillingResponseCode.OK -> {
                 log("onPurchasesUpdated. purchase: $purchases")
@@ -184,6 +187,7 @@ class BillingService(
                 if (purchaseSuccess && purchase.products[0].isProductReady()) {
                     if (!isSignatureValid(purchase)) {
                         log("processPurchases. Signature is not valid for: $purchase")
+                        updateFailedPurchase(getPurchaseInfo(purchase))
                         continue@purchases
                     }
 
@@ -207,6 +211,7 @@ class BillingService(
                                                     TAG,
                                                     "Handling consumables : Error during consumption attempt -> ${billingResult.debugMessage}"
                                                 )
+                                                updateFailedPurchase(getPurchaseInfo(purchase), billingResult.responseCode)
                                             }
                                         }
                                     }
@@ -232,6 +237,7 @@ class BillingService(
                         TAG, "processPurchases failed. purchase: $purchase " +
                                 "purchaseState: ${purchase.purchaseState} isSkuReady: ${purchase.products[0].isProductReady()}"
                     )
+                    updateFailedPurchase(getPurchaseInfo(purchase))
                 }
             }
         } else {
@@ -383,6 +389,9 @@ class BillingService(
 
     override fun onAcknowledgePurchaseResponse(billingResult: BillingResult) {
         log("onAcknowledgePurchaseResponse: billingResult: $billingResult")
+        if(!billingResult.isOk()){
+            updateFailedPurchase(billingResponseCode =  billingResult.responseCode)
+        }
     }
 
     override fun close() {
