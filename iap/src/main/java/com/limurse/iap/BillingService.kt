@@ -148,6 +148,9 @@ class BillingService(
         val responseCode = billingResult.responseCode
         val debugMessage = billingResult.debugMessage
         log("onPurchasesUpdated: responseCode:$responseCode debugMessage: $debugMessage")
+        if (!billingResult.isOk()){
+            updateFailedPurchases(purchases?.map { getPurchaseInfo(it) }, responseCode)
+        }
         when (responseCode) {
             BillingClient.BillingResponseCode.OK -> {
                 log("onPurchasesUpdated. purchase: $purchases")
@@ -184,16 +187,18 @@ class BillingService(
                 if (purchaseSuccess && purchase.products[0].isProductReady()) {
                     if (!isSignatureValid(purchase)) {
                         log("processPurchases. Signature is not valid for: $purchase")
+                        updateFailedPurchase(getPurchaseInfo(purchase))
                         continue@purchases
                     }
 
                     // Grant entitlement to the user.
                     val productDetails = productDetails[purchase.products[0]]
+                    val isProductConsumable = consumableKeys.contains(purchase.products[0])
                     when (productDetails?.productType) {
                         BillingClient.ProductType.INAPP -> {
                             // Consume the purchase
                             when {
-                                consumableKeys.contains(purchase.products[0]) -> {
+                                isProductConsumable && purchase.purchaseState == Purchase.PurchaseState.PURCHASED -> {
                                     mBillingClient.consumeAsync(
                                         ConsumeParams.newBuilder()
                                             .setPurchaseToken(purchase.purchaseToken).build()
@@ -207,6 +212,7 @@ class BillingService(
                                                     TAG,
                                                     "Handling consumables : Error during consumption attempt -> ${billingResult.debugMessage}"
                                                 )
+                                                updateFailedPurchase(getPurchaseInfo(purchase), billingResult.responseCode)
                                             }
                                         }
                                     }
@@ -222,7 +228,7 @@ class BillingService(
                     }
 
                     // If the state is PURCHASED, acknowledge the purchase if it hasn't been acknowledged yet.
-                    if (!purchase.isAcknowledged && purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
+                    if (!purchase.isAcknowledged && !isProductConsumable && purchase.purchaseState == Purchase.PurchaseState.PURCHASED) {
                         val acknowledgePurchaseParams = AcknowledgePurchaseParams.newBuilder()
                             .setPurchaseToken(purchase.purchaseToken).build()
                         mBillingClient.acknowledgePurchase(acknowledgePurchaseParams, this)
@@ -232,6 +238,7 @@ class BillingService(
                         TAG, "processPurchases failed. purchase: $purchase " +
                                 "purchaseState: ${purchase.purchaseState} isSkuReady: ${purchase.products[0].isProductReady()}"
                     )
+                    updateFailedPurchase(getPurchaseInfo(purchase))
                 }
             }
         } else {
@@ -383,6 +390,9 @@ class BillingService(
 
     override fun onAcknowledgePurchaseResponse(billingResult: BillingResult) {
         log("onAcknowledgePurchaseResponse: billingResult: $billingResult")
+        if(!billingResult.isOk()){
+            updateFailedPurchase(billingResponseCode =  billingResult.responseCode)
+        }
     }
 
     override fun close() {

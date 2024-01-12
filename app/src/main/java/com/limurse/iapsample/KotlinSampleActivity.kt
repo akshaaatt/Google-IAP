@@ -2,6 +2,7 @@ package com.limurse.iapsample
 
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
 import com.limurse.iap.BillingClientConnectionListener
@@ -77,6 +78,11 @@ class KotlinSampleActivity : AppCompatActivity() {
             override fun onProductRestored(purchaseInfo: DataWrappers.PurchaseInfo) {
                 // will be triggered fetching owned products using IapConnector;
             }
+
+            override fun onPurchaseFailed(purchaseInfo: DataWrappers.PurchaseInfo?, billingResponseCode: Int?) {
+                // will be triggered whenever a product purchase is failed
+                Toast.makeText(applicationContext, "Your purchase has been failed", Toast.LENGTH_SHORT).show()
+            }
         })
 
         iapConnector.addSubscriptionListener(object : SubscriptionServiceListener {
@@ -98,6 +104,10 @@ class KotlinSampleActivity : AppCompatActivity() {
 
             override fun onPricesUpdated(iapKeyPrices: Map<String, List<DataWrappers.ProductDetails>>) {
                 // list of available products will be received here, so you can update UI with prices if needed
+            }
+
+            override fun onPurchaseFailed(purchaseInfo: DataWrappers.PurchaseInfo?, billingResponseCode: Int?) {
+                // will be triggered whenever subscription purchase is failed
             }
         })
 
