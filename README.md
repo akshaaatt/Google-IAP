@@ -127,7 +127,7 @@ iapConnector.purchase(this, "<sku>")
 #### Making a subscription
 
 ```kotlin
-iapConnector.susbcribe(this, "<sku>")
+iapConnector.subscribe(this, "<sku>")
 ```
 
 #### Removing a subscription
