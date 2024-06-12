@@ -113,7 +113,7 @@ class BillingService(
                     billingFlowParamsBuilder.setObfuscatedAccountId(obfuscatedAccountId)
                 }
                 if (obfuscatedProfileId != null) {
-                    billingFlowParamsBuilder.setObfuscatedAccountId(obfuscatedProfileId)
+                    billingFlowParamsBuilder.setObfuscatedProfileId(obfuscatedProfileId)
                 }
                 val billingFlowParams = billingFlowParamsBuilder.build()
                 
