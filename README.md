@@ -1,4 +1,4 @@
-<h1 align="center">Google-IAP (Play Billing Library Version 6.0.1)</h1>
+<h1 align="center">Google-IAP (Play Billing Library Version 7.0.0)</h1>
 
 <p align="center">
     <img src="https://jitpack.io/v/akshaaatt/Google-IAP.svg?style=flat-square&logo=github&logoColor=white"
@@ -61,7 +61,7 @@ allprojects {
 
 ```groovy
 dependencies {
-    implementation 'com.github.akshaaatt:Google-IAP:1.6.0'
+    implementation 'com.github.akshaaatt:Google-IAP:1.7.0'
 }
 ```
         
