@@ -1,0 +1,31 @@
+[versions]
+kotlin = "2.0.0"
+agp = "8.5.1"
+compileSdk = "34"
+targetSdk = "34"
+minSdk = "21"
+appcompat = "1.7.0"
+gridlayout = "1.0.0"
+material = "1.12.0"
+constraintlayout = "2.1.4"
+sdp-android = "1.1.1"
+billing-ktx = "7.0.0"
+lifecycle-extensions = "2.2.0"
+lifecycle-runtime-ktx = "2.8.3"
+junit = "4.13.2"
+
+[libraries]
+appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
+gridlayout = { module = "androidx.gridlayout:gridlayout", version.ref = "gridlayout" }
+material = { module = "com.google.android.material:material", version.ref = "material" }
+constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }
+sdp-android = { module = "com.intuit.sdp:sdp-android", version.ref = "sdp-android" }
+billing-ktx = { module = "com.android.billingclient:billing-ktx", version.ref = "billing-ktx" }
+lifecycle-extensions = { module = "androidx.lifecycle:lifecycle-extensions", version.ref = "lifecycle-extensions" }
+lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle-runtime-ktx" }
+junit = { module = "junit:junit", version.ref = "junit" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
