@@ -1,18 +1,18 @@
 import java.util.Properties
 
 plugins {
-    id("com.android.application")
-    id("kotlin-android")
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
-    compileSdk = 34
+    compileSdk = libs.versions.compileSdk.get().toInt()
 
     namespace = "com.limurse.iapsample"
     defaultConfig {
         applicationId = "com.limurse.iapsample"
-        minSdk = 21
-        targetSdk = 34
+        minSdk = libs.versions.minSdk.get().toInt()
+        targetSdk = libs.versions.targetSdk.get().toInt()
         versionCode = 8
         versionName = "1.0.7"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -29,16 +29,12 @@ android {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
-            proguardFiles(
-                "proguard-rules.pro"
-            )
+            proguardFiles("proguard-rules.pro")
             resValue("string", "licenseKey", licenseKey)
         }
         debug {
             isMinifyEnabled = false
-            proguardFiles(
-                "proguard-rules.pro"
-            )
+            proguardFiles("proguard-rules.pro")
             resValue("string", "licenseKey", licenseKey)
         }
     }
@@ -60,9 +56,9 @@ android {
 dependencies {
     implementation(project(":iap"))
 
-    implementation("androidx.appcompat:appcompat:1.7.0")
-    implementation("androidx.gridlayout:gridlayout:1.0.0")
-    implementation("com.google.android.material:material:1.12.0")
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("com.intuit.sdp:sdp-android:1.1.1")
+    implementation(libs.appcompat)
+    implementation(libs.gridlayout)
+    implementation(libs.material)
+    implementation(libs.constraintlayout)
+    implementation(libs.sdp.android)
 }
