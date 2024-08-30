@@ -11,7 +11,7 @@ constraintlayout = "2.1.4"
 sdp-android = "1.1.1"
 billing-ktx = "7.0.0"
 lifecycle-extensions = "2.2.0"
-lifecycle-runtime-ktx = "2.8.3"
+lifecycle-runtime-ktx = "2.8.4"
 junit = "4.13.2"
 
 [libraries]
