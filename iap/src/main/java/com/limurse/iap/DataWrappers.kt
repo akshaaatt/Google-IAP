@@ -29,7 +29,7 @@ class DataWrappers {
         val id: String?,
         val token: String?,
         val tags: List<String>?,
-        val pricingPhase: List<PricingPhase>
+        val pricingPhases: List<PricingPhase>
     )
 
     data class PricingPhase(

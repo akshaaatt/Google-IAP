@@ -322,7 +322,7 @@ class BillingService(
                                             id = offerDetails.offerId,
                                             token = offerDetails.offerToken,
                                             tags = offerDetails.offerTags,
-                                            pricingPhase = offerDetails.pricingPhases.pricingPhaseList.map { pricingPhase ->
+                                            pricingPhases = offerDetails.pricingPhases.pricingPhaseList.map { pricingPhase ->
                                                 DataWrappers.PricingPhase(
                                                     priceCurrencyCode = pricingPhase.priceCurrencyCode,
                                                     price = pricingPhase.formattedPrice,
@@ -345,7 +345,7 @@ class BillingService(
                                             id = null,
                                             token = null,
                                             tags = null,
-                                            pricingPhase = listOf(
+                                            pricingPhases = listOf(
                                                 DataWrappers.PricingPhase(
                                                     priceCurrencyCode = offerDetails.priceCurrencyCode,
                                                     price = offerDetails.formattedPrice,
