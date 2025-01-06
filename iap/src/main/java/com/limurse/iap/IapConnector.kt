@@ -61,7 +61,7 @@ class IapConnector @JvmOverloads constructor(
         getBillingService().buy(activity, sku, obfuscatedAccountId, obfuscatedProfileId)
     }
 
-    fun subscribe(activity: Activity, sku: String, offerId: String = "",
+    fun subscribe(activity: Activity, sku: String, offerId: String? = null,
                   obfuscatedAccountId: String? = null, obfuscatedProfileId: String? = null) {
         getBillingService().subscribe(activity, sku, offerId, obfuscatedAccountId, obfuscatedProfileId)
     }

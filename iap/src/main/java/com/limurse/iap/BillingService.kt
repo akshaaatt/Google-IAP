@@ -85,7 +85,7 @@ class BillingService(
         launchBillingFlow(activity, sku, BillingClient.ProductType.INAPP, "", obfuscatedAccountId, obfuscatedProfileId)
     }
 
-    override fun subscribe(activity: Activity, sku: String, offerId: String, obfuscatedAccountId: String?, obfuscatedProfileId: String?) {
+    override fun subscribe(activity: Activity, sku: String, offerId: String?, obfuscatedAccountId: String?, obfuscatedProfileId: String?) {
         if (!sku.isProductReady()) {
             log("buy. Google billing service is not ready yet. (SKU is not ready yet -2)")
             return
@@ -94,7 +94,7 @@ class BillingService(
         launchBillingFlow(activity, sku, BillingClient.ProductType.SUBS, offerId, obfuscatedAccountId, obfuscatedProfileId)
     }
 
-    private fun launchBillingFlow(activity: Activity, sku: String, type: String, offerId: String, obfuscatedAccountId: String?, obfuscatedProfileId: String?) {
+    private fun launchBillingFlow(activity: Activity, sku: String, type: String, offerId: String?, obfuscatedAccountId: String?, obfuscatedProfileId: String?) {
         sku.toProductDetails(type) { productDetails ->
             if (productDetails != null) {
 
@@ -104,11 +104,9 @@ class BillingService(
 
                 if(type == BillingClient.ProductType.SUBS) {
                     var index = 0
-                    if (offerId.isNotBlank()) {
-                        productDetails.subscriptionOfferDetails?.indexOfFirst { it.offerId == offerId }?.also {
-                            if (it >= 0) {
-                                index = it
-                            }
+                    productDetails.subscriptionOfferDetails?.indexOfFirst { it.offerId == offerId }?.also {
+                        if (it >= 0) {
+                            index = it
                         }
                     }
                     productDetails.subscriptionOfferDetails?.getOrNull(index)?.also {

@@ -121,7 +121,7 @@ abstract class IBillingService {
 
     abstract fun init(key: String?)
     abstract fun buy(activity: Activity, sku: String, obfuscatedAccountId: String?, obfuscatedProfileId: String?)
-    abstract fun subscribe(activity: Activity, sku: String, offerId: String, obfuscatedAccountId: String?, obfuscatedProfileId: String?)
+    abstract fun subscribe(activity: Activity, sku: String, offerId: String?, obfuscatedAccountId: String?, obfuscatedProfileId: String?)
     abstract fun unsubscribe(activity: Activity, sku: String)
     abstract fun enableDebugLogging(enable: Boolean)
 
