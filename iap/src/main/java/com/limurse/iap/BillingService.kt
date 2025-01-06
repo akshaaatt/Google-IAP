@@ -82,7 +82,7 @@ class BillingService(
             return
         }
 
-        launchBillingFlow(activity, sku, BillingClient.ProductType.INAPP, "", obfuscatedAccountId, obfuscatedProfileId)
+        launchBillingFlow(activity, sku, BillingClient.ProductType.INAPP, null, obfuscatedAccountId, obfuscatedProfileId)
     }
 
     override fun subscribe(activity: Activity, sku: String, offerId: String?, obfuscatedAccountId: String?, obfuscatedProfileId: String?) {
