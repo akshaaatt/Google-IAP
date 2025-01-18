@@ -6,7 +6,7 @@ interface BillingServiceListener {
      *
      * @param iapKeyPrices - a map with available products
      */
-    fun onPricesUpdated(iapKeyPrices: Map<String, List<DataWrappers.ProductDetails>>)
+    fun onPricesUpdated(iapKeyPrices: Map<String, DataWrappers.ProductDetails>)
 
     /**
      * Callback will be triggered when a purchase was failed.

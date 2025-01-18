@@ -102,11 +102,11 @@ class JavaSampleActivity extends AppCompatActivity {
         );
 
         binding.btnMonthly.setOnClickListener(it ->
-                iapConnector.subscribe(this, "subscription", null, null)
+                iapConnector.subscribe(this, "subscription", null, null, null)
         );
 
         binding.btnYearly.setOnClickListener(it ->
-                iapConnector.subscribe(this, "yearly", null, null)
+                iapConnector.subscribe(this, "yearly", null, null, null)
         );
 
         binding.btnQuite.setOnClickListener(it ->

@@ -82,19 +82,19 @@ class BillingService(
             return
         }
 
-        launchBillingFlow(activity, sku, BillingClient.ProductType.INAPP, obfuscatedAccountId, obfuscatedProfileId)
+        launchBillingFlow(activity, sku, BillingClient.ProductType.INAPP, null, obfuscatedAccountId, obfuscatedProfileId)
     }
 
-    override fun subscribe(activity: Activity, sku: String, obfuscatedAccountId: String?, obfuscatedProfileId: String?) {
+    override fun subscribe(activity: Activity, sku: String, offerId: String?, obfuscatedAccountId: String?, obfuscatedProfileId: String?) {
         if (!sku.isProductReady()) {
             log("buy. Google billing service is not ready yet. (SKU is not ready yet -2)")
             return
         }
 
-        launchBillingFlow(activity, sku, BillingClient.ProductType.SUBS, obfuscatedAccountId, obfuscatedProfileId)
+        launchBillingFlow(activity, sku, BillingClient.ProductType.SUBS, offerId, obfuscatedAccountId, obfuscatedProfileId)
     }
 
-    private fun launchBillingFlow(activity: Activity, sku: String, type: String, obfuscatedAccountId: String?, obfuscatedProfileId: String?) {
+    private fun launchBillingFlow(activity: Activity, sku: String, type: String, offerId: String?, obfuscatedAccountId: String?, obfuscatedProfileId: String?) {
         sku.toProductDetails(type) { productDetails ->
             if (productDetails != null) {
 
@@ -102,8 +102,14 @@ class BillingService(
                 val builder = BillingFlowParams.ProductDetailsParams.newBuilder()
                     .setProductDetails(productDetails)
 
-                if(type == BillingClient.ProductType.SUBS){
-                    productDetails.subscriptionOfferDetails?.getOrNull(0)?.let {
+                if(type == BillingClient.ProductType.SUBS) {
+                    var index = 0
+                    productDetails.subscriptionOfferDetails?.indexOfFirst { it.offerId == offerId }?.also {
+                        if (it >= 0) {
+                            index = it
+                        }
+                    }
+                    productDetails.subscriptionOfferDetails?.getOrNull(index)?.also {
                         builder.setOfferToken(it.offerToken)
                     }
                 }
@@ -306,30 +312,49 @@ class BillingService(
                     entry.value?.let {
                         when(it.productType){
                             BillingClient.ProductType.SUBS->{
-                                entry.key to (it.subscriptionOfferDetails?.getOrNull(0)?.pricingPhases?.pricingPhaseList?.map { pricingPhase ->
-                                    DataWrappers.ProductDetails(
-                                        title = it.title,
-                                        description = it.description,
-                                        priceCurrencyCode = pricingPhase.priceCurrencyCode,
-                                        price = pricingPhase.formattedPrice,
-                                        priceAmount = pricingPhase.priceAmountMicros.div(1000000.0),
-                                        billingCycleCount = pricingPhase.billingCycleCount,
-                                        billingPeriod = pricingPhase.billingPeriod,
-                                        recurrenceMode = pricingPhase.recurrenceMode
-                                    )
-                                } ?: listOf())
-                            }
-                            else->{
-                                entry.key to listOf(DataWrappers.ProductDetails(
+                                entry.key to  DataWrappers.ProductDetails(
                                     title = it.title,
                                     description = it.description,
-                                    priceCurrencyCode = it.oneTimePurchaseOfferDetails?.priceCurrencyCode,
-                                    price = it.oneTimePurchaseOfferDetails?.formattedPrice,
-                                    priceAmount = it.oneTimePurchaseOfferDetails?.priceAmountMicros?.div(1000000.0),
-                                    billingCycleCount = null,
-                                    billingPeriod = null,
-                                    recurrenceMode = ProductDetails.RecurrenceMode.NON_RECURRING
-                                ))
+                                    offers = it.subscriptionOfferDetails?.map { offerDetails ->
+                                        DataWrappers.Offer(
+                                            id = offerDetails.offerId,
+                                            token = offerDetails.offerToken,
+                                            tags = offerDetails.offerTags,
+                                            pricingPhases = offerDetails.pricingPhases.pricingPhaseList.map { pricingPhase ->
+                                                DataWrappers.PricingPhase(
+                                                    priceCurrencyCode = pricingPhase.priceCurrencyCode,
+                                                    price = pricingPhase.formattedPrice,
+                                                    priceAmount = pricingPhase.priceAmountMicros.div(1000000.0),
+                                                    billingCycleCount = pricingPhase.billingCycleCount,
+                                                    billingPeriod = pricingPhase.billingPeriod,
+                                                    recurrenceMode = pricingPhase.recurrenceMode
+                                                )
+                                            }
+                                        )
+                                    }
+                                )
+                            }
+                            else->{
+                                entry.key to DataWrappers.ProductDetails(
+                                    title = it.title,
+                                    description = it.description,
+                                    offers = it.oneTimePurchaseOfferDetails?.let { offerDetails ->
+                                        listOf(DataWrappers.Offer(
+                                            id = null,
+                                            token = null,
+                                            tags = null,
+                                            pricingPhases = listOf(
+                                                DataWrappers.PricingPhase(
+                                                    priceCurrencyCode = offerDetails.priceCurrencyCode,
+                                                    price = offerDetails.formattedPrice,
+                                                    priceAmount = offerDetails.priceAmountMicros.div(1000000.0),
+                                                    billingCycleCount = null,
+                                                    billingPeriod = null,
+                                                    recurrenceMode = ProductDetails.RecurrenceMode.NON_RECURRING
+                                            ))
+                                        ))
+                                    } ?: listOf()
+                                )
                             }
                         }
                     }

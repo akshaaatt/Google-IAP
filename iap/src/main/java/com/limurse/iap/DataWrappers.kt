@@ -7,12 +7,7 @@ class DataWrappers {
     data class ProductDetails(
         val title: String?,
         val description: String?,
-        val price: String?,
-        val priceAmount: Double?,
-        val priceCurrencyCode: String?,
-        val billingCycleCount: Int?,
-        val billingPeriod: String?,
-        val recurrenceMode: Int?
+        val offers: List<Offer>?
     )
 
     data class PurchaseInfo(
@@ -28,5 +23,21 @@ class DataWrappers {
         val signature: String,
         val sku: String,
         val accountIdentifiers: AccountIdentifiers?
+    )
+
+    data class Offer(
+        val id: String?,
+        val token: String?,
+        val tags: List<String>?,
+        val pricingPhases: List<PricingPhase>
+    )
+
+    data class PricingPhase(
+        val price: String?,
+        val priceAmount: Double?,
+        val priceCurrencyCode: String?,
+        val billingCycleCount: Int?,
+        val billingPeriod: String?,
+        val recurrenceMode: Int?
     )
 }
