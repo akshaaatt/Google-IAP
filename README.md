@@ -61,7 +61,7 @@ allprojects {
 
 ```groovy
 dependencies {
-    implementation 'com.github.akshaaatt:Google-IAP:1.7.0'
+    implementation 'com.github.akshaaatt:Google-IAP:1.8.0'
 }
 ```
         
