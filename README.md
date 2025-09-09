@@ -145,22 +145,6 @@ iapConnector.unsubscribe(this, "<sku>")
 
 ## Apps Using this Library
 
-* https://play.google.com/store/apps/details?id=com.redalck.gameone
-
-* https://play.google.com/store/apps/details?id=com.redalck.gametwo
-
-* https://play.google.com/store/apps/details?id=com.redalck.gamethree
-
-* https://play.google.com/store/apps/details?id=com.redalck.gamefour
-
-* https://play.google.com/store/apps/details?id=com.redalck.gamefive
-	    
-* https://play.google.com/store/apps/details?id=com.redalck.gamesix
-	    
-* https://play.google.com/store/apps/details?id=com.redalck.gameseven
-	    
-* https://play.google.com/store/apps/details?id=com.redalck.gameeight
-
 * https://play.google.com/store/apps/details?id=daily.status.earn.money
 	    
 ## License
