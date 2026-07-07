@@ -29,7 +29,10 @@ class BillingService(
         decodedKey = key
         mBillingClient = BillingClient.newBuilder(context)
             .setListener(this)
-            .enablePendingPurchases()
+            .enablePendingPurchases(
+                PendingPurchasesParams.newBuilder()
+                .enableOneTimeProducts()
+                .build())
             .build()
         mBillingClient.startConnection(object : BillingClientStateListener{
             override fun onBillingServiceDisconnected() {
@@ -308,27 +311,8 @@ class BillingService(
         mBillingClient.queryProductDetailsAsync(params.build()) { billingResult, productDetailsList ->
             if (billingResult.isOk()) {
                 isBillingClientConnected(true, billingResult.responseCode)
-                productDetailsList?.let { list ->
-                    // Log the type to understand what we're dealing with
-                    log("Product details list type: ${list::class.java.name}")
-                    log("Product details list: $list")
-                    
-                    // Try to access using reflection or other methods
-                    try {
-                        val sizeMethod = list::class.java.getMethod("size")
-                        val size = sizeMethod.invoke(list) as Int
-                        log("Product details list size: $size")
-                        
-                        for (i in 0 until size) {
-                            val getMethod = list::class.java.getMethod("get", Int::class.java)
-                            val productDetail = getMethod.invoke(list, i)
-                            if (productDetail is ProductDetails) {
-                                productDetails[productDetail.productId] = productDetail
-                            }
-                        }
-                    } catch (e: Exception) {
-                        log("Failed to access product details list: ${e.message}")
-                    }
+                productDetailsList.productDetailsList.forEach {
+                    productDetails[it.productId] = it
                 }
 
                 productDetails.mapNotNull { entry ->
@@ -420,30 +404,7 @@ class BillingService(
             when {
                 billingResult.isOk() -> {
                     isBillingClientConnected(true, billingResult.responseCode)
-                    val productDetails: ProductDetails? = productDetailsList?.let { list ->
-                        // Log the type to understand what we're dealing with
-                        log("Product details list type: ${list::class.java.name}")
-                        log("Product details list: $list")
-                        
-                        // Try to access using reflection or other methods
-                        try {
-                            val sizeMethod = list::class.java.getMethod("size")
-                            val size = sizeMethod.invoke(list) as Int
-                            log("Product details list size: $size")
-                            
-                            for (i in 0 until size) {
-                                val getMethod = list::class.java.getMethod("get", Int::class.java)
-                                val productDetail = getMethod.invoke(list, i)
-                                if (productDetail is ProductDetails && productDetail.productId == this) {
-                                    return@let productDetail
-                                }
-                            }
-                        } catch (e: Exception) {
-                            log("Failed to access product details list: ${e.message}")
-                        }
-                        null
-                    }
-                   // productDetails[this] = productDetails
+                    val productDetails: ProductDetails? = productDetailsList.productDetailsList.find { it.productId == this }
                     done(productDetails)
                 }
                 else -> {
