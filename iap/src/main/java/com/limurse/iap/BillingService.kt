@@ -29,7 +29,10 @@ class BillingService(
         decodedKey = key
         mBillingClient = BillingClient.newBuilder(context)
             .setListener(this)
-            .enablePendingPurchases()
+            .enablePendingPurchases(
+                PendingPurchasesParams.newBuilder()
+                .enableOneTimeProducts()
+                .build())
             .build()
         mBillingClient.startConnection(object : BillingClientStateListener{
             override fun onBillingServiceDisconnected() {
